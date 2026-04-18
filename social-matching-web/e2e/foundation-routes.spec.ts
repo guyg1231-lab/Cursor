@@ -10,7 +10,7 @@ test.describe('foundation routes', () => {
     const page = await ctx.newPage();
 
     await page.goto('/host/events/future-workspace');
-    await expect(page.getByRole('heading', { name: 'Host event workspace' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Host event workspace' })).toBeVisible();
     await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
 
     await ctx.close();
@@ -22,7 +22,7 @@ test.describe('foundation routes', () => {
     const page = await ctx.newPage();
 
     await page.goto('/admin/events/future-event/diagnostics');
-    await expect(page.getByRole('heading', { name: 'Operator diagnostics' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
     await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
 
     await ctx.close();
