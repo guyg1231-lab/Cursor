@@ -407,4 +407,20 @@ test.describe('participant foundation', () => {
 
     await ctx.close();
   });
+
+  test('gathering page frames itself as a participant gathering view and links to event details', async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    try {
+      await page.goto(`/gathering/${ENV.EVENT_ID}`);
+      await expect(page.getByText(/תצוגת המפגש|טופס הגשה מהיר/)).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לאזור האישי' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
 });

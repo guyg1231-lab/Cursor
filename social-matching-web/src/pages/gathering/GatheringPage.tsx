@@ -291,7 +291,10 @@ export function GatheringPage() {
   const trimmedDescription = event.description?.trim() || null;
 
   return (
-    <PageShell title={event.title} subtitle="מפגש קטן, קבוצה מוזמנת אישית.">
+    <PageShell
+      title={event.title}
+      subtitle="תצוגת המפגש עם טופס הגשה מהיר. לפרטי המפגש המלאים עברו לעמוד הפרטים."
+    >
       <PageActionBar>
         <Button asChild variant="outline">
           <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
