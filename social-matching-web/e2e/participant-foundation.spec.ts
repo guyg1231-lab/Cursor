@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
+import { createServiceRoleClient } from './fixtures/supabase';
 
 test.describe('participant foundation', () => {
   test('discovery links into canonical event detail before apply', async ({ page }) => {
@@ -54,6 +55,52 @@ test.describe('participant foundation', () => {
     await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
 
     await ctx.close();
+  });
+
+  test('dashboard lifecycle list shows event title and reserved status for confirmed application', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const { data: registration, error: regReadError } = await admin
+      .from('event_registrations')
+      .select('status')
+      .eq('event_id', ENV.EVENT_ID)
+      .eq('user_id', profile.id)
+      .maybeSingle();
+    if (regReadError) throw regReadError;
+    if (!registration) throw new Error('E2E missing P1 registration for E2E_EVENT_ID');
+
+    const previousStatus = registration.status;
+    const { error: confirmError } = await admin
+      .from('event_registrations')
+      .update({ status: 'confirmed' })
+      .eq('event_id', ENV.EVENT_ID)
+      .eq('user_id', profile.id);
+    if (confirmError) throw confirmError;
+
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.goto('/dashboard');
+      const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+      await expect(appsCard.getByText('המקום שלך שמור', { exact: true })).toBeVisible();
+    } finally {
+      const { error: restoreError } = await admin
+        .from('event_registrations')
+        .update({ status: previousStatus })
+        .eq('event_id', ENV.EVENT_ID)
+        .eq('user_id', profile.id);
+      if (restoreError) throw restoreError;
+      await ctx.close();
+    }
   });
 
   test('unauthenticated apply preserves returnTo through sign-in', async ({ page }) => {
