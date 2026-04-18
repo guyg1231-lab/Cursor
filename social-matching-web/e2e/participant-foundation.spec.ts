@@ -57,7 +57,7 @@ test.describe('participant foundation', () => {
     await ctx.close();
   });
 
-  test('dashboard lifecycle list shows event title and reserved status for confirmed application', async ({ browser }) => {
+  test('dashboard lifecycle list shows reserved status chip for confirmed application', async ({ browser }) => {
     const admin = createServiceRoleClient();
     const { data: profile, error: profileError } = await admin
       .from('profiles')
@@ -93,13 +93,23 @@ test.describe('participant foundation', () => {
       const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
       await expect(appsCard.getByText('המקום שלך שמור', { exact: true })).toBeVisible();
     } finally {
-      const { error: restoreError } = await admin
-        .from('event_registrations')
-        .update({ status: previousStatus })
-        .eq('event_id', ENV.EVENT_ID)
-        .eq('user_id', profile.id);
-      if (restoreError) throw restoreError;
-      await ctx.close();
+      try {
+        await ctx.close();
+      } catch {
+        // Ignore browser context close failures during teardown.
+      }
+      try {
+        const { error: restoreError } = await admin
+          .from('event_registrations')
+          .update({ status: previousStatus })
+          .eq('event_id', ENV.EVENT_ID)
+          .eq('user_id', profile.id);
+        if (restoreError) throw restoreError;
+      } catch (restoreError) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to restore P1 application status', restoreError);
+        throw restoreError;
+      }
     }
   });
 
