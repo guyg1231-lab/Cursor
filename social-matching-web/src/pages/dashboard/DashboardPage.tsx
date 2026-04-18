@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteEmptyState, RouteErrorState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuestionnaireReadyState } from '@/features/applications/api';
@@ -17,7 +18,7 @@ export function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [applications, setApplications] = useState<DashboardApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [applicationsLoadError, setApplicationsLoadError] = useState(false);
   const [profileReady, setProfileReady] = useState(false);
   const [readinessLoading, setReadinessLoading] = useState(true);
 
@@ -31,7 +32,7 @@ export function DashboardPage() {
       }
       setIsLoading(true);
       setReadinessLoading(true);
-      setError(null);
+      setApplicationsLoadError(false);
 
       try {
         const [data, readyState] = await Promise.all([
@@ -44,7 +45,7 @@ export function DashboardPage() {
         setProfileReady(readyState.ready);
       } catch {
         if (!active) return;
-        setError('לא הצלחנו לטעון כרגע את ההגשות שלך.');
+        setApplicationsLoadError(true);
         setProfileReady(false);
       } finally {
         if (active) {
@@ -89,11 +90,14 @@ export function DashboardPage() {
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             {isLoading ? (
               <p>טוענים הגשות...</p>
-            ) : error ? (
-              <p className="text-destructive">{error}</p>
+            ) : applicationsLoadError ? (
+              <RouteErrorState title="שגיאה בטעינת ההגשות" body="ניסיון מחדש בעוד רגע" />
             ) : applications.length === 0 ? (
               <div className="space-y-3">
-                <p>עדיין לא שלחת הגשה למפגש.</p>
+                <RouteEmptyState
+                  title="אין עדיין הגשות"
+                  body="כשתגישו למפגש פתוח, הסטטוס והצעדים הבאים יופיעו כאן."
+                />
                 <Button asChild variant="primary">
                   <Link to="/events">למפגשים פתוחים</Link>
                 </Button>
