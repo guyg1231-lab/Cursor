@@ -3,7 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { safeLocalStorage } from '@/lib/safeStorage';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +22,7 @@ import {
   canConfirmTemporarySpot,
   canReapplyToEvent,
   formatApplicationStatusDetailed,
+  formatApplicationStatusShort,
   formatLifecycleDateTime,
   isAwaitingParticipantResponse,
   isConfirmedParticipation,
@@ -393,9 +396,7 @@ export function ApplyPage() {
   if (error) {
     return (
       <PageShell title="הגשת מועמדות למפגש" subtitle="לא הצלחנו לטעון את הדף כרגע.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-destructive">{error}</CardContent>
-        </Card>
+        <RouteErrorState title="לא הצלחנו לטעון את פרטי ההגשה" body={error} />
       </PageShell>
     );
   }
@@ -487,6 +488,7 @@ export function ApplyPage() {
   }
 
   if (existingApplication && !canReapplyToEvent(existingApplication.status)) {
+    const blockingPanel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
         title="סטטוס ההרשמה"
@@ -498,14 +500,12 @@ export function ApplyPage() {
       >
         <div className="space-y-4">
           <ApplicationStatusPanel
-            title="כבר קיימת הגשה למפגש הזה"
-            body={formatApplicationStatusDetailed(existingApplication.status)}
+            title={blockingPanel.title}
+            body={blockingPanel.body}
+            footer={blockingPanel.footer ? <p>{blockingPanel.footer}</p> : undefined}
           />
           <Card className={tokens.card.surface}>
-            <CardHeader>
-              <CardTitle className="text-xl">{confirmedParticipation ? 'מצב המקום שלך' : 'מצב ההגשה שלך'}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <CardContent className="space-y-3 py-6 text-sm text-muted-foreground">
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               <p>ברגע שיהיה שינוי בסטטוס, זה יופיע כאן ובהמשך גם בדשבורד.</p>
               <div className="flex gap-3 pt-2">
@@ -534,14 +534,15 @@ export function ApplyPage() {
   if (!event.is_registration_open) {
     return (
       <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח להגשות חדשות.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>אפשר לחזור למסך המפגשים ולבדוק אם יש מפגש אחר שפתוח להגשה כרגע.</p>
-            <Button asChild variant="outline">
-              <Link to="/events">חזרה לכל המפגשים</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <ApplicationStatusPanel
+            title="ההגשות למפגש הזה סגורות כרגע"
+            body="אפשר לחזור לרשימת המפגשים ולבדוק אם יש מפגש אחר שפתוח להגשה."
+          />
+          <Button asChild variant="outline">
+            <Link to="/events">חזרה לכל המפגשים</Link>
+          </Button>
+        </div>
       </PageShell>
     );
   }
@@ -551,15 +552,11 @@ export function ApplyPage() {
       <PageShell title="הגשה למפגש – פרופיל חסר" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
         <div className="space-y-4">
           <ApplicationStatusPanel
-            title="לפני שממשיכים להגשה"
-            body="צריך להשלים את הפרופיל והשאלון לפני שאפשר להגיש למפגש הזה."
+            title="צריך להשלים את השאלון לפני ההגשה"
+            body="כדי שנוכל לשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל."
           />
           <Card className={tokens.card.surface}>
             <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-              <p>
-                כלל ה-MVP הזמני למסך הזה: משתמש/ת נחשב/ת מוכן/ה להגשה אם יש `matching_responses.completed_at`
-                או אם `profiles.funnel_status` כבר עבר את שלב `needs_questionnaire`.
-              </p>
               <div className="flex gap-3 pt-2">
                 <Button asChild variant="primary">
                   <Link to="/questionnaire">להשלמת הפרופיל</Link>
@@ -612,6 +609,12 @@ export function ApplyPage() {
       ) : null}
 
       <SectionDivider />
+
+      {existingApplication && canReapplyToEvent(existingApplication.status) ? (
+        <div className="mb-3">
+          <StatusBadge label={formatApplicationStatusShort(existingApplication.status)} />
+        </div>
+      ) : null}
 
       <Card className={tokens.card.surface}>
         <CardHeader>
@@ -683,7 +686,7 @@ export function ApplyPage() {
           </label>
 
           {savedMessage ? <p className="text-sm text-primary">{savedMessage}</p> : null}
-          {submitError ? <p className="text-sm text-destructive">{submitError}</p> : null}
+          {submitError ? <RouteErrorState title="לא הצלחנו לשמור את ההגשה" body={submitError} /> : null}
 
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={saveDraft} disabled={isSubmitting}>
