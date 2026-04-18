@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circles V3 — Preflight Action Plan</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      line-height: 1.5;
+      color: #333;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      background: #fafafa;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+      color: #1a1a1a;
+    }
+    .subtitle {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid #e0e0e0;
+      color: #1a1a1a;
+    }
+    section {
+      margin-bottom: 2rem;
+    }
+    .overview {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .overview p { margin: 0 0 0.75rem 0; }
+    .overview p:last-child { margin-bottom: 0; }
+    .overview strong { color: #1a1a1a; }
+    .must-fix {
+      background: #fff;
+      border-left: 4px solid #c62828;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .optional {
+      background: #fff;
+      border-left: 4px solid #1565c0;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .deferred {
+      background: #fff;
+      border-left: 4px solid #6d6d6d;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .action-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0 0.35rem 0;
+      color: #1a1a1a;
+    }
+    .action-meta {
+      font-size: 0.8125rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    .action-meta span { margin-right: 1rem; }
+    .action-meta .risk-low { color: #2e7d32; }
+    .action-meta .risk-medium { color: #e65100; }
+    .action p {
+      margin: 0;
+      font-size: 0.9375rem;
+      color: #444;
+    }
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .summary-table th,
+    .summary-table td {
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-table th {
+      background: #f5f5f5;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .status-must { color: #c62828; font-weight: 500; }
+    .status-optional { color: #1565c0; font-weight: 500; }
+    .status-deferred { color: #6d6d6d; font-weight: 500; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e0e0e0;
+      font-size: 0.8125rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Circles V3 — Preflight Action Plan</h1>
+  <p class="subtitle">Internal review · Same structure and decisions as 12_Preflight_Action_Plan_Clean.md</p>
+
+  <!-- Executive Overview -->
+  <h2>Executive Overview</h2>
+  <section class="overview">
+    <p><strong>Goal of Preflight:</strong> Align the V3 matching system with what we say it does—questionnaire, docs, and code—before 2–3 field events. Focus is truth alignment: fix mismatches, prevent false learning, make diagnostics interpretable.</p>
+    <p><strong>Locked for V3:</strong> Expectation-based scoring (five dimensions) is the sole source of truth. V3 questionnaire weights are design reference only. No new heuristics in scope for field. Constraints (gender, language, friends, table size, leader cap) unchanged. Talk/Listen and similar signals marked experimental.</p>
+    <p><strong>Must be done before field:</strong> (1) Q15 Removal & score normalization—align code with V3 survey, max E/A raw score 15. (2) Gender balance pre-check—validate before consolidation moves so we never output invalid tables in cleanup.</p>
+    <p><strong>Explicitly deferred:</strong> Story Matching (Oleh/Moved/Local) and Talker Penalty—behavior changes; revisit after field data. Optional pre-field: EnergyRole naming standardization and Observability tools (no behavior change).</p>
+    <p><strong>V3 ready when:</strong> Both must-fix actions complete; preflight checklist satisfied; no behavioral changes beyond those two for the 2–3 event test. After events, review data and decide on deferred items.</p>
+  </section>
+
+  <!-- Must-Fix -->
+  <h2>Must-Fix Before Field (Alignment / Truth)</h2>
+  <p style="font-size:0.875rem; color:#666; margin:0 0 0.75rem 0;">Required before any field event. Fix logical or contractual mismatches; prevent false learning or broken expectations.</p>
+
+  <section class="must-fix action">
+    <p class="action-title">Q15 Removal & Score Normalization</p>
+    <p>Q15 (Social comfort) is removed from scoring so code matches the V3 survey. Max raw score per E/A dimension becomes 15 (was 18). This removes a redundant signal and aligns implementation with the declared source of truth. Without it, role assignment and scores use a scale that no longer matches the questionnaire, which would distort field learning and diagnostics.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-low">Low</span></span><span>Status: <span class="status-must">MUST</span></span></p>
+  </section>
+
+  <section class="must-fix action">
+    <p class="action-title">Gender Balance Pre-Check</p>
+    <p>Gender balance is validated before any consolidation move in table formation. Tables that would become all-male or otherwise violate gender rules (M ≤ F, no isolation) during the final cleanup phase are not accepted. This fixes a logical gap: the algorithm could previously output invalid tables in that phase. Without the pre-check, we risk broken expectations (tables that violate stated policy) and unreliable field results.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-medium">Medium</span></span><span>Status: <span class="status-must">MUST</span></span></p>
+  </section>
+
+  <!-- Optional -->
+  <h2>Safe-to-Add (Optional Pre-Field)</h2>
+  <p style="font-size:0.875rem; color:#666; margin:0 0 0.75rem 0;">Improve observability or operational clarity. Do not materially change matching behavior.</p>
+
+  <section class="optional action">
+    <p class="action-title">EnergyRole Naming Standardization</p>
+    <p>Internal role names in code are aligned with documentation and UI: driver → leader, space_holder → holder, balancer → flexible, quiet_warmer → quiet. Scoring math is unchanged; only naming and diagnostic labels change. This removes silent mismatches between code and docs so admins and post-event analysis interpret results correctly.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-low">Low</span></span><span>Status: <span class="status-optional">OPTIONAL</span></span></p>
+  </section>
+
+  <section class="optional action">
+    <p class="action-title">Observability Tools</p>
+    <p>Feasibility and placement diagnostics are enabled for the ops team during events. Admins can see why participants were placed or not placed and assess feasibility. The tools do not alter matching results; they only improve operational clarity and post-event analysis.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-low">Low</span></span><span>Status: <span class="status-optional">OPTIONAL</span></span></p>
+  </section>
+
+  <!-- Deferred -->
+  <h2>Deferred (Post-Field / Iteration Candidates)</h2>
+  <p style="font-size:0.875rem; color:#666; margin:0 0 0.75rem 0;">Change behavior or heuristics. Interesting but risky for a short 2–3 event field test. Revisit after V3 field data.</p>
+
+  <section class="deferred action">
+    <p class="action-title">Story Matching (Oleh / Moved / Local)</p>
+    <p>New scoring component: participant "story" is derived from origin and current location (e.g. Oleh, Moved, Local). Bonuses apply when two participants share the same story (+15 dual Oleh, +10 same category, cap 15). This aims to improve connection likelihood for similar-life-story pairs but changes table composition and scores. For a short test, the risk of over-homogenization or weak predictor (like interest overlap) outweighs the benefit; better to validate baseline first, then iterate.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-medium">Medium</span></span><span>Status: <span class="status-deferred">DEFERRED</span></span></p>
+  </section>
+
+  <section class="deferred action">
+    <p class="action-title">Talker Penalty (TOO_MANY_TALKERS)</p>
+    <p>When a table has 3+ "talkers," a 0.80 penalty is applied to that table’s score to reduce dominated conversations. Talk/listen is self-reported and its reliability is uncertain. Adding a new penalty based on it for 2–3 events risks over-penalizing acceptable tables or misclassifying participants; better to observe talk/listen in field first, then consider the penalty in a later iteration.</p>
+    <p class="action-meta"><span>Risk: <span class="risk-medium">Medium</span></span><span>Status: <span class="status-deferred">DEFERRED</span></span></p>
+  </section>
+
+  <!-- Summary -->
+  <h2>Summary</h2>
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Status</th>
+        <th>Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Q15 Removal</td>
+        <td class="status-must">MUST</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td>Gender Balance Pre-Check</td>
+        <td class="status-must">MUST</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td>EnergyRole Naming Standard</td>
+        <td class="status-optional">OPTIONAL</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td>Observability Tools</td>
+        <td class="status-optional">OPTIONAL</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td>Story Matching</td>
+        <td class="status-deferred">DEFERRED</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td>Talker Penalty</td>
+        <td class="status-deferred">DEFERRED</td>
+        <td>Medium</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Circles V3 Preflight Action Plan · Same structure and decisions as 12_Preflight_Action_Plan_Clean.md and 12A_Preflight_Executive_Summary.md · No new actions; no changed decisions.
+  </footer>
+
+</body>
+</html>

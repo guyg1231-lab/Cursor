@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>השוואה בין מקורות — Preflight גרסה V3</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Heebo', 'Assistant', sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+      background: #f5f6f7;
+      direction: rtl;
+    }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: #0d47a1;
+    }
+    .intro {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .intro p { margin: 0 0 0.5rem 0; }
+    .intro p:last-child { margin-bottom: 0; }
+    .intro strong { color: #0d47a1; }
+    nav.toc {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 1.5rem 0;
+    }
+    nav.toc h2 { font-size: 1rem; margin: 0 0 0.75rem 0; color: #333; }
+    nav.toc ul { margin: 0; padding: 0 0 0 1.25rem; list-style: none; }
+    nav.toc li { margin: 0.35rem 0; }
+    nav.toc a { color: #1565c0; text-decoration: none; font-size: 0.9rem; }
+    nav.toc a:hover { text-decoration: underline; }
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid #e0e0e0;
+      color: #0d47a1;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.15rem 1.4rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin: 0 0 0.5rem 0;
+      color: #1a1a1a;
+    }
+    .card-desc { font-size: 0.9rem; color: #444; margin: 0 0 0.75rem 0; }
+    .sources-comp {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.875rem;
+    }
+    .sources-comp h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: #495057;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+    .sources-comp p { margin: 0.35rem 0; color: #333; }
+    .sources-comp .main { color: #0d47a1; }
+    .sources-comp .dev { color: #1565c0; }
+    .sources-comp .cursor { color: #2e7d32; }
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #666;
+      margin-top: 0.6rem;
+      margin-bottom: 0.2rem;
+    }
+    .card p { margin: 0.35rem 0; font-size: 0.9rem; color: #444; }
+    .card .status {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+    .status-lock { background: #e3f2fd; color: #0d47a1; }
+    .status-defer { background: #f5f5f5; color: #616161; }
+    .status-investigate { background: #fff3e0; color: #e65100; }
+    .status-ignore { background: #fafafa; color: #757575; border: 1px solid #eee; }
+    .status-experimental { background: #f3e5f5; color: #6a1b9a; }
+    .legend {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin: 1.5rem 0 1rem 0;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    .legend h3 { font-size: 0.9rem; margin: 0 0 0.5rem 0; color: #333; }
+    .legend span { margin-left: 0.75rem; }
+    .legend .status-lock { margin-left: 0; }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e0e0e0;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .card { padding: 1rem; }
+      .sources-comp { padding: 0.7rem; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>השוואה בין מקורות — Preflight גרסה V3</h1>
+
+  <section class="intro">
+    <p><strong>מה זה המסמך:</strong> אימות צולב של שלוש זוויות מבט על מערכת Circles V3 — בייסליין (main), שינויים בענף הפיתוח (dev), וזיהוי וניתוח ב-Cursor — לפני יציאה לשטח.</p>
+    <p><strong>למה הוא חשוב:</strong> מאפשר להבין במהירות איפה יש חיזוק בין מקורות (main / dev / Cursor), איפה יש פער, ומה המשמעות ל-V3 וליציאה לשטח. כל פריט מציג במפורש: מה היה ב-main, מה שונה ב-dev, וכיצד Cursor זיהה או לא זיהה את הנושא.</p>
+  </section>
+
+  <div class="legend">
+    <h3>מקרא סטטוסים</h3>
+    <span class="status status-lock">ננעל</span>
+    <span class="status status-defer">נדחה לאחרי שטח</span>
+    <span class="status status-experimental">נשאר ניסיוני</span>
+    <span class="status status-investigate">לבדוק בהמשך</span>
+    <span class="status status-ignore">התעלם ל-V3</span>
+  </div>
+
+  <nav class="toc">
+    <h2>תוכן עניינים</h2>
+    <ul>
+      <li><a href="#a">א. התאמה חזקה (Strong Alignment)</a></li>
+      <li><a href="#b">ב. תובנה מצד Dev בלבד</a></li>
+      <li><a href="#c">ג. תובנה מצד Cursor בלבד</a></li>
+      <li><a href="#d">ד. לא טופל / הוזנח</a></li>
+    </ul>
+  </nav>
+
+  <!-- A. Strong Alignment -->
+  <h2 id="a">א. התאמה חזקה (Strong Alignment)</h2>
+  <p style="font-size:0.9rem; color:#555; margin:0 0 1rem 0;">זוהו הן בשינויי ה-dev והן בניתוח Cursor; מועמדים ברמת ביטחון גבוהה.</p>
+
+  <article class="card" id="card-q15">
+    <div class="card-title">הסרת Q15 ואיחוד סקאלת הציון</div>
+    <p class="card-desc">הסרת Q15 (נוחות חברתית) מחישוב הציון; ציון גולמי מקסימלי ל-E/A לממד 15 (במקום 18). יישור הקוד לסקר V3 והסרת אות מיותר.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> Q15 נכלל בחישוב הציון; ציון גולמי מקסימלי לממד E/A היה 18.</p>
+      <p class="dev"><strong>dev:</strong> הסרת Q15 מהלוגיקה; ציון גולמי מקסימלי לממד 15 (TAKE_NOW, Preflight Alignment).</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-12_Clean כ-MUST; ב-07 בהקשר מקור אמת לציון; ב-08 בהקשר תפקידים וסקאלה. המליץ על חובה לתיקון לפני שטח.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>שני הזרמים מסכימים שזה תיקון לפני שטח. מונע למידה כוזבת ותומך במקור אמת אחד לציון.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — חובה לתיקון לפני שטח.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>התאמה חיזוי–משוב; דיוק הקצאת תפקידים; CSAT, זרימה, הכללה.</p>
+  </article>
+
+  <article class="card" id="card-gender">
+    <div class="card-title">בדיקת איזון מגדר מראש (Gender Balance Pre-Check)</div>
+    <p class="card-desc">אימות איזון מגדר לפני צעדי איחוד בבניית השולחנות; האלגוריתם לא יפלוט שולחנות גבריים בלבד או לא תקינים בשלב הניקוי.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> בשלב הניקוי (consolidation) האלגוריתם היה עלול להפיק שולחנות לא תקינים מבחינת איזון מגדר (פער לוגי).</p>
+      <p class="dev"><strong>dev:</strong> נוספה בדיקת איזון מגדר לפני צעדי איחוד (TAKE_NOW, Preflight Alignment).</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-12_Clean כ-MUST; ב-08 בהקשר אילוצים קשיחים ובידוד מגדרי. המליץ על חובה לתיקון לפני שטח.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>סוגר פער לוגי; מונע שולחנות שמפרים מדיניות ותוצאות שטח לא אמינות.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — חובה לתיקון לפני שטח.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>שיעור השמה, השלמת שולחן; נוחות והכללה; משוב אי-השמה.</p>
+  </article>
+
+  <article class="card" id="card-naming">
+    <div class="card-title">אחוד שמות תפקידי האנרגיה (EnergyRole Naming)</div>
+    <p class="card-desc">יישור שמות תפקידים פנימיים עם תיעוד ו-UI: driver→leader, space_holder→holder, balancer→flexible, quiet_warmer→quiet. ללא שינוי במתמטיקת הציון.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> בקוד נעשה שימוש בשמות driver, space_holder, balancer, quiet_warmer (חוסר התאמה שקטה לתיעוד ו-UI).</p>
+      <p class="dev"><strong>dev:</strong> שינוי שמות ל-leader, holder, flexible, quiet (TAKE_NOW).</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-08 כאטימות דיאגנוסטית; ב-12_Clean סווג כאופציונלי. כיוון זהה ל-dev; לא חוסם השקה.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Dev מממש; Cursor מציין שתוויות אדמין עלולות לא לשקף E/A ושחוסר התאמה שקט פוגע בדיאגנוסטיקה.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — לכלול לפני שטח אם יש קיבולת; לא חוסם השקה.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>שקיפות דיאגנוסטית; התאמה חיזוי–משוב.</p>
+  </article>
+
+  <article class="card" id="card-observability">
+    <div class="card-title">כלי Observability / שקיפות אילוצים קשיחים</div>
+    <p class="card-desc">הפעלת דיאגנוסטיקת היתכנות והשמה לצוות התפעול; הסבר למה משתתפים הושמו או לא; ללא שינוי בתוצאות ההתאמה.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> לא מתועד במסמך המקורי האם היו כלי דיאגנוסטיקה מלאים להיתכנות והשמה.</p>
+      <p class="dev"><strong>dev:</strong> "Deploy Admin Diagnostics" — הפעלת כלי דיאגנוסטיקה feasibility (TAKE_NOW).</p>
+      <p class="cursor"><strong>CURSOR:</strong> ב-07 דרישה מפורשת: רישום סיבת אי-השמה, מעקב שיעורי אי-השמה לפי אילוץ, מסרים למשתתפים לא מושמים. ב-12_Clean אופציונלי. כוונה זהה.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Dev מספק כלים; Cursor דורש רישום אי-השמה ושקיפות אילוצים. כוונה זהה.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — להפעיל לשטח; אופציונלי להשקה אך מומלץ.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>התאמה חיזוי–משוב; שיעורי אי-השמה לפי אילוץ.</p>
+  </article>
+
+  <article class="card" id="card-age-reject">
+    <div class="card-title">סובלנות גיל מבוססת Openness — דחייה</div>
+    <p class="card-desc">לא להגדיל סובלנות גיל ב-+2 שנים על בסיס ציון Openness; להשאיר דרגות גיל יציבות לניסויי שטח.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> לא מתועד במסמך המקורי אם שינוי כזה היה קיים בבייסליין.</p>
+      <p class="dev"><strong>dev:</strong> REJECT — "Roll Back Age Tier Modification"; לא להכניס הגדלת סובלנות גיל לפי Openness.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-08 כסובלנות גיל אסימטרית וסיכון; ב-03 כ-edge case fragility. תיעוד סיכון; מסכים עם אי-הכנסה ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Dev דוחה; Cursor מתעד סיכון. שני הצדדים מסכימים לא להוסיף התנהגות זו ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — לא להכניס לניסוי שטח V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>לא צוין במסמך המקורי.</p>
+  </article>
+
+  <!-- B. Dev-Only -->
+  <h2 id="b">ב. תובנה מצד Dev בלבד</h2>
+  <p style="font-size:0.9rem; color:#555; margin:0 0 1rem 0;">קיימת בענף הפיתוח או בדוח; לא הועלתה או לא קיבלה עדיפות בניתוח Cursor.</p>
+
+  <article class="card" id="card-story">
+    <div class="card-title">Story Matching כ-TAKE_NOW (עמדת Dev המקורית)</div>
+    <p class="card-desc">דוח Dev סימן Story Matching (עולה/עבר/מקומי) כ-TAKE_NOW עם מכסה 15. Cursor Clean סידר כ-DEFERRED לניסוי הקצר.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> לא קיימת לוגיקת בונוס לפי "סיפור" (מקור + מיקום נוכחי) במסמך המקורי.</p>
+      <p class="dev"><strong>dev:</strong> TAKE_NOW — לוגיקה חדשה לזיהוי "סיפור" (Oleh/Moved/Local), בונוס +15 / +10, מכסה 15.</p>
+      <p class="cursor"><strong>CURSOR:</strong> לא המליץ על TAKE_NOW. זוהה ב-12_Clean כ-DEFERRED; העריך יציבות בסיס ו-interest-overlap כחלש. התזמון נדרס על ידי Clean.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Dev העריך "דבק חברתי"; Cursor העריך יציבות בסיס. הערך מצד Dev; התזמון — דחייה — נעול ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-defer">נדחה לאחרי שטח</span> — אחרי נתוני שטח להעריך מחדש; מכסה 15 אם מתווסף.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>הסתברות חיבור; "מצאת מישהו עם סיפור חיים דומה"; שיעור חיבורים.</p>
+  </article>
+
+  <article class="card" id="card-talker">
+    <div class="card-title">Talker Penalty כ-TAKE_NOW (עמדת Dev המקורית)</div>
+    <p class="card-desc">דוח Dev סימן Talker Penalty (3+ מדברים → 0.80) כ-TAKE_NOW. Cursor Clean דחה — דיווח עצמי וניסוי קצר.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> לא קיים קנס לפי 3+ מדברים בבייסליין (לא מתועד במסמך המקורי).</p>
+      <p class="dev"><strong>dev:</strong> TAKE_NOW — זיהוי 3+ "talkers" בשולחן והחלת קנס 0.80.</p>
+      <p class="cursor"><strong>CURSOR:</strong> לא המליץ על TAKE_NOW. זוהה ב-12_Clean כ-DEFERRED; ב-07 Talk/Listen ניסיוני; ב-08 ביטחון LOW. דחיית הקנס — נעול ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Dev ביקש למנוע "cockfights"; Cursor ציין דיווח עצמי וחולשה. הכוונה מצד Dev; הדחייה נעולה ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-defer">נדחה לאחרי שטח</span> — לצפות ב-talk/listen בשטח; לשקול קנס באיטרציה מאוחרת.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>זרימת שיחה, איזון קול, היעדר דומיננטיות; CSAT.</p>
+  </article>
+
+  <article class="card" id="card-openness-defer">
+    <div class="card-title">Openness Score — DEFER ב-Dev</div>
+    <p class="card-desc">Dev דוחה במפורש "Openness Score" כשיפור היוריסטי. 08 מתייחס ל-Depth/Openness כרכיב ציון עם ביטחון LOW.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> לא מתועד במסמך המקורי אם היוריסטיקת Openness Score הייתה מוצעת או קיימת.</p>
+      <p class="dev"><strong>dev:</strong> DEFER — לא להוסיף שיפור היוריסטי Openness Score לשטח.</p>
+      <p class="cursor"><strong>CURSOR:</strong> לא הציע שינוי Openness. ב-08 Depth/Openness כרכיב ציון, ביטחון LOW. אין פריט פעולה; תוצאה מאוחדת.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>תוצאה מאוחדת; ה-DEFER המפורש מצד Dev.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — אין היוריסטיקת Openness לניסוי שטח V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>לא צוין במסמך המקורי.</p>
+  </article>
+
+  <!-- C. Cursor-Only -->
+  <h2 id="c">ג. תובנה מצד Cursor בלבד</h2>
+  <p style="font-size:0.9rem; color:#555; margin:0 0 1rem 0;">הועלתה במסמכי Cursor (07, 08, 12_Clean); לא טופלה בקוד או בדוח Dev.</p>
+
+  <article class="card" id="card-source-truth">
+    <div class="card-title">מקור אמת לציון (Expectation-Based)</div>
+    <p class="card-desc">להכריז על ציון מבוסס ציפיות (חמישה ממדים) כמקור האמת היחיד ל-V3; משקלי שאלון V3 reference עיצובי בלבד.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> קיימות שתי פרדיגמות במקביל — משקלי שאלון V3 (תיעוד) וציון expectation-based בקוד (07).</p>
+      <p class="dev"><strong>dev:</strong> לא מזכיר הכרזה על מקור אמת; לא שינוי קוד רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף א; ב-08 ארכיטקטורת ציון. החלטה: expectation-based כמקור אמת יחיד; V3 weights — reference בלבד.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>מסיר אי-ודאות במשמעות "איכות התאמה"; מונע ערבוב שני פרדיגמות.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — הוחלט ב-07; לנעול ל-V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>התאמה חיזוי–משוב; איכות חוויה.</p>
+  </article>
+
+  <article class="card" id="card-qmatch">
+    <div class="card-title">Q_MATCH כבוי ל-V3</div>
+    <p class="card-desc">Q_MATCH קיים ב-UX/תיעוד אך לא ממומש בקוד. החלטה: לכבות ל-V3, לא להשפיע על התאמה, לסמן ניסיוני/עתידי ב-UX.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> Q_MATCH קיים ב-UX ובתיעוד אך לא ממומש בקוד; כוונה נאספת אך לא משפיעה (07).</p>
+      <p class="dev"><strong>dev:</strong> לא מזכיר Q_MATCH; לא שינוי רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף ב. החלטה: לכבות ל-V3, לא לרשום כאות דיאגנוסטי.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>מונע למידה כוזבת ממימוש חלקי. הכרזה/UX בלבד.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — לנעול ל-V3; לא לרשום Q_MATCH כאות דיאגנוסטי.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>לא צוין במסמך המקורי.</p>
+  </article>
+
+  <article class="card" id="card-talk-listen-exp">
+    <div class="card-title">Talk/Listen מסומן ניסיוני</div>
+    <p class="card-desc">Talk/Listen נשאר בציון אך מסומן ניסיוני; לא להסביר תוצאות שולחן דרכו; לצפות רק בהתאמה איכותית למשוב שטח.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> Talk/Listen משפיע על ממדים (Flow, Energy Balance); אמינות דיווח עצמי לא ודאית (07, 08).</p>
+      <p class="dev"><strong>dev:</strong> הוסיף Talker Penalty (משתמש ב-talk/listen); Clean דחה את הקנס. ל-V3: האות עדיין בציון, בלי קנס חדש.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף ג; ב-08 Talk/Listen ביטחון LOW. החלטה: לסמן ניסיוני; לא לייחס תוצאות שולחן ל-Talk/Listen.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>ל-V3: Talk/Listen בציון, בלי קנס חדש; Cursor — "ניסיוני", לא לייחס תוצאות.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — לסמן ניסיוני בתיעוד; לא לייחס תוצאות. <span class="status status-experimental">נשאר ניסיוני</span>.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>זרימת שיחה, איזון קול; CSAT.</p>
+  </article>
+
+  <article class="card" id="card-sensitivity">
+    <div class="card-title">אותות רגישות/בטיחות — פסיביים בלבד</div>
+    <p class="card-desc">קלטים הקשורים לרגישות לא יגדירו השמה; שימוש רק בניתוח לאחר אירוע; תוצאות בטיחות מאומתות בשטח, לא חזויות.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> קלטי רגישות נאספים; מיפוי ל-Comfort/Inclusion לא ברור; שימוש לא שקוף (07, 08).</p>
+      <p class="dev"><strong>dev:</strong> לא מזכיר לוגיקת רגישות; לא שינוי רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף ד; ב-08 רגישות ביטחון LOW. החלטה: לא לחסום השמה; רק ניתוח לאחר אירוע. לאשר בקוד לפני שטח.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>מפחית סיכון over-segmentation או חסימה בלתי נראית.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-investigate">לבדוק בהמשך</span> — לאשר בקוד שרגישות לא חוסמת השמה לפני שטח.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>נוחות, הכללה; דיווחי אי-נוחות/תקרית.</p>
+  </article>
+
+  <article class="card" id="card-interests-depth">
+    <div class="card-title">אינטרסים ועומק — רכים בלבד, ללא כיוונון לפני שטח</div>
+    <p class="card-desc">אינטרסים ועומק מודיפיירים רכים בלבד; לא להציג כלוגיקת התאמה ראשית; רק ניתוח מתאם לאחר אירוע; ללא כיוונון/שינוי משקל לפני שטח.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> אינטרסים ועומק נאספים; כוח חיזוי חלש או לא ברור (07, 08).</p>
+      <p class="dev"><strong>dev:</strong> לא שינה לוגיקת אינטרסים/עומק; לא רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף ה; ב-08 אינטרסים חלש, עומק ביטחון LOW. החלטה: רכים בלבד; לא כיוונון לפני שטח.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>מיישר ציפיות עם כוח חיזוי חלש; מונע over-weighting לפני נתוני שטח.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — ללא שינוי משקל או הצגה כלוגיקה ראשית ל-V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>הסתברות חיבור; שיעור חיבורים; עומק שיחה.</p>
+  </article>
+
+  <article class="card" id="card-role-double">
+    <div class="card-title">ספירה כפולה של תפקידים — מתועדת, ללא שינוי</div>
+    <p class="card-desc">תפקידים (E/A) נספרים פעמיים ויש להם השפעה לא פרופורציונלית; לתעד, לעקוב בשטח, לא לאזן מחדש לפני ראיות שטח.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> תפקידים משפיעים על כמה ממדים; ספירה כפולה; השפעה לא פרופורציונלית (07, 08).</p>
+      <p class="dev"><strong>dev:</strong> שיפר שקיפות דיאגנוסטית (שמות EnergyRole); לא שינה ספירה כפולה.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-07 סעיף ו; ב-08 תפקידים ביטחון MEDIUM, סיכוני double-counting. החלטה: לתעד, לעקוב, לא לאזן מחדש; סיכון ידוע ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Cursor מקבל כסיכון ידוע ל-V3; Dev שיפר שמות בלבד.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — לתעד ב-08; לעקוב שולחנות כבדי-תפקיד; ללא איזון מחדש ל-V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>זרימה, איזון אנרגיה, הכללה; תפקיד מושם מול self-ID.</p>
+  </article>
+
+  <!-- D. Unaddressed -->
+  <h2 id="d">ד. לא טופל / הוזנח</h2>
+  <p style="font-size:0.9rem; color:#555; margin:0 0 1rem 0;">פערים או סיכונים ידועים שלא טופלו במפורש לא על ידי Dev ולא על ידי Cursor.</p>
+
+  <article class="card" id="card-gender-other">
+    <div class="card-title">טיפול במגדר "אחר" (Gender "Other")</div>
+    <p class="card-desc">"אחר" מטופל מתמטית כזכר לאיזון (08, 05). החלטה פתוחה: איך לטפל ב-Other; האם לשנות לוגיקת איזון.</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> "Other" מטופל כזכר בחישובי איזון (08, 05).</p>
+      <p class="dev"><strong>dev:</strong> לא טיפל בנושא; לא שינוי רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-08 וב-05; 07 לא פותר. לא הוצע שינוי ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>עלול להשפיע על נוחות/הכללה למשתתפים לא-בינאריים; אף זרם לא הציע שינוי ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-ignore">התעלם ל-V3</span> — לשמור התנהגות נוכחית; לצפות במשוב; לחזור ב-05 אחרי שטח.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>נוחות, הכללה לפי הרכב מגדר.</p>
+  </article>
+
+  <article class="card" id="card-placement-quality">
+    <div class="card-title">Tradeoff השמה מול איכות</div>
+    <p class="card-desc">מכפיל השמה גבוה מאוד עלול להוריד איכות שולחן; שיעור השמה גבוה עלול להסתיר חוויה גרועה (03, 08).</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> מכפיל השמה גבוה מאוד; עדיפות לצפיפות השמה (03, 08).</p>
+      <p class="dev"><strong>dev:</strong> לא הציע שינוי מכפיל או סף; לא רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-03 וב-08; לא הוצע שינוי אלגוריתם ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>Tradeoff ליבה; אף זרם לא הציע שינוי ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-ignore">התעלם ל-V3</span> — לצפות בשיעור השמה ו-KPI חוויה; ללא שינוי אלגוריתם.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>שיעור השמה; איכות חוויה; CSAT.</p>
+  </article>
+
+  <article class="card" id="card-local-maxima">
+    <div class="card-title">מקסימה מקומית / עצירת Restart</div>
+    <p class="card-desc">אופטימיזציה חמדנית עם ריסטארטים נעצרת אחרי כמה איטרציות ללא שיפור; עלולה להתכנס למקסימה מקומית (03).</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> אופטימיזציה מרובת ריסטארטים; עצירה אחרי איטרציות ללא שיפור (03, 08).</p>
+      <p class="dev"><strong>dev:</strong> לא הציע שינוי עומק restart או אסטרטגיה; לא רלוונטי.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-03 (Local Maxima Risk) וב-08; לא הוצע שינוי ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>עלול לייצר קבוצות שולחנות תת-אופטימליות; אף זרם לא הציע שינוי ל-V3.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-ignore">התעלם ל-V3</span> — ללא שינוי; לצפות בהשלמת שולחן ואיכות בשטח.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>השלמת שולחן; איכות שולחן.</p>
+  </article>
+
+  <article class="card" id="card-friend-pair">
+    <div class="card-title">אטומיות זוגות חברים ואי-השמה</div>
+    <p class="card-desc">זוגות חברים אינם ניתנים לפיצול; חוסר תאימות פנימי עלול להשאיר את כל הזוג ללא השמה; סיבות אי-השמה לא תמיד ברורות (03, 07, 08).</p>
+    <div class="sources-comp">
+      <h4>השוואת מקורות</h4>
+      <p class="main"><strong>main:</strong> זוגות חברים אטומיים; סיבות אי-השמה לא תמיד מוצגות (03, 07, 08).</p>
+      <p class="dev"><strong>dev:</strong> הוסיף observability (כלי דיאגנוסטיקה); לא הרפיית אילוצים או שינוי לוגיקת זוגות.</p>
+      <p class="cursor"><strong>CURSOR:</strong> זוהה ב-03, 07 (רישום סיבת אי-השמה, מסרים), 08. החלטה: להסתמך על כלי Observability ו-07; ללא שינוי בכללי זוגות ל-V3.</p>
+    </div>
+    <p class="card-label">למה זה חשוב</p>
+    <p>סיכון אי-השמה ותסכול; Observability מטפלת בחלק; אטומיות לא השתנתה.</p>
+    <p class="card-label">סטטוס מומלץ ל-V3</p>
+    <p><span class="status status-lock">ננעל</span> — להסתמך על כלי Observability ו-07; ללא שינוי בכללי זוגות חברים ל-V3.</p>
+    <p class="card-label">KPI רלוונטיים</p>
+    <p>שיעור אי-השמה; משוב זוגות לא מושמים.</p>
+  </article>
+
+  <footer>
+    השוואה בין מקורות — Preflight גרסה V3 · תוכן זהה במהות ל-13_Cross_Source_Comparison.md · עיבוד, תרגום, ארגון והצגה בלבד; ללא שינוי לוגי או המלצות חדשות.
+  </footer>
+
+</body>
+</html>
