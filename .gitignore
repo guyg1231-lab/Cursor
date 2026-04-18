@@ -1,0 +1,10 @@
+.DS_Store
+.venv/
+
+# Separate local projects that should not pollute this repo's status
+Bloom's Fork/
+Bloom-main/
+circles-connect-human/
+
+# Local scratch / legacy files
+sotrim_algo_OLD.py
