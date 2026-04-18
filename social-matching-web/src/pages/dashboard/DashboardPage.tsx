@@ -13,7 +13,9 @@ import {
   isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
+import { getQuestionnaireReadyState } from '@/features/applications/api';
 import { listDashboardApplications, type DashboardApplicationEventRecord } from '@/features/events/query';
+import { ProfileReadinessCard } from '@/features/profile/components/ProfileReadinessCard';
 import { QuestionnaireReadinessPanel } from '@/features/profile/components/QuestionnaireReadinessPanel';
 
 interface DashboardApplication extends EventRegistrationRow {
@@ -21,28 +23,43 @@ interface DashboardApplication extends EventRegistrationRow {
 }
 
 export function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [applications, setApplications] = useState<DashboardApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileReady, setProfileReady] = useState(false);
+  const [readinessLoading, setReadinessLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
 
     async function load() {
-      if (!user) return;
+      if (!user) {
+        setReadinessLoading(true);
+        return;
+      }
       setIsLoading(true);
+      setReadinessLoading(true);
       setError(null);
 
       try {
-        const data = await listDashboardApplications(user.id);
+        const [data, readyState] = await Promise.all([
+          listDashboardApplications(user.id),
+          getQuestionnaireReadyState(user.id),
+        ]);
         if (!active) return;
         setApplications((data ?? []) as DashboardApplication[]);
+        // getQuestionnaireReadyState returns { ready, response, profile }; card only needs ready.
+        setProfileReady(readyState.ready);
       } catch {
         if (!active) return;
         setError('לא הצלחנו לטעון כרגע את ההגשות שלך.');
+        setProfileReady(false);
       } finally {
-        if (active) setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+          setReadinessLoading(false);
+        }
       }
     }
 
@@ -61,6 +78,7 @@ export function DashboardPage() {
         <div className="md:col-span-2">
           <QuestionnaireReadinessPanel body="כאן יופיע הסטטוס של הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש." />
         </div>
+        <ProfileReadinessCard ready={profileReady} isLoading={authLoading || !user || readinessLoading} />
         <Card className={tokens.card.surface}>
           <CardHeader>
             <CardTitle className="text-xl">סטטוס פרופיל</CardTitle>
