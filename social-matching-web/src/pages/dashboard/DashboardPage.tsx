@@ -35,18 +35,23 @@ export function DashboardPage() {
       setApplicationsLoadError(false);
 
       try {
-        const [data, readyState] = await Promise.all([
+        const [appsSettled, readySettled] = await Promise.allSettled([
           listDashboardApplications(user.id),
           getQuestionnaireReadyState(user.id),
         ]);
         if (!active) return;
-        setApplications(data ?? []);
-        // getQuestionnaireReadyState returns { ready, response, profile }; card only needs ready.
-        setProfileReady(readyState.ready);
-      } catch {
-        if (!active) return;
-        setApplicationsLoadError(true);
-        setProfileReady(false);
+
+        if (appsSettled.status === 'fulfilled') {
+          setApplications(appsSettled.value ?? []);
+        } else {
+          setApplicationsLoadError(true);
+        }
+
+        if (readySettled.status === 'fulfilled') {
+          setProfileReady(readySettled.value.ready);
+        } else {
+          setProfileReady(false);
+        }
       } finally {
         if (active) {
           setIsLoading(false);
@@ -91,7 +96,7 @@ export function DashboardPage() {
             {isLoading ? (
               <p>טוענים הגשות...</p>
             ) : applicationsLoadError ? (
-              <RouteErrorState title="שגיאה בטעינת ההגשות" body="ניסיון מחדש בעוד רגע" />
+              <RouteErrorState title="שגיאה בטעינת ההגשות" body="נסו לרענן את הדף או לחזור מאוחר יותר." />
             ) : applications.length === 0 ? (
               <div className="space-y-3">
                 <RouteEmptyState
