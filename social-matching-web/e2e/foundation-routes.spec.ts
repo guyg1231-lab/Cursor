@@ -26,4 +26,16 @@ test.describe('foundation routes', () => {
 
     await ctx.close();
   });
+
+  test('placeholder routes expose a consistent back-link and purpose copy', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+    const page = await ctx.newPage();
+
+    await page.goto('/admin/events/future-event/audit');
+    await expect(page.getByRole('link', { name: 'Back to event dashboard' })).toBeVisible();
+    await expect(page.getByText('Reserved for a later implementation pass.')).toBeVisible();
+
+    await ctx.close();
+  });
 });
