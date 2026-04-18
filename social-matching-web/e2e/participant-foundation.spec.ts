@@ -27,4 +27,18 @@ test.describe('participant foundation', () => {
 
     await ctx.close();
   });
+
+  test('dashboard exposes participant next steps with a questionnaire handoff', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+
+    await page.goto('/dashboard');
+    await expect(page.getByRole('link', { name: 'לשאלון הפרופיל' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 3, name: /לפני ההגשה הבאה/i }),
+    ).toBeVisible();
+
+    await ctx.close();
+  });
 });

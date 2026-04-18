@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildAuthPath } from '@/lib/authReturnTo';
@@ -291,6 +292,14 @@ export function GatheringPage() {
 
   return (
     <PageShell title={event.title} subtitle="מפגש קטן, קבוצה מוזמנת אישית.">
+      <PageActionBar>
+        <Button asChild variant="outline">
+          <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/dashboard">לאזור האישי</Link>
+        </Button>
+      </PageActionBar>
       <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
         <Card className={tokens.card.accent}>
           <CardHeader className="space-y-3">
