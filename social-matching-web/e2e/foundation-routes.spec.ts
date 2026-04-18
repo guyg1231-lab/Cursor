@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { routeManifest } from '../src/app/router/routeManifest';
 import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
@@ -37,5 +38,18 @@ test.describe('foundation routes', () => {
     await expect(page.getByText('Reserved for a later implementation pass.')).toBeVisible();
 
     await ctx.close();
+  });
+
+  test('route manifest tracks host and admin placeholder ownership', () => {
+    expect(routeManifest).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: '/auth', workstream: 'participant', auth: 'public' }),
+        expect.objectContaining({ path: '/events/:eventId/apply', workstream: 'participant', auth: 'protected' }),
+        expect.objectContaining({ path: '/host/events', workstream: 'host', auth: 'protected' }),
+        expect.objectContaining({ path: '/host/events/:eventId', workstream: 'host', auth: 'protected' }),
+        expect.objectContaining({ path: '/admin/event-requests', workstream: 'admin', auth: 'admin' }),
+        expect.objectContaining({ path: '/admin/events/:eventId/diagnostics', workstream: 'admin', auth: 'admin' }),
+      ]),
+    );
   });
 });
