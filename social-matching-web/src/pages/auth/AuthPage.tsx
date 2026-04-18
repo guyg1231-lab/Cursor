@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { supabase } from '@/integrations/supabase/client';
 import { tokens } from '@/lib/design-tokens';
 import { getOtpCooldownSeconds, requestOtpEmail } from '@/lib/authOtp';
@@ -219,6 +220,11 @@ export function AuthPage() {
       title="כניסה לאזור האישי"
       subtitle="נשלח לך קוד חד-פעמי למייל, ואחרי האימות נחזיר אותך בדיוק למקום שממנו רצית להמשיך."
     >
+      {submitError ? (
+        <div className="mb-4">
+          <RouteErrorState title="לא הצלחנו לשלוח קישור כניסה" body={submitError} />
+        </div>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
         <Card className={tokens.card.accent}>
           <CardHeader>
