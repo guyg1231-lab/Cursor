@@ -15,11 +15,11 @@ import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   canReapplyToEvent,
   formatApplicationStatusDetailed,
-  formatLifecycleDateTime,
   isAwaitingParticipantResponse,
   isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
+import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
@@ -164,16 +164,14 @@ export function EventDetailPage() {
             </p>
 
             {awaitingResponse ? (
-              <div className="rounded-3xl border border-primary/20 bg-background/30 p-4 text-sm space-y-2">
-                <p className="font-medium text-foreground">
-                  {offerExpired ? 'חלון התגובה למקום הזמני נסגר' : 'נשמר עבורך מקום זמני'}
-                </p>
-                <p className="text-muted-foreground">
-                  {offerExpired
-                    ? `המקום הזמני שהיה שמור עבורך כבר לא מחכה לתגובה. הדדליין עבר${application?.expires_at ? ` ב-${formatLifecycleDateTime(application.expires_at)}` : ''}.`
-                    : `כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולאשר עד ${formatLifecycleDateTime(application?.expires_at ?? null)}.`}
-                </p>
-              </div>
+              <ApplicationStatusPanel
+                title={offerExpired ? 'חלון התגובה למקום הזמני נסגר' : 'נשמר עבורך מקום זמני'}
+                body={
+                  offerExpired
+                    ? 'המקום הזמני כבר לא ממתין לתגובה.'
+                    : 'כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולהגיב בזמן.'
+                }
+              />
             ) : confirmedParticipation ? (
               <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm">
                 <p className="font-medium text-foreground">המקום שלך למפגש הזה כבר שמור</p>

@@ -25,6 +25,7 @@ import {
   isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
+import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { getVisibleEventById } from '@/features/events/api';
 import type {
   EventRegistrationRow,
@@ -431,7 +432,7 @@ export function ApplyPage() {
   if (awaitingResponse && existingApplication) {
     return (
       <PageShell
-        title={offerExpired ? 'חלון התגובה נסגר' : 'נשמר עבורך מקום זמני'}
+        title="סטטוס ההרשמה – מקום זמני"
         subtitle={
           offerExpired
             ? 'המקום הזמני כבר לא מחכה לתגובה, אבל נציג כאן בבירור מה קרה.'
@@ -439,24 +440,21 @@ export function ApplyPage() {
         }
       >
         <div className="space-y-4">
+          <ApplicationStatusPanel
+            title={offerExpired ? 'חלון התגובה למקום הזמני נסגר' : 'המקום שלך במפגש נשמר – דרושה תגובה'}
+            body={
+              offerExpired
+                ? 'המקום הזמני כבר לא ממתין לתגובה.'
+                : 'כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולהגיב בזמן.'
+            }
+          />
           <Card className={tokens.card.surface}>
-            <CardHeader>
-              <CardTitle className="text-xl">
-                {offerExpired ? 'המקום הזמני כבר פג' : 'תגובה על המקום הזמני שלך'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground">
+            <CardContent className="space-y-4 text-sm text-muted-foreground pt-6">
               <div className={tokens.card.inner + ' p-4 space-y-2'}>
                 <p><strong className="text-foreground">מפגש:</strong> {event.title}</p>
                 <p><strong className="text-foreground">הוצע בתאריך:</strong> {formatLifecycleDateTime(existingApplication.offered_at)}</p>
                 <p><strong className="text-foreground">יש להגיב עד:</strong> {formatLifecycleDateTime(existingApplication.expires_at)}</p>
               </div>
-
-              <p>
-                {offerExpired
-                  ? 'הדדליין לתגובה עבר, ולכן כבר אי אפשר לאשר את המקום הזמני הזה מתוך המסך הזה.'
-                  : 'נשמר עבורך מקום זמני. אישור עכשיו ישמור את המקום עבורך למפגש הזה.'}
-              </p>
 
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               {confirmError ? <p className="text-destructive">{confirmError}</p> : null}
@@ -492,7 +490,7 @@ export function ApplyPage() {
   if (existingApplication && !canReapplyToEvent(existingApplication.status)) {
     return (
       <PageShell
-        title={confirmedParticipation ? 'המקום שלך למפגש הזה כבר שמור' : 'כבר קיימת הגשה למפגש הזה'}
+        title="סטטוס ההרשמה"
         subtitle={
           confirmedParticipation
             ? 'לא צריך לשלוח שוב טופס. זהו הסטטוס העדכני של ההרשמה שלך.'
@@ -500,6 +498,10 @@ export function ApplyPage() {
         }
       >
         <div className="space-y-4">
+          <ApplicationStatusPanel
+            title="כבר קיימת הגשה למפגש הזה"
+            body={formatApplicationStatusDetailed(existingApplication.status)}
+          />
           <Card className={tokens.card.surface}>
             <CardHeader>
               <CardTitle className="text-xl">{confirmedParticipation ? 'מצב המקום שלך' : 'מצב ההגשה שלך'}</CardTitle>
@@ -548,30 +550,36 @@ export function ApplyPage() {
 
   if (!questionnaireReady) {
     return (
-      <PageShell title="לפני שמגישים, צריך להשלים פרופיל" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>
-              כלל ה-MVP הזמני למסך הזה: משתמש/ת נחשב/ת מוכן/ה להגשה אם יש `matching_responses.completed_at`
-              או אם `profiles.funnel_status` כבר עבר את שלב `needs_questionnaire`.
-            </p>
-            <div className="flex gap-3 pt-2">
-              <Button asChild variant="primary">
-                <Link to="/questionnaire">להשלמת הפרופיל</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <PageShell title="הגשה למפגש – פרופיל חסר" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
+        <div className="space-y-4">
+          <ApplicationStatusPanel
+            title="לפני שממשיכים להגשה"
+            body="צריך להשלים את הפרופיל והשאלון לפני שאפשר להגיש למפגש הזה."
+          />
+          <Card className={tokens.card.surface}>
+            <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
+              <p>
+                כלל ה-MVP הזמני למסך הזה: משתמש/ת נחשב/ת מוכן/ה להגשה אם יש `matching_responses.completed_at`
+                או אם `profiles.funnel_status` כבר עבר את שלב `needs_questionnaire`.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <Button asChild variant="primary">
+                  <Link to="/questionnaire">להשלמת הפרופיל</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </PageShell>
     );
   }
 
   return (
     <PageShell
-      title="הגשת מועמדות למפגש"
+      title="הגשה למפגש"
       subtitle="כאן רק עוזרים לנו להבין למה דווקא המפגש הזה מרגיש נכון עבורך — לא ממלאים הכול מחדש."
     >
       <Card className={tokens.card.accent}>
