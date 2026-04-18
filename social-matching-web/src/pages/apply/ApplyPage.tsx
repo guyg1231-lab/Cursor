@@ -26,6 +26,7 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
+import { resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
 import type {
   EventRegistrationRow,
@@ -430,6 +431,7 @@ export function ApplyPage() {
   }
 
   if (awaitingResponse && existingApplication) {
+    const panel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
         title="סטטוס ההרשמה – מקום זמני"
@@ -441,12 +443,9 @@ export function ApplyPage() {
       >
         <div className="space-y-4">
           <ApplicationStatusPanel
-            title={offerExpired ? 'חלון התגובה למקום הזמני נסגר' : 'המקום שלך במפגש נשמר – דרושה תגובה'}
-            body={
-              offerExpired
-                ? 'המקום הזמני כבר לא ממתין לתגובה.'
-                : 'כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולהגיב בזמן.'
-            }
+            title={panel.title}
+            body={panel.body}
+            footer={panel.footer ? <p>{panel.footer}</p> : undefined}
           />
           <Card className={tokens.card.surface}>
             <CardContent className="space-y-4 text-sm text-muted-foreground pt-6">
