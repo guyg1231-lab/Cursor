@@ -7,11 +7,10 @@ import { EventSummaryCard } from '@/features/events/components/EventSummaryCard'
 import type { VisibleEvent } from '@/features/events/types';
 
 /**
- * Minimal discovery surface: lists every currently open gathering
- * (`status = 'active' AND is_published = true`, ordered by `starts_at ASC` —
- * filtering handled inside `listVisibleEvents`). One-column list, title +
- * city + starts_at + entry button. No filters, search, sorting, categories,
- * participant counts, host names, or detail page links — intentionally.
+ * Discovery page: lists active published events. Each card links to the
+ * canonical `/events/:eventId` detail route via the shared `EventSummaryCard`.
+ * No filters, search, sorting, categories, participant counts, or host names
+ * — intentionally.
  */
 export function EventsPage() {
   const [events, setEvents] = useState<VisibleEvent[]>([]);
