@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { SectionDivider } from '@/components/shared/SectionDivider';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import { getVisibleEventById } from '@/features/events/api';
 import { formatEventDate } from '@/features/events/formatters';
@@ -14,13 +15,12 @@ import { getExistingApplication } from '@/features/applications/api';
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   canReapplyToEvent,
-  formatApplicationStatusDetailed,
-  formatLifecycleDateTime,
+  formatApplicationStatusShort,
   isAwaitingParticipantResponse,
-  isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
+import { resolveApplicationPanelContent } from '@/features/applications/presentation';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
@@ -115,7 +115,7 @@ export function EventDetailPage() {
   const hasApplication = !!application;
   const awaitingResponse = application ? isAwaitingParticipantResponse(application.status) : false;
   const offerExpired = application ? isOfferExpired(application) : false;
-  const confirmedParticipation = application ? isConfirmedParticipation(application.status) : false;
+  const applicationPanelContent = application ? resolveApplicationPanelContent(application) : null;
 
   return (
     <PageShell title={event.title} subtitle={event.description ?? 'מפגש קטן עם תהליך ברור יותר מרנדומליות.'}>
@@ -164,40 +164,17 @@ export function EventDetailPage() {
               אחרי ההגשה נשמור את הסטטוס שלך למפגש הזה, ונעדכן אותך כאן אם יישמר עבורך מקום זמני שדורש תגובה.
             </p>
 
-            {awaitingResponse ? (
-              <ApplicationStatusPanel
-                title={offerExpired ? 'חלון התגובה למקום הזמני נסגר' : 'נשמר עבורך מקום זמני'}
-                body={
-                  offerExpired
-                    ? 'המקום הזמני כבר לא ממתין לתגובה.'
-                    : 'כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולהגיב בזמן.'
-                }
-                footer={
-                  application?.expires_at ? (
-                    <p>
-                      <strong className="text-foreground">יש להגיב עד:</strong>{' '}
-                      {formatLifecycleDateTime(application.expires_at)}
-                    </p>
-                  ) : null
-                }
-              />
-            ) : confirmedParticipation ? (
-              <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm">
-                <p className="font-medium text-foreground">המקום שלך למפגש הזה כבר שמור</p>
-                <p className="text-muted-foreground">{formatApplicationStatusDetailed(application!.status)}</p>
-              </div>
-            ) : application && !canReapplyToEvent(application.status) ? (
-              <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm">
-                <p className="font-medium text-foreground">כבר קיימת הגשה למפגש הזה</p>
-                <p className="text-muted-foreground">{formatApplicationStatusDetailed(application.status)}</p>
-              </div>
-            ) : application ? (
-              <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm">
-                <p className="font-medium text-foreground">הייתה לך הגשה קודמת למפגש הזה</p>
-                <p className="text-muted-foreground">
-                  {formatApplicationStatusDetailed(application.status)}. אם המפגש עדיין פתוח, אפשר להגיש שוב.
-                </p>
-              </div>
+            {application && applicationPanelContent ? (
+              <>
+                <div className="mb-2">
+                  <StatusBadge label={formatApplicationStatusShort(application.status)} />
+                </div>
+                <ApplicationStatusPanel
+                  title={applicationPanelContent.title}
+                  body={applicationPanelContent.body}
+                  footer={applicationPanelContent.footer ? <p>{applicationPanelContent.footer}</p> : undefined}
+                />
+              </>
             ) : !event.is_registration_open ? (
               <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm text-muted-foreground">
                 ההגשות למפגש הזה אינן פתוחות כרגע.

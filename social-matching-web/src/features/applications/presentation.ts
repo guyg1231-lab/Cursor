@@ -1,5 +1,6 @@
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
+  canReapplyToEvent,
   formatApplicationStatusDetailed,
   formatLifecycleDateTime,
   isAwaitingParticipantResponse,
@@ -34,6 +35,13 @@ export function resolveApplicationPanelContent(application: EventRegistrationRow
     return {
       title: 'המקום שלך במפגש נשמר',
       body: formatApplicationStatusDetailed(application.status),
+    };
+  }
+
+  if (canReapplyToEvent(application.status)) {
+    return {
+      title: 'הייתה לך הגשה קודמת למפגש הזה',
+      body: `${formatApplicationStatusDetailed(application.status)}. אם המפגש עדיין פתוח, אפשר להגיש שוב.`,
     };
   }
 
