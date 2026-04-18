@@ -117,4 +117,17 @@ test.describe('participant foundation', () => {
     );
     await Promise.all([page.goto('/auth/callback'), sawLoading]);
   });
+
+  test('dashboard shows empty applications state with CTA to events', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    // Staging: P1–P4 each have ≥1 registration; ADMIN1 has zero event_registrations (see plan Task 3).
+    await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+    const page = await ctx.newPage();
+
+    await page.goto('/dashboard');
+    await expect(page.getByText('אין עדיין הגשות', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'למפגשים פתוחים' })).toBeVisible();
+
+    await ctx.close();
+  });
 });
