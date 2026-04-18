@@ -1,7 +1,9 @@
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
+  formatApplicationStatusDetailed,
   formatLifecycleDateTime,
   isAwaitingParticipantResponse,
+  isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
 
@@ -28,5 +30,15 @@ export function resolveApplicationPanelContent(application: EventRegistrationRow
     };
   }
 
-  return { title: '', body: '' };
+  if (isConfirmedParticipation(application.status)) {
+    return {
+      title: 'המקום שלך במפגש נשמר',
+      body: formatApplicationStatusDetailed(application.status),
+    };
+  }
+
+  return {
+    title: 'כבר קיימת הגשה למפגש הזה',
+    body: formatApplicationStatusDetailed(application.status),
+  };
 }
