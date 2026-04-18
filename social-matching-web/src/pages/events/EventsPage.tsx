@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { tokens } from '@/lib/design-tokens';
 import { listVisibleEvents } from '@/features/events/api';
-import { formatEventDate } from '@/features/events/formatters';
+import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
 import type { VisibleEvent } from '@/features/events/types';
-
-const PREVIEW_MAX_LENGTH = 100;
-
-function truncatePreview(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (trimmed.length === 0) return null;
-  if (trimmed.length <= PREVIEW_MAX_LENGTH) return trimmed;
-  return `${trimmed.slice(0, PREVIEW_MAX_LENGTH).trimEnd()}…`;
-}
 
 /**
  * Minimal discovery surface: lists every currently open gathering
@@ -26,7 +14,6 @@ function truncatePreview(value: string | null | undefined): string | null {
  * participant counts, host names, or detail page links — intentionally.
  */
 export function EventsPage() {
-  const navigate = useNavigate();
   const [events, setEvents] = useState<VisibleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,28 +59,9 @@ export function EventsPage() {
         </Card>
       ) : (
         <div className="flex flex-col gap-4">
-          {events.map((event) => {
-            const preview = truncatePreview(event.description);
-            return (
-              <Card key={event.id} className={tokens.card.accent}>
-                <CardHeader>
-                  <CardTitle className="text-xl leading-tight">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-foreground/85">
-                  <p>
-                    <strong className="text-foreground">עיר:</strong> {event.city}
-                  </p>
-                  <p>
-                    <strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}
-                  </p>
-                  {preview ? <p className="text-muted-foreground">{preview}</p> : null}
-                  <Button type="button" variant="primary" onClick={() => navigate(`/gathering/${event.id}`)}>
-                    כניסה למפגש
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {events.map((event) => (
+            <EventSummaryCard key={event.id} event={event} />
+          ))}
         </div>
       )}
     </PageShell>

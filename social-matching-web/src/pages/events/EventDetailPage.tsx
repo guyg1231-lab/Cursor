@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import { tokens } from '@/lib/design-tokens';
@@ -21,6 +22,7 @@ import {
 } from '@/features/applications/status';
 
 export function EventDetailPage() {
+  const navigate = useNavigate();
   const { eventId } = useParams();
   const { user } = useAuth();
   const [event, setEvent] = useState<VisibleEvent | null>(null);
@@ -117,6 +119,32 @@ export function EventDetailPage() {
 
   return (
     <PageShell title={event.title} subtitle={event.description ?? 'מפגש קטן עם תהליך ברור יותר מרנדומליות.'}>
+      <PageActionBar>
+        <Button asChild variant="outline">
+          <Link to="/events">חזרה לכל המפגשים</Link>
+        </Button>
+        {awaitingResponse ? (
+          <Button
+            variant={offerExpired ? 'outline' : 'primary'}
+            onClick={() => navigate(`/events/${event.id}/apply`)}
+          >
+            {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'למקום הזמני ולתגובה'}
+          </Button>
+        ) : hasApplication && !canReapplyToEvent(application!.status) ? (
+          <Button variant="outline" onClick={() => navigate(`/events/${event.id}/apply`)}>
+            לסטטוס ההרשמה
+          </Button>
+        ) : event.is_registration_open ? (
+          <Button variant="primary" onClick={() => navigate(`/events/${event.id}/apply`)}>
+            {application ? 'להגיש שוב' : 'להגיש מועמדות'}
+          </Button>
+        ) : (
+          <Button asChild variant="outline">
+            <Link to="/events">חזרה למפגשים</Link>
+          </Button>
+        )}
+      </PageActionBar>
+
       <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
         <Card className={tokens.card.accent}>
           <CardHeader>
@@ -168,30 +196,6 @@ export function EventDetailPage() {
                 ההגשות למפגש הזה אינן פתוחות כרגע.
               </div>
             ) : null}
-
-            <div className="flex flex-wrap gap-3 pt-1">
-              {awaitingResponse ? (
-                <Button asChild variant={offerExpired ? 'outline' : 'primary'}>
-                  <Link to={`/events/${event.id}/apply`}>
-                    {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'למקום הזמני ולתגובה'}
-                  </Link>
-                </Button>
-              ) : hasApplication && !canReapplyToEvent(application!.status) ? (
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}/apply`}>לסטטוס ההרשמה</Link>
-                </Button>
-              ) : event.is_registration_open ? (
-                <Button asChild variant="primary">
-                  <Link to={`/events/${event.id}/apply`}>
-                    {application ? 'להגיש שוב' : 'להגיש מועמדות'}
-                  </Link>
-                </Button>
-              ) : (
-                <Button asChild variant="outline">
-                  <Link to="/events">חזרה למפגשים</Link>
-                </Button>
-              )}
-            </div>
           </CardContent>
         </Card>
 
