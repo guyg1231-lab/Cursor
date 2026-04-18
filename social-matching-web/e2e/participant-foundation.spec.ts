@@ -41,4 +41,19 @@ test.describe('participant foundation', () => {
 
     await ctx.close();
   });
+
+  test('unauthenticated apply preserves returnTo through sign-in', async ({ page }) => {
+    await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+    await expect(page).toHaveURL(/\/(sign-in|auth)(\?|$)/);
+    await expect(page).toHaveURL(new RegExp(`returnTo=.*events.*${ENV.EVENT_ID}.*apply`));
+    await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
+  });
+
+  test('auth callback keeps a visible loading state before redirect completes', async ({ page }) => {
+    const sawLoading = page.waitForFunction(
+      () => /loading|טוענים|מאמתים/i.test(document.body.innerText),
+      { timeout: 15_000 },
+    );
+    await Promise.all([page.goto('/auth/callback'), sawLoading]);
+  });
 });

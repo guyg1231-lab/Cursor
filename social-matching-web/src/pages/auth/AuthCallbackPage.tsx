@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { consumePostAuthReturnTo, parseSafeReturnTo, storePostAuthReturnTo } from '@/lib/authReturnTo';
@@ -39,22 +40,24 @@ export function AuthCallbackPage() {
 
   return (
     <PageShell title="לא הצלחנו להשלים את ההתחברות" subtitle="יכול להיות שפג תוקף הקוד או שהאימות לא הושלם עדיין.">
-      <Card className={tokens.card.surface}>
-        <CardHeader>
-          <CardTitle className="text-xl">אפשר לנסות שוב</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-          <p>אם הקוד לא עבד או שפג תוקפו, אפשר לבקש קוד חדש ולחזור לאותו יעד.</p>
-          <div className="flex gap-3">
-            <Button asChild variant="primary">
-              <Link to={queryReturnTo ? `/auth?returnTo=${encodeURIComponent(queryReturnTo)}` : '/auth'}>לחזרה למסך ההתחברות</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/events">למפגשים</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <RouteErrorState
+          title="לא הצלחנו להשלים את ההתחברות"
+          body="אם הקוד לא עבד או שפג תוקפו, אפשר לבקש קוד חדש ולחזור לאותו יעד."
+        />
+        <Card className={tokens.card.surface}>
+          <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed py-6">
+            <div className="flex gap-3">
+              <Button asChild variant="primary">
+                <Link to={queryReturnTo ? `/auth?returnTo=${encodeURIComponent(queryReturnTo)}` : '/auth'}>לחזרה למסך ההתחברות</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/events">למפגשים</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </PageShell>
   );
 }
