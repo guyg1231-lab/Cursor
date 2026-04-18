@@ -1,0 +1,583 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  CIRCLES DESIGN SYSTEM
+  Clean, calm, human
+  Typography: Assistant (Hebrew) + Inter (English)
+  Palette: off-white, charcoal, soft indigo
+*/
+
+@layer base {
+  :root {
+    /* Base — clean off-white */
+    --background: 0 0% 97.6%;
+    --foreground: 0 0% 10%;
+
+    /* Card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Primary — Soft Indigo */
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    /* Muted */
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Accent */
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 10%;
+
+    /* Destructive — aligned with primary (soft indigo) */
+    --destructive: 239 84% 67%;
+    --destructive-foreground: 0 0% 100%;
+    --error-foreground: 239 88% 38%;
+
+    /* Border/Input */
+    --border: 0 0% 91%;
+    --input: 0 0% 91%;
+    --ring: 239 84% 67%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 91%;
+    --sidebar-ring: 239 84% 67%;
+
+    /* Status colors — from design system palette (primary, sage, destructive, accent-periwinkle, muted) */
+    --status-pending: 239 84% 67%;
+    --status-approved: 98 15% 43%;
+    --status-rejected: 239 84% 67%;
+    --status-waitlist: 230 35% 65%;
+    --status-cancelled: 0 0% 55%;
+
+    /* Accent card backgrounds */
+    --accent-lavender: 250 60% 93%;
+    --accent-sky: 215 70% 93%;
+    --accent-periwinkle: 230 55% 92%;
+
+    /* Brand supporting tones */
+    --sage: 98 15% 43%;
+    --sage-dark: 100 18% 36%;
+    --lavender-brand: 225 28% 68%;
+  }
+
+  /* Dark mode — soft slate/navy, no pure black; brand warmth preserved; WCAG AA */
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 239 84% 72%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 22%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 22%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 239 84% 72%;
+    --destructive-foreground: 0 0% 100%;
+    --error-foreground: 239 84% 78%;
+
+    --border: 217 32% 22%;
+    --input: 217 32% 22%;
+    --ring: 239 84% 72%;
+
+    --sidebar-background: 222 47% 9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 239 84% 72%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 32% 20%;
+    --sidebar-ring: 239 84% 72%;
+
+    --status-pending: 239 84% 72%;
+    --status-approved: 98 20% 55%;
+    --status-rejected: 239 84% 72%;
+    --status-waitlist: 230 35% 70%;
+    --status-cancelled: 0 0% 65%;
+
+    /* Accents tuned down so they don't "glow" painfully on dark */
+    --accent-lavender: 250 35% 28%;
+    --accent-sky: 215 30% 26%;
+    --accent-periwinkle: 230 28% 26%;
+
+    --sage: 98 20% 55%;
+    --sage-dark: 100 18% 48%;
+    --lavender-brand: 225 35% 72%;
+  }
+
+  /* RTL Support */
+  [dir='rtl'] {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [dir='ltr'] {
+    direction: ltr;
+    text-align: left;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* FOUC prevention: disable transitions until after theme is applied */
+  body.preload,
+  body.preload *,
+  body.preload *::before,
+  body.preload *::after {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Hebrew font preference — Heebo for headings and RTL body */
+  [dir='rtl'] body,
+  [lang='he'] body {
+    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Headings — default to sans; Hebrew uses editorial stack */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+  }
+
+  [dir='rtl'] h1,
+  [dir='rtl'] h2,
+  [dir='rtl'] h3,
+  [dir='rtl'] h4,
+  [dir='rtl'] h5,
+  [dir='rtl'] h6,
+  [lang='he'] h1,
+  [lang='he'] h2,
+  [lang='he'] h3,
+  [lang='he'] h4,
+  [lang='he'] h5,
+  [lang='he'] h6 {
+    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Circles card styles */
+  .circles-card {
+    @apply bg-card rounded-3xl border border-border/50 shadow-sm;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .circles-card:hover {
+    @apply shadow-md border-border;
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-pending {
+    @apply bg-primary/15 text-primary dark:bg-primary/20 dark:text-primary;
+  }
+
+  .status-approved {
+    @apply bg-sage/15 text-sage dark:bg-sage/20 dark:text-sage;
+  }
+
+  .status-rejected {
+    @apply bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-destructive;
+  }
+
+  .status-waitlist {
+    @apply bg-accent-periwinkle/25 text-primary dark:bg-accent-periwinkle/20 dark:text-primary;
+  }
+
+  .status-cancelled {
+    @apply bg-primary/5 text-primary/70 border border-primary/10 dark:bg-primary/10 dark:text-primary/80;
+  }
+
+  /* Glassmorphism Card Utility — theme-aware */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border shadow-sm rounded-3xl;
+    @apply transition-all duration-300 ease-out;
+  }
+}
+
+@layer utilities {
+  /* Fade-in animation — Page/state entry: 200-300ms ease-out */
+  .animate-fade-in {
+    animation: fadeIn 0.25s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide up animation — Page/state entry: 200-300ms ease-out */
+  .animate-slide-up {
+    animation: slideUp 0.25s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Gentle pulse for loading states */
+  .animate-gentle-pulse {
+    animation: gentlePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes gentlePulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  /* Hover lift effect for cards — uses design token shadows */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-3px);
+    @apply shadow-soft-lg;
+  }
+
+  /* CTA glow hover — Hover feedback: 120-180ms ease-out */
+  .cta-glow {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  .cta-glow:hover {
+    box-shadow: 0 0 24px 4px hsl(var(--primary) / 0.25);
+  }
+
+  /* Button interaction utilities — unified hover/active states */
+  .btn-interactive-primary {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-primary:hover {
+    @apply bg-primary/90;
+    box-shadow: 0 0 24px 4px hsl(var(--primary) / 0.25);
+  }
+
+  .btn-interactive-primary:active {
+    transform: scale(0.97);
+  }
+
+  /* Dark primary CTA (bg-foreground) — same interaction, different hover */
+  .btn-interactive-foreground {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-foreground:hover {
+    @apply bg-foreground/90;
+  }
+
+  .btn-interactive-foreground:active {
+    transform: scale(0.97);
+  }
+
+  /* Gradient/sage CTA — same interaction, no bg override */
+  .btn-interactive-cta {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-cta:active {
+    transform: scale(0.97);
+  }
+
+  .btn-interactive-subtle {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-subtle:hover {
+    @apply bg-muted;
+  }
+
+  .btn-interactive-subtle:active {
+    transform: scale(0.98);
+  }
+
+  .btn-interactive-subtle-icon {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-subtle-icon:hover {
+    @apply bg-foreground/10;
+  }
+
+  .btn-interactive-subtle-icon:active {
+    transform: scale(0.98);
+  }
+
+  .btn-interactive-ghost {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-interactive-ghost:hover {
+    background-color: hsl(var(--accent-lavender) / 0.35);
+  }
+
+  .btn-interactive-ghost:active {
+    @apply opacity-80;
+  }
+
+  /* Staggered animation delays with opacity:0 start state */
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4,
+  .stagger-5 {
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.3s;
+  }
+
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
+
+  .stagger-5 {
+    animation-delay: 0.5s;
+  }
+}
+
+/* Skeleton shimmer animation */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY: Reduced Motion Support
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable confetti for reduced motion */
+  .confetti-canvas,
+  [class*='confetti'] {
+    display: none !important;
+  }
+
+  /* Skeleton should still show but not animate */
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY: Enhanced Focus States
+   ============================================ */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Ensure focus is never obscured by fixed elements */
+*:focus-visible {
+  scroll-margin-bottom: 120px;
+}
+
+/* Button focus states */
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Input focus enhancement */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+}
+
+/* Skip link for keyboard users — hidden off-screen until focus, RTL-aware */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  inset-inline-start: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================
+   MICRO-INTERACTIONS: Selection & Pills
+   ============================================ */
+@keyframes selection-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.selection-animate {
+  animation: selection-pop 0.2s ease-out;
+}
+
+/* Pill/Chip selection feedback */
+.pill-selectable {
+  transition: all 0.15s ease-out;
+}
+
+.pill-selectable:active {
+  transform: scale(0.97);
+}
+
+.pill-selectable.selected {
+  animation: selection-pop 0.2s ease-out;
+}
+
+/* ============================================
+   MATCHING WIZARD — Premium Mobile Experience
+   ============================================ */
+
+/* Matching slide-up animation — Page/state entry: 200-300ms ease-out */
+.matching-slide-up {
+  animation: matchingSlideUp 0.25s ease-out forwards;
+}
+
+@keyframes matchingSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 
+   Matching wizard styles are scoped inside MatchingLayout.tsx 
+   to avoid duplication. See src/pages/matching/MatchingLayout.tsx.
+*/

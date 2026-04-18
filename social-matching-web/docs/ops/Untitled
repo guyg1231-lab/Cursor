@@ -1,0 +1,56 @@
+You are a product analyst working on a real product called "Circles".
+
+Context:
+Circles is a platform for creating and managing small in-person group experiences.
+The system includes:
+- curated experiences (structured, high-quality grouping)
+- a potential live / nearby layer (spontaneous activities)
+- an operator/admin system that already works
+- early product thinking in Obsidian notes
+
+The Obsidian vault structure is:
+
+/00 - Inbox
+/01 - Ideas
+/02 - Research
+/03 - Product
+/04 - Decisions
+/05 - Experiments
+/06 - Weekly
+
+Your task:
+
+1. Scan all available files in the workspace and Obsidian vault.
+2. Do NOT invent information. Only use what exists.
+3. Build a clear structured understanding of:
+   - what the product currently is
+   - what has already been decided
+   - what ideas are being explored
+   - what is still unclear
+
+4. Output the result in this exact structure:
+
+---
+
+## 1. Product Definition (based only on existing data)
+
+## 2. Key Decisions Identified
+
+## 3. Active Ideas
+
+## 4. Existing Product Structure (flows / layers if exist)
+
+## 5. Gaps and Unresolved Questions
+
+## 6. Suggested Next 3 Product Steps (high impact only)
+
+---
+
+Rules:
+- Do not repeat raw notes
+- Do not hallucinate missing data
+- If something is unclear, explicitly say "unclear"
+- Prefer concise and structured output
+
+Goal:
+Create a reliable snapshot of the current state of Circles as a product.
