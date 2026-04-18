@@ -130,4 +130,22 @@ test.describe('participant foundation', () => {
 
     await ctx.close();
   });
+
+  test('regression: dashboard readiness and applications render together', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+
+    await page.goto('/dashboard');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'מוכנות להגשה' })).toBeVisible();
+    await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
+
+    await expect(page.getByRole('heading', { level: 3, name: 'ההגשות שלך' })).toBeVisible();
+    const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+    await expect(appsCard.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first()).toBeVisible();
+
+    await ctx.close();
+  });
 });
