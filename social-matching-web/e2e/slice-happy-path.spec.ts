@@ -17,7 +17,7 @@ test.describe('Circles vertical slice - happy path', () => {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
       await page.goto('/events');
-      await expect(page.getByRole('button', { name: 'כניסה למפגש' }).first()).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toBeVisible();
       await ctx.close();
     }
 

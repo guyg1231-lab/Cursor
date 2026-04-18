@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { ENV } from './fixtures/env';
 
 test.describe('participant foundation', () => {
   test('discovery links into canonical event detail before apply', async ({ page }) => {
