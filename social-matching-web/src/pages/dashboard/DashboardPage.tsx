@@ -14,6 +14,7 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { listDashboardApplications, type DashboardApplicationEventRecord } from '@/features/events/query';
+import { QuestionnaireReadinessPanel } from '@/features/profile/components/QuestionnaireReadinessPanel';
 
 interface DashboardApplication extends EventRegistrationRow {
   event: DashboardApplicationEventRecord | null;
@@ -57,6 +58,9 @@ export function DashboardPage() {
       subtitle="כאן יופיעו הסטטוס של הפרופיל, ההגשות שלך, ומה השלב הבא בכל מפגש שאליו הגשת מועמדות."
     >
       <div className="grid gap-4 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <QuestionnaireReadinessPanel body="כאן יופיע הסטטוס של הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש." />
+        </div>
         <Card className={tokens.card.surface}>
           <CardHeader>
             <CardTitle className="text-xl">סטטוס פרופיל</CardTitle>
