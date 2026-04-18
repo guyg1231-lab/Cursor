@@ -8,11 +8,15 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 
-export function resolveApplicationPanelContent(application: EventRegistrationRow): {
+export type ApplicationPanelContent = {
   title: string;
   body: string;
   footer?: string;
-} {
+};
+
+export function resolveApplicationPanelContent(
+  application: EventRegistrationRow,
+): ApplicationPanelContent {
   if (isAwaitingParticipantResponse(application.status)) {
     if (isOfferExpired(application)) {
       return {
@@ -42,6 +46,30 @@ export function resolveApplicationPanelContent(application: EventRegistrationRow
     return {
       title: 'הייתה לך הגשה קודמת למפגש הזה',
       body: `${formatApplicationStatusDetailed(application.status)}. אם המפגש עדיין פתוח, אפשר להגיש שוב.`,
+    };
+  }
+
+  if (application.status === 'attended' || application.status === 'no_show') {
+    return {
+      title: 'המפגש כבר הסתיים',
+      body: formatApplicationStatusDetailed(application.status),
+      footer: 'כבר קיימת הגשה למפגש הזה.',
+    };
+  }
+
+  if (application.status === 'waitlist') {
+    return {
+      title: 'ההגשה ברשימת המתנה',
+      body: formatApplicationStatusDetailed(application.status),
+      footer: 'כבר קיימת הגשה למפגש הזה.',
+    };
+  }
+
+  if (application.status === 'pending') {
+    return {
+      title: 'ההגשה שלך נשלחה',
+      body: formatApplicationStatusDetailed(application.status),
+      footer: 'כבר קיימת הגשה למפגש הזה.',
     };
   }
 

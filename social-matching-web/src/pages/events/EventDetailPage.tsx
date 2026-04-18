@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
@@ -90,9 +91,7 @@ export function EventDetailPage() {
   if (error) {
     return (
       <PageShell title="פרטי מפגש" subtitle="לא הצלחנו לטעון את הפרטים כרגע.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-destructive">{error}</CardContent>
-        </Card>
+        <RouteErrorState title="לא הצלחנו לטעון את פרטי המפגש" body={error} />
       </PageShell>
     );
   }
@@ -189,8 +188,6 @@ export function EventDetailPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             <p>• במסך הזה מוצגים גם אירועים פומביים שעדיין פתוחים וגם אירועים פומביים שכבר נסגרו להגשה.</p>
-            <p>• ההגשה עצמה נשמרת כעת ב-`event_registrations` כמצב ה-MVP הראשון.</p>
-            <p>• זהו מודל מעבר לבלוק הזה — לא בהכרח המודל הסופי של הדומיין.</p>
           </CardContent>
         </Card>
       </div>
