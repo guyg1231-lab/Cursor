@@ -507,7 +507,6 @@ export function ApplyPage() {
               <CardTitle className="text-xl">{confirmedParticipation ? 'מצב המקום שלך' : 'מצב ההגשה שלך'}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>{formatApplicationStatusDetailed(existingApplication.status)}</p>
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               <p>ברגע שיהיה שינוי בסטטוס, זה יופיע כאן ובהמשך גם בדשבורד.</p>
               <div className="flex gap-3 pt-2">

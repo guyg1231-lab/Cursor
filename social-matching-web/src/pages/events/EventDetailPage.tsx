@@ -15,6 +15,7 @@ import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   canReapplyToEvent,
   formatApplicationStatusDetailed,
+  formatLifecycleDateTime,
   isAwaitingParticipantResponse,
   isConfirmedParticipation,
   isOfferExpired,
@@ -170,6 +171,14 @@ export function EventDetailPage() {
                   offerExpired
                     ? 'המקום הזמני כבר לא ממתין לתגובה.'
                     : 'כדי לשמור על המקום צריך להיכנס למסך ההרשמה ולהגיב בזמן.'
+                }
+                footer={
+                  application?.expires_at ? (
+                    <p>
+                      <strong className="text-foreground">יש להגיב עד:</strong>{' '}
+                      {formatLifecycleDateTime(application.expires_at)}
+                    </p>
+                  ) : null
                 }
               />
             ) : confirmedParticipation ? (
