@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
@@ -22,7 +22,6 @@ import {
 } from '@/features/applications/status';
 
 export function EventDetailPage() {
-  const navigate = useNavigate();
   const { eventId } = useParams();
   const { user } = useAuth();
   const [event, setEvent] = useState<VisibleEvent | null>(null);
@@ -124,19 +123,20 @@ export function EventDetailPage() {
           <Link to="/events">חזרה לכל המפגשים</Link>
         </Button>
         {awaitingResponse ? (
-          <Button
-            variant={offerExpired ? 'outline' : 'primary'}
-            onClick={() => navigate(`/events/${event.id}/apply`)}
-          >
-            {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'למקום הזמני ולתגובה'}
+          <Button asChild variant={offerExpired ? 'outline' : 'primary'}>
+            <Link to={`/events/${event.id}/apply`}>
+              {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'למקום הזמני ולתגובה'}
+            </Link>
           </Button>
         ) : hasApplication && !canReapplyToEvent(application!.status) ? (
-          <Button variant="outline" onClick={() => navigate(`/events/${event.id}/apply`)}>
-            לסטטוס ההרשמה
+          <Button asChild variant="outline">
+            <Link to={`/events/${event.id}/apply`}>לסטטוס ההרשמה</Link>
           </Button>
         ) : event.is_registration_open ? (
-          <Button variant="primary" onClick={() => navigate(`/events/${event.id}/apply`)}>
-            {application ? 'להגיש שוב' : 'להגיש מועמדות'}
+          <Button asChild variant="primary">
+            <Link to={`/events/${event.id}/apply`}>
+              {application ? 'להגיש שוב' : 'להגיש מועמדות'}
+            </Link>
           </Button>
         ) : (
           <Button asChild variant="outline">
