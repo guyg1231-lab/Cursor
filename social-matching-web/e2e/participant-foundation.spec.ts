@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
 test.describe('participant foundation', () => {
@@ -11,5 +12,19 @@ test.describe('participant foundation', () => {
         name: /להגיש מועמדות|להגיש שוב|לסטטוס ההרשמה|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
       }).first(),
     ).toBeVisible();
+  });
+
+  test('authenticated participant sees a readiness message before applying when blocked', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+
+    await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+    await expect(
+      page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/צריך להשלים את הפרופיל|המקום שלך במפגש נשמר|כבר קיימת הגשה/i)).toBeVisible();
+
+    await ctx.close();
   });
 });
