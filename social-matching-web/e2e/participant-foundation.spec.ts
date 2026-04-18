@@ -423,4 +423,16 @@ test.describe('participant foundation', () => {
       await ctx.close();
     }
   });
+
+  test('landing page primary CTAs link to events and questionnaire', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/');
+      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להתחיל פרופיל' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
 });
