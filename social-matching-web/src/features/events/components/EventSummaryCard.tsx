@@ -5,7 +5,16 @@ import { formatEventDate } from '@/features/events/formatters';
 import { tokens } from '@/lib/design-tokens';
 import type { VisibleEvent } from '@/features/events/types';
 
+const DESCRIPTION_PREVIEW_MAX_LENGTH = 120;
+
+function truncateForPreview(input: string, max: number): string {
+  if (input.length <= max) return input;
+  return `${input.slice(0, max).trimEnd()}…`;
+}
+
 export function EventSummaryCard({ event }: { event: VisibleEvent }) {
+  const description = event.description?.trim() ?? '';
+
   return (
     <Card className={tokens.card.accent}>
       <CardHeader>
@@ -15,6 +24,11 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
         <p>
           <strong className="text-foreground">עיר:</strong> {event.city}
         </p>
+        {description.length > 0 ? (
+          <p className="text-foreground/75 leading-relaxed">
+            {truncateForPreview(description, DESCRIPTION_PREVIEW_MAX_LENGTH)}
+          </p>
+        ) : null}
         <p>
           <strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}
         </p>
