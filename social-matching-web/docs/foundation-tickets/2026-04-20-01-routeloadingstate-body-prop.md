@@ -1,6 +1,6 @@
 # F-1: `RouteLoadingState` should accept a Hebrew body (or a `body` prop)
 
-- **Status:** proposed
+- **Status:** in-progress
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Dev A (deferred `EventsPage.tsx` loading-state normalization); Dev B (upcoming host/admin loading states in Hebrew)
 - **Blocking:** No (workaround: inline `Card` with Hebrew copy)

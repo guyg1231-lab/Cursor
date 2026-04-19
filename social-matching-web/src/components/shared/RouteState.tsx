@@ -7,6 +7,11 @@ type RouteStateProps = {
   tone?: 'default' | 'danger';
 };
 
+type RouteLoadingStateProps = {
+  title?: string;
+  body?: string;
+};
+
 function RouteStateCard({ title, body, tone = 'default' }: RouteStateProps) {
   return (
     <Card className={tokens.card.surface}>
@@ -22,8 +27,11 @@ function RouteStateCard({ title, body, tone = 'default' }: RouteStateProps) {
   );
 }
 
-export function RouteLoadingState({ title = 'Loading…' }: { title?: string } = {}) {
-  return <RouteStateCard title={title} body="Please wait while this page loads." />;
+export function RouteLoadingState({
+  title = 'טוענים…',
+  body = 'המערכת טוענת את הדף, רק רגע.',
+}: RouteLoadingStateProps = {}) {
+  return <RouteStateCard title={title} body={body} />;
 }
 
 export function RouteEmptyState({ title, body }: RouteStateProps) {

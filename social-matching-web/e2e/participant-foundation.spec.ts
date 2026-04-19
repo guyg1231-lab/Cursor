@@ -5,6 +5,54 @@ import { createServiceRoleClient } from './fixtures/supabase';
 import { withFlippedRegistrationStatus } from './fixtures/registrations';
 
 test.describe('participant foundation', () => {
+  test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
+    let releaseEventsRequest: (() => void) | null = null;
+    const eventsRequestReleased = new Promise<void>((resolve) => {
+      releaseEventsRequest = resolve;
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await eventsRequestReleased;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'playwright-f-1-event',
+            title: 'מפגש בדיקת טעינה',
+            description: 'נתון מדומה לבדיקת RouteLoadingState',
+            city: 'תל אביב',
+            starts_at: '2026-05-01T18:00:00.000Z',
+            registration_deadline: '2026-04-30T18:00:00.000Z',
+            venue_hint: 'מיקום יישלח בהמשך',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+    await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
+
+    if (!releaseEventsRequest) {
+      throw new Error('Expected events request interception to be installed.');
+    }
+    releaseEventsRequest();
+
+    await expect(page.getByText('מפגש בדיקת טעינה', { exact: true })).toBeVisible();
+  });
+
   test('discovery links into canonical event detail before apply', async ({ page }) => {
     await page.goto('/events');
     await page.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first().click();
