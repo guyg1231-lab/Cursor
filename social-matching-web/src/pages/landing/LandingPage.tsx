@@ -15,7 +15,7 @@ export function LandingPage() {
       <section className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] items-start">
         <Card className={tokens.card.accent}>
           <CardHeader className="space-y-3">
-            <p className={tokens.typography.eyebrow}>Curated social matching</p>
+            <p className={tokens.typography.eyebrow}>מפגשים מאוצרים</p>
             <CardTitle className="text-2xl md:text-3xl leading-tight">
               לא מגיעים לבד לרנדום — מצטרפים לקבוצה קטנה שמרגישה יותר נכונה.
             </CardTitle>
