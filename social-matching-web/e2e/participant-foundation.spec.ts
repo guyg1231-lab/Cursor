@@ -303,6 +303,40 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('gathering: waitlist status renders Hebrew label, not raw enum', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'waitlist' },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/gathering/${ENV.EVENT_ID}`);
+          await expect(page.getByText(/הסטטוס הנוכחי שלך/)).toBeVisible({ timeout: 15_000 });
+          await expect(page.locator('body')).not.toContainText(/waitlist|cancelled|no_show/i);
+          await expect(page.getByText('רשימת המתנה', { exact: false })).toBeVisible();
+        } finally {
+          try {
+            await ctx.close();
+          } catch {
+            // Ignore browser context close failures during teardown.
+          }
+        }
+      },
+    );
+  });
+
   test('landing page primary CTAs link to events and questionnaire', async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();

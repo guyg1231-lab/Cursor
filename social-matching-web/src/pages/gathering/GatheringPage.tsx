@@ -23,7 +23,11 @@ import type {
   EventRegistrationRow,
   PersistedApplicationAnswers,
 } from '@/features/applications/types';
-import { formatLifecycleDateTime, isOfferExpired } from '@/features/applications/status';
+import {
+  formatApplicationStatusShort,
+  formatLifecycleDateTime,
+  isOfferExpired,
+} from '@/features/applications/status';
 
 export function GatheringPage() {
   const { eventId } = useParams();
@@ -546,7 +550,7 @@ function StatusPanel(props: {
   const submittedAnswers = parseAnswers(registration.application_answers);
   return (
     <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm space-y-2">
-      <p className="font-medium text-foreground">הסטטוס הנוכחי שלך: {status}</p>
+      <p className="font-medium text-foreground">הסטטוס הנוכחי שלך: {formatApplicationStatusShort(status)}</p>
       {submittedAnswers ? (
         <p className="text-muted-foreground">
           הגשת ב-{new Date(submittedAnswers.submitted_at).toLocaleString('he-IL')}.
