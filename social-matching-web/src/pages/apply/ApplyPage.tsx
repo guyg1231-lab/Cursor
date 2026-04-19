@@ -38,6 +38,17 @@ import type {
 } from '@/features/applications/types';
 import type { VisibleEvent } from '@/features/events/types';
 
+const WHAT_YOU_BRING_OPTIONS = [
+  { value: 'openness', label: 'פתיחות' },
+  { value: 'curiosity', label: 'סקרנות' },
+  { value: 'good_energy', label: 'אנרגיה טובה' },
+  { value: 'listening', label: 'הקשבה ונוכחות' },
+] as const;
+
+const WHAT_YOU_BRING_LABELS: Record<string, string> = Object.fromEntries(
+  WHAT_YOU_BRING_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
+
 function keyFor(eventId: string | undefined) {
   return `social-matching-apply-draft:${eventId ?? 'unknown'}`;
 }
@@ -58,14 +69,6 @@ function SubmittedAnswersSummary({
     inspiration: 'השראה / פתיחת אופקים',
   };
 
-  const whatYouBringLabels: Record<string, string> = {
-    openness: 'פתיחות',
-    curiosity: 'סקרנות',
-    warmth: 'חום אנושי',
-    humor: 'הומור',
-    listening: 'הקשבה',
-  };
-
   return (
     <Card className={tokens.card.surface}>
       <CardHeader>
@@ -84,7 +87,7 @@ function SubmittedAnswersSummary({
           </div>
           <div className="space-y-1">
             <p className="font-medium text-foreground">מה רצית להביא לקבוצה?</p>
-            <p>{whatYouBringLabels[answers.what_you_bring] ?? answers.what_you_bring}</p>
+            <p>{WHAT_YOU_BRING_LABELS[answers.what_you_bring] ?? answers.what_you_bring}</p>
           </div>
           {answers.host_note ? (
             <div className="space-y-1">
@@ -656,10 +659,11 @@ export function ApplyPage() {
               className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
             >
               <option value="">בחר/י תשובה אחת</option>
-              <option value="openness">פתיחות</option>
-              <option value="curiosity">סקרנות</option>
-              <option value="good_energy">אנרגיה טובה</option>
-              <option value="listening">הקשבה ונוכחות</option>
+              {WHAT_YOU_BRING_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
 
