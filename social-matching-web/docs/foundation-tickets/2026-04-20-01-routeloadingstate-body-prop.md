@@ -39,8 +39,7 @@ loading state as an inline bespoke `Card`:
 ) : ...}
 ```
 
-This is the only inline state card on the normalized participant surface, and
-it exists purely because `RouteLoadingState` cannot render a Hebrew body.
+`EventsPage` hand-rolls an inline `Card` specifically for the loading state (its error and empty states already use `RouteErrorState` and `RouteEmptyState`); it cannot yet adopt `RouteLoadingState` because the primitive does not accept a Hebrew body paragraph. Other participant pages (`ApplyPage`, `GatheringPage`, `EventDetailPage`) still hand-roll inline Cards for various non-success states and will migrate once `RouteLoadingState` ships with a `body` prop and a broader Dev A sweep extracts the shared patterns.
 
 Dev B will hit the same issue on every host/admin page that needs a
 Hebrew-facing loading state.
