@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-21  
 **Audience:** Developer A (participant surface), orchestrators, product  
-**Status:** Active handoff — Pass-3 remediation stack is merged to `main`  
+**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`; Dev B / Foundation carry forward workstreams.  
 **Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`
 
 ---
@@ -168,7 +168,7 @@ Completed in commit `3aab34f` (pushed to `main`):
 ### Phase 3 — Close Dev A chapter (handoff)
 
 1. Confirm `main` green.  
-2. Update **this** document’s **Status** header to `Complete — maintenance mode` when Phase 0 is done and Dev B is primary.  
+2. ~~Update **this** document’s **Status** header~~ — **done** (maintenance mode).  
 3. Optional git tag.
 
 ---
@@ -205,3 +205,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 | 2026-04-21 | Initial audit + plan after Pass-3 stack + host copy follow-up on `main` |
 | 2026-04-21 | Phase 0 kickoff sync landed; audit Phase 0 section marked done |
 | 2026-04-21 | D-2/D-3/T-1 resolved in docs; `typecheck` script + kickoff §1; verification gates prefer `npm run typecheck` |
+| 2026-04-21 | Status header → maintenance mode; Phase 0 follow-up noted merged on `main` |
