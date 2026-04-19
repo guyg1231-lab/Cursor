@@ -315,7 +315,11 @@ function FieldLabel({ title, hint }: { title: string; hint?: string }) {
   );
 }
 
-export function ProfileBaseQuestionnaire() {
+type ProfileBaseQuestionnaireProps = {
+  onLoadError?: (hasError: boolean) => void;
+};
+
+export function ProfileBaseQuestionnaire({ onLoadError }: ProfileBaseQuestionnaireProps = {}) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const text = copy[language];
@@ -341,6 +345,7 @@ export function ProfileBaseQuestionnaire() {
         if (!active) return;
         if (fetchError) {
           setError(text.loadRemoteError);
+          onLoadError?.(true);
           setLoadedRemote(true);
           return;
         }
@@ -367,6 +372,7 @@ export function ProfileBaseQuestionnaire() {
           }));
         }
 
+        onLoadError?.(false);
         setLoadedRemote(true);
       });
 
