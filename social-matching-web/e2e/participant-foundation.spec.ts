@@ -26,7 +26,7 @@ test.describe('participant foundation', () => {
       page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה/i }),
     ).toBeVisible();
     await expect(
-      page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|כבר קיימת הגשה/i),
+      page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה/i),
     ).toBeVisible();
 
     await ctx.close();
