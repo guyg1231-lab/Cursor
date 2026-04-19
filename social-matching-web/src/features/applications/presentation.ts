@@ -53,7 +53,6 @@ export function resolveApplicationPanelContent(
     return {
       title: 'המפגש כבר הסתיים',
       body: formatApplicationStatusDetailed(application.status),
-      footer: 'כבר קיימת הגשה למפגש הזה.',
     };
   }
 
@@ -61,7 +60,6 @@ export function resolveApplicationPanelContent(
     return {
       title: 'ההגשה ברשימת המתנה',
       body: formatApplicationStatusDetailed(application.status),
-      footer: 'כבר קיימת הגשה למפגש הזה.',
     };
   }
 
@@ -69,7 +67,6 @@ export function resolveApplicationPanelContent(
     return {
       title: 'ההגשה שלך נשלחה',
       body: formatApplicationStatusDetailed(application.status),
-      footer: 'כבר קיימת הגשה למפגש הזה.',
     };
   }
 
