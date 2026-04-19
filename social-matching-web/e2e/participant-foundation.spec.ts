@@ -337,6 +337,38 @@ test.describe('participant foundation', () => {
     );
   });
 
+  test('auth: OTP failure shows OTP-specific error without misleading banner', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      await page.route('**/auth/v1/otp**', async (route) => {
+        if (route.request().method() !== 'POST') {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      });
+      await page.route('**/auth/v1/verify**', async (route) => {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'invalid_grant', error_description: 'Invalid OTP' }),
+        });
+      });
+
+      await page.goto('/auth');
+      await page.getByLabel('אימייל').fill(ENV.EMAILS.P1);
+      await page.getByRole('button', { name: 'לשלוח קוד אימות' }).click();
+      await expect(page.getByLabel('קוד אימות')).toBeVisible({ timeout: 15_000 });
+      await page.getByLabel('קוד אימות').fill('000000');
+      await page.getByRole('button', { name: /לאמת קוד/ }).click();
+      await expect(page.getByText('לא הצלחנו לשלוח קישור כניסה')).toHaveCount(0);
+      await expect(page.getByText(/הקוד שגוי או שפג תוקפו/)).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('landing page primary CTAs link to events and questionnaire', async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();

@@ -220,7 +220,7 @@ export function AuthPage() {
       title="כניסה לאזור האישי"
       subtitle="נשלח לך קוד חד-פעמי למייל, ואחרי האימות נחזיר אותך בדיוק למקום שממנו רצית להמשיך."
     >
-      {submitError ? (
+      {submitError && step === 'email' ? (
         <div className="mb-4">
           <RouteErrorState title="לא הצלחנו לשלוח קישור כניסה" body={submitError} />
         </div>
