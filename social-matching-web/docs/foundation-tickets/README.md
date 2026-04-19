@@ -52,3 +52,4 @@ folder as historical record (do not delete).
 | [F-7: PlaceholderPanel English + enum leak](2026-04-20-07-placeholderpanel-english-enum.md) | done | Placeholder surfaces |
 | [F-8: AppHeader mixed i18n](2026-04-20-08-appheader-mixed-i18n.md) | done | i18n consistency |
 | [F-9: Missing Link/Badge primitives](2026-04-20-09-missing-ui-primitives-link-badge.md) | done | Low priority, filed for visibility |
+| [F-10: Legal stub routes](2026-04-19-10-legal-stub-routes.md) | done | Public trust, landing footer |

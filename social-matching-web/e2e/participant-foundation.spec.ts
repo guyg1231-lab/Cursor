@@ -470,6 +470,27 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('landing footer links to terms and privacy stubs', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/');
+      const terms = page.getByRole('link', { name: 'תנאי שימוש' });
+      const privacy = page.getByRole('link', { name: 'מדיניות פרטיות' });
+      await expect(terms).toHaveAttribute('href', '/terms');
+      await expect(privacy).toHaveAttribute('href', '/privacy');
+
+      await terms.click();
+      await expect(page.getByRole('heading', { level: 1, name: 'תנאי שימוש' })).toBeVisible();
+
+      await page.goto('/');
+      await privacy.click();
+      await expect(page.getByRole('heading', { level: 1, name: 'מדיניות פרטיות' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('landing: page body contains no English brand token', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {

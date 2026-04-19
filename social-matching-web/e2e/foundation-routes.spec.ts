@@ -138,6 +138,8 @@ test.describe('foundation routes', () => {
     expect(routeManifest).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ path: '/auth', workstream: 'participant', auth: 'public' }),
+        expect.objectContaining({ path: '/terms', workstream: 'participant', auth: 'public' }),
+        expect.objectContaining({ path: '/privacy', workstream: 'participant', auth: 'public' }),
         expect.objectContaining({ path: '/questionnaire', workstream: 'participant', auth: 'preview' }),
         expect.objectContaining({ path: '/auth/callback', workstream: 'participant', auth: 'preview' }),
         expect.objectContaining({ path: '/events/:eventId/apply', workstream: 'participant', auth: 'protected' }),

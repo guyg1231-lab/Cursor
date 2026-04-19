@@ -87,6 +87,18 @@ export function LandingPage() {
           </CardContent>
         </Card>
       </section>
+
+      <footer className="pt-8 border-t border-border/60 text-center text-xs text-muted-foreground">
+        <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="מסמכים משפטיים">
+          <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
+            תנאי שימוש
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
+            מדיניות פרטיות
+          </Link>
+        </nav>
+      </footer>
     </PageShell>
   );
 }

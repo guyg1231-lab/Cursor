@@ -29,6 +29,7 @@ Operational and execution-facing docs:
 - admin review notes
 - host submission shortcut notes
 - real-event runbooks and templates
+- [`ops/public-readiness-smoke-checklist.md`](ops/public-readiness-smoke-checklist.md) — post-deploy smoke for participant app
 
 ### `adr/`
 
@@ -51,6 +52,8 @@ Current plan set:
 - shared foundation normalization
 - developer A participant workstream
 - developer B host/admin workstream
+- [`superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`](superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md) — phased public-readiness plan (Dev A scope)
+- [`superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`](superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md) — maintenance audit and gates
 
 ## Cleanup Rule
 

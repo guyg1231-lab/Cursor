@@ -2,8 +2,8 @@
 
 **Created:** 2026-04-21  
 **Audience:** Developer A (participant surface), orchestrators, product  
-**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`. **Foundation wave 2 (F-1…F-9)** is **implemented and indexed as done** in `docs/foundation-tickets/README.md`. Remaining Dev A work is **optional quality**, **participant feature** backlog, and **lightweight regression** when shared code changes — not blocked on Foundation tickets.  
-**Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`
+**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`. **Foundation wave 2 (F-1…F-10)** is **implemented and indexed as done** in `docs/foundation-tickets/README.md`. Remaining Dev A work is **optional quality**, **participant feature** backlog, and **lightweight regression** when shared code changes — not blocked on Foundation tickets.  
+**Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`, `docs/superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`
 
 ---
 
@@ -21,7 +21,7 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 
 - **Foundation-owned:** `src/app/router/**`, `src/components/shared/**`, `src/components/ui/**`, `src/lib/design-tokens.ts` — changes only via Foundation tickets or explicit Foundation PRs.  
 - **Dev B-owned:** `src/pages/host/**`, `src/pages/admin/**`, `src/features/host-events/**`, `src/features/admin/**`, `e2e/host-admin-foundation.spec.ts`.  
-- **Dev A-owned:** participant routes under `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth}/**`, participant-related `src/features/**` (except Foundation-declared locks), `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared E2E fixtures Dev A introduced (`e2e/fixtures/registrations.ts`, etc.), `src/components/participant/**`.
+- **Dev A-owned:** participant routes under `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth,legal}/**`, participant-related `src/features/**` (except Foundation-declared locks), `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared E2E fixtures Dev A introduced (`e2e/fixtures/registrations.ts`, etc.), `src/components/participant/**`.
 
 ---
 
@@ -30,8 +30,8 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | Check | Command / source | Result (audit date) |
 |--------|------------------|----------------------|
 | Typecheck (real) | `npm run typecheck` (→ `tsc -b --noEmit`) | Exit `0` |
-| E2E (Chromium) | `npx playwright test --project=chromium` | **35** tests, **5** files — all passing |
-| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 35 tests in 5 files` |
+| E2E (Chromium) | `npx playwright test --project=chromium` | **36** tests, **5** files — all passing |
+| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 36 tests in 5 files` |
 | Participant “event not found” duplication | `rg 'המפגש לא נמצא' src/` | Single shared component `src/components/participant/EventNotFound.tsx` + **out-of-scope** `TeamGatheringPage.tsx` (admin) |
 
 **Merged Pass-3 + follow-up (chronological, high level)**
@@ -57,11 +57,11 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | ~~D-3~~ | ~~**Pass-3 design spec** §1 audit-era counts~~ | **Resolved** (2026-04-21) | `2026-04-19-pass-3-remediation-design.md` §1 reframed as historical baseline + **completed** outcome + link to this audit |
 | ~~D-4~~ | ~~Implementation plan **checkboxes**~~ | **Resolved** (2026-04-19) | `2026-04-19-pass-3-remediation-implementation.md`: all list items `- [x]`; banner updated |
 
-**Recommendation:** D-1, D-3, and most of D-2 are **done** on `main` (2026-04-21 pass). **D-4** remains optional cosmetic. **T-1** (below) is **resolved** via root `package.json` `typecheck` → `tsc -b --noEmit`.
+**Recommendation:** D-1, D-3, D-4, and most of D-2 are **done** on `main` (2026-04-21 pass). **T-1** (below) is **resolved** via root `package.json` `typecheck` → `tsc -b --noEmit`.
 
 ### 3.2 Foundation ticket queue — **resolved on `main` (2026-04)**
 
-Tickets **F-1…F-9** are **done** (see `docs/foundation-tickets/README.md`). Dev A **consumes** the outcomes (e.g. `RouteLoadingState` defaults, guard Hebrew, `StatusBadge` tones, `RouterLinkButton`, manifest `preview` tier) but does **not** re-open Foundation work except via **new** foundation tickets.
+Tickets **F-1…F-10** are **done** (see `docs/foundation-tickets/README.md`). Dev A **consumes** the outcomes (e.g. `RouteLoadingState` defaults, guard Hebrew, `StatusBadge` tones, `RouterLinkButton`, manifest `preview` tier, legal stub routes) but does **not** re-open Foundation work except via **new** foundation tickets.
 
 | Follow-up | Note |
 |-----------|------|
@@ -194,6 +194,7 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 
 | Date | Change |
 |------|--------|
+| 2026-04-19 | Public-readiness master plan + smoke checklist; F-10 legal stubs; audit §2 → **36** tests; D-4 recommendation corrected; foundation index F-1…F-10 |
 | 2026-04-21 | Initial audit + plan after Pass-3 stack + host copy follow-up on `main` |
 | 2026-04-21 | Phase 0 kickoff sync landed; audit Phase 0 section marked done |
 | 2026-04-21 | D-2/D-3/T-1 resolved in docs; `typecheck` script + kickoff §1; verification gates prefer `npm run typecheck` |

@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/landing/LandingPage';
+import { PrivacyPage } from '@/pages/legal/PrivacyPage';
+import { TermsPage } from '@/pages/legal/TermsPage';
 import { EventsPage } from '@/pages/events/EventsPage';
 import { EventDetailPage } from '@/pages/events/EventDetailPage';
 import { QuestionnairePage } from '@/pages/questionnaire/QuestionnairePage';
@@ -27,6 +29,8 @@ export function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/sign-in" element={<AuthPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
