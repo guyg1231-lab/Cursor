@@ -390,81 +390,73 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('questionnaire: success state shows CTAs to gatherings and dashboard after save', async ({ browser }) => {
-    test.skip(
-      true,
-      'Requires a staging fixture user whose matching_responses can be mutated and restored. Plan #5/#6 will introduce a dedicated questionnaire-save fixture helper; until then, rely on typecheck + manual verification (persistProfile succeeds → questionnaireSuccessTitle appears with two CTAs).',
-    );
-
+  // §13.2 questionnaire workflow verification.
+  //
+  // Drives the full 3-step questionnaire form end-to-end and asserts the
+  // post-save success state (title + two CTAs linking to /events and
+  // /dashboard). The underlying persistProfile() makes two writes: a PATCH
+  // to `profiles` and an upsert (POST) to `matching_responses`. Both are
+  // intercepted at the Playwright level and fulfilled with 200 so the test
+  // exercises the real client + UI flow without mutating staging data.
+  //
+  // The GET on `matching_responses` is also intercepted (returns `[]`) so
+  // the form boots in "new user" shape regardless of which authenticated
+  // user we pick — this lets us reuse P1 as the auth identity without
+  // depending on her DB state.
+  test('questionnaire: full workflow completes and lands on success state with CTAs', async ({ browser }) => {
     const ctx = await browser.newContext();
     await authenticateAs(ctx, ENV.EMAILS.P1);
     const page = await ctx.newPage();
     try {
+      await page.route('**/rest/v1/matching_responses**', async (route) => {
+        const method = route.request().method();
+        if (method === 'GET') {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+        }
+        if (method === 'POST' || method === 'PATCH') {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+        }
+        return route.continue();
+      });
+      await page.route('**/rest/v1/profiles**', async (route) => {
+        if (route.request().method() === 'PATCH') {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+        }
+        return route.continue();
+      });
+
       await page.goto('/questionnaire');
-      // Future: drive the form through all 3 steps, click submit, then:
+      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+
+      await page.locator('input[type="text"]').first().fill('אורית בדיקה');
+      await page.locator('input[type="email"]').first().fill('questionnaire.e2e@gmail.com');
+      await page.locator('input[type="tel"]').first().fill('0501234567');
+      await page.locator('input[type="url"]').first().fill('https://instagram.com/testuser');
+      await page.locator('input[type="date"]').first().fill('1990-01-01');
+
+      await page.getByRole('button', { name: 'המשך' }).click();
+
+      await expect(page.getByText('מוזיקה', { exact: true })).toBeVisible();
+
+      await page.locator('input[type="text"]').nth(0).fill('תל אביב');
+      await page.locator('input[type="text"]').nth(1).fill('חיפה');
+      await page.getByRole('button', { name: 'עברית', exact: true }).click();
+      await page.getByRole('button', { name: 'מוזיקה', exact: true }).click();
+      await page.getByRole('button', { name: 'יוזם/ת', exact: true }).click();
+      await page.getByRole('button', { name: 'עם אנשים', exact: true }).click();
+      await page.getByRole('button', { name: 'שיחה קלה ונעימה', exact: true }).click();
+      await page.getByRole('button', { name: 'אנשים דומים לי', exact: true }).click();
+      await page.getByRole('button', { name: 'להכיר אנשים חדשים', exact: true }).click();
+
+      await page.getByRole('button', { name: 'המשך' }).click();
+
+      await page.locator('textarea').first().fill('זה טקסט בדיקה ארוך מספיק כדי לעבור את האימות של החלק הזה בשאלון.');
+
+      await page.getByRole('button', { name: 'שמירת פרופיל' }).click();
+
       await expect(page.getByText('הפרופיל נשמר. מה הלאה?', { exact: true })).toBeVisible();
       await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveAttribute('href', '/events');
       await expect(page.getByRole('link', { name: 'לאזור האישי' })).toHaveAttribute('href', '/dashboard');
-    } finally {
-      await ctx.close();
-    }
-  });
-});
-
-// §13.2 new-user workflow scaffold. `test.describe.skip` — not `serial` — because
-// Playwright runs `beforeAll`/`afterAll` even when an inner `test.skip(true, ...)`
-// short-circuits the test body. Deleting P2's matching_responses on every full
-// Playwright run and relying on `afterAll` restore would strand staging data if
-// the restore ever failed. `describe.skip` skips hooks too, keeping this scaffold
-// inert until a disposable fixture user exists (Plan #5/#6). To enable later:
-//   1. Seed a dedicated disposable participant user (own email) with no matching_responses.
-//   2. Replace `test.describe.skip` with `test.describe.serial`.
-//   3. Remove the inner `test.skip(true, ...)` guard.
-//   4. Swap `ENV.EMAILS.P2` for the disposable user's env var.
-test.describe.skip('questionnaire workflow §13.2 (optional)', () => {
-  const admin = createServiceRoleClient();
-  let userId: string;
-  let hadRow: boolean;
-  let snapshot: Record<string, unknown> | null;
-
-  test.beforeAll(async () => {
-    const { data: profile, error } = await admin
-      .from('profiles')
-      .select('id')
-      .eq('email', ENV.EMAILS.P2)
-      .maybeSingle();
-    if (error) throw error;
-    if (!profile?.id) throw new Error('Missing profile for ENV.EMAILS.P2');
-    userId = profile.id;
-
-    const { data: row } = await admin
-      .from('matching_responses')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
-    hadRow = Boolean(row);
-    snapshot = row ? { ...row } : null;
-
-    const { error: delError } = await admin.from('matching_responses').delete().eq('user_id', userId);
-    if (delError) throw delError;
-  });
-
-  test.afterAll(async () => {
-    if (!hadRow) return;
-    if (!snapshot) return;
-    const { error } = await admin.from('matching_responses').upsert(snapshot, { onConflict: 'user_id' });
-    if (error) throw error;
-  });
-
-  test('new user completes questionnaire and can proceed toward apply', async ({ browser }) => {
-    const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.P2);
-    const page = await ctx.newPage();
-    try {
-      await page.goto('/questionnaire');
-      // TODO: drive the form through all 3 steps, submit, then assert
-      // readiness flips and apply unblocks per spec §13.2.
-      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
     } finally {
       await ctx.close();
     }
