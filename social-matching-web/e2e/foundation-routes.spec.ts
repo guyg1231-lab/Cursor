@@ -68,6 +68,30 @@ test.describe('foundation routes', () => {
     }
   });
 
+  test('signed-out admin route preserves returnTo through sign-in', async ({ page }) => {
+    await page.goto('/admin/events/future-event/diagnostics');
+    await expect(page).toHaveURL(/\/(sign-in|auth)(\?|$)/);
+    await expect(page).toHaveURL(/returnTo=.*admin.*events.*future-event.*diagnostics/);
+    await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
+  });
+
+  test('signed-in non-admin sees an explicit denied state on admin routes', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.goto('/admin/events/future-event/diagnostics');
+
+      await expect(page).toHaveURL(/\/admin\/events\/future-event\/diagnostics$/);
+      await expect(page.getByText('אין לך גישה לעמוד הזה', { exact: true })).toBeVisible();
+      await expect(page.getByText('העמוד הזה זמין רק לצוות התפעול.', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'חזרה לדף הבית' })).toHaveAttribute('href', '/');
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('host placeholder routes render a stable heading and placeholder panel', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {

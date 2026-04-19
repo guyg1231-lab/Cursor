@@ -1,6 +1,6 @@
 # F-5: `AdminRoute` silent redirect vs. `ProtectedRoute` auth-with-return
 
-- **Status:** proposed
+- **Status:** in-progress
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Non-admin users (and signed-out visitors) hitting any `/admin/*` URL get dumped to the landing page silently, with zero feedback about why. UX failure for anyone who mistypes an admin URL, follows a stale link, or loses admin privileges mid-session. Also makes negative-case guard testing impossible without an observable denial state — an E2E test cannot distinguish "admin route denied" from "admin home briefly rendered then redirected" from "user was never signed in".
 - **Blocking:** Blocks a complete foundation-routes E2E suite that exercises the guard denial path.
