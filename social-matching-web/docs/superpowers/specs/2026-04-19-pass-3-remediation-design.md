@@ -91,7 +91,7 @@ Sequential execution by the orchestrator. **Read-only subagents** are used for: 
 **Files modified:**
 - `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`
 - `docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md`
-- Any doc that references `npm run typecheck` as if it works.
+- Any *active* handoff doc that still describes `npm run typecheck` incorrectly (historically: some docs called it a no-op; root `package.json` now wires it to `tsc -b --noEmit`).
 
 **Known falsehoods to correct:**
 
@@ -100,7 +100,7 @@ Sequential execution by the orchestrator. **Read-only subagents** are used for: 
 3. Claim that `RouteLoadingState` is i18n-ready (it hardcodes English; F-1 is open).
 4. Claim that `/landing` is a distinct route (`/landing` is mapped to `/` in `AppRouter.tsx`).
 5. F-1 ticket's "only inline state card" claim is inaccurate (there are other inline states; F-1 is about `RouteLoadingState`'s API, not scope).
-6. `npm run typecheck` is a no-op; every reference must be removed or annotated with a pointer to `npx tsc -b --noEmit`.
+6. ~~`npm run typecheck` is a no-op~~ — **Superseded (2026-04-21):** script runs `tsc -b --noEmit`. Active docs should prefer `npm run typecheck` or state equivalence to `npx tsc -b --noEmit`.
 
 **Verification:** read-only subagent cross-references all claims against code and confirms zero remaining inaccuracies.
 
@@ -235,7 +235,7 @@ Both pages currently mix inline error renderings with `RouteErrorState` usage el
 - No doc claims `RouteLoadingState` is i18n-ready.
 - No doc claims `/landing` is a distinct route.
 - F-1 ticket no longer contains the "only inline state card" claim.
-- Every `npm run typecheck` reference is removed or annotated as a no-op.
+- Active handoff docs do not claim `npm run typecheck` is a no-op; they match `package.json` (`tsc -b --noEmit`).
 
 **SP-E — Foundation tickets:**
 - Seven new ticket files exist at agreed paths.

@@ -19,7 +19,7 @@
 - Do NOT touch `src/app/router/*`, `src/components/shared/*` (read-only), `features/applications/status.ts` (frozen), `api.ts` (frozen), `ApplicationStatusPanel.tsx` (prop API frozen), host/admin pages, `e2e/foundation-routes.spec.ts`, `e2e/slice-*.spec.ts`.
 - `presentation.ts` IS Dev A-owned and in scope for D6.
 - Playwright `e2e/` uses relative imports; no `@/` alias resolution.
-- Typecheck: `npx tsc -b --noEmit` (never `npm run typecheck` — that's a no-op).
+- Typecheck: `npm run typecheck` (→ `tsc -b --noEmit`) or equivalently `npx tsc -b --noEmit`.
 
 ---
 

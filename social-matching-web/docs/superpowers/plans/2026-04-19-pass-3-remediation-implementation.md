@@ -1947,6 +1947,6 @@ Return a PASS/FAIL matrix. Do not propose changes.
 - `ApplicationLifecycleList` → `presentation.ts` full migration dropped: evidence shows partial overlap. Filed as a spec-followup note, not a task here.
 - Email/OTP placeholder English retention (`name@example.com`, `123456`): format hints, not prose. Retained in Task C.7 with explicit rationale.
 - ApplyPage/DashboardPage error normalization: no-op after `EventNotFound` extraction. The audit's "6 error paths" conflated loading/flow/error states; only `event-not-found` was genuinely a RouteErrorState candidate and it's handled by C.3.
-- Historical plan docs under `docs/superpowers/plans/2026-04-18-*` still contain `npm run typecheck` references. The spec acceptance criterion "every reference is removed or annotated" is narrowed to *active* docs only (the Dev B kickoff, which is already correct per Task A.4). Historical plan docs are frozen execution artifacts and are not updated retroactively; anyone rerunning them would hit the no-op silently, but no one does.
+- Historical plan docs under `docs/superpowers/plans/2026-04-18-*` may still describe the **old** `typecheck` no-op; root `package.json` now runs `tsc -b --noEmit`. The spec acceptance criterion applies to *active* handoff docs (kickoff, audit, Pass-3 spec/plan). Frozen 2026-04-18 execution artifacts are not bulk-edited retroactively.
 
 These are tightening, not scope-creep — each is documented in its own task with rationale.
