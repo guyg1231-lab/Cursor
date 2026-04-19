@@ -45,7 +45,7 @@ folder as historical record (do not delete).
 | --- | --- | --- |
 | [F-1: `RouteLoadingState` body prop](2026-04-20-01-routeloadingstate-body-prop.md) | done | Dev A (deferred), Dev B (upcoming) |
 | [F-2: `/questionnaire` guard semantics](2026-04-20-02-questionnaire-guard-semantics.md) | proposed | Routing / spec alignment |
-| [F-3: Phantom `/host/settings` route](2026-04-20-03-routemanifest-phantom-host-settings.md) | proposed | Routing documentation accuracy |
+| [F-3: Phantom `/host/settings` route](2026-04-20-03-routemanifest-phantom-host-settings.md) | in-progress | Routing documentation accuracy |
 | [F-4: Hardcoded English "Loading..." in guards](2026-04-20-04-guards-hardcoded-english-loading.md) | done | Participant UI English leak |
 | [F-5: AdminRoute silent redirect](2026-04-20-05-adminroute-redirect-inconsistency.md) | proposed | Admin UX, guard testability |
 | [F-6: StatusBadge narrow tone model](2026-04-20-06-statusbadge-tone-model.md) | proposed | All lifecycle surfaces |

@@ -242,13 +242,4 @@ export const routeManifest: RouteManifestEntry[] = [
     supportedStates: ['loading', 'error', 'unavailable', 'success'],
     nextSteps: ['/admin/events/:eventId'],
   },
-  {
-    path: '/host/settings',
-    workstream: 'host',
-    auth: 'protected',
-    dataStatus: 'stubbed',
-    classification: 'Later, no route yet',
-    supportedStates: ['unavailable'],
-    nextSteps: ['/host/events'],
-  },
 ];

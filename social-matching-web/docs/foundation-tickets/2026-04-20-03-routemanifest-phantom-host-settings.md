@@ -1,6 +1,6 @@
 # F-3: Phantom `/host/settings` entry in `routeManifest.ts`
 
-- **Status:** proposed
+- **Status:** in-progress
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Routing documentation is misleading; anyone reading `routeManifest.ts` as the source of truth for which routes exist will believe `/host/settings` is a live URL. Blocks Dev B's ability to use the manifest as an accurate roadmap view.
 - **Blocking:** No (no user-visible bug — the route is simply unreachable).
