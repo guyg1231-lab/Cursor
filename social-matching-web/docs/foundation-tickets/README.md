@@ -45,3 +45,10 @@ folder as historical record (do not delete).
 | --- | --- | --- |
 | [F-1: `RouteLoadingState` body prop](2026-04-20-01-routeloadingstate-body-prop.md) | proposed | Dev A (deferred), Dev B (upcoming) |
 | [F-2: `/questionnaire` guard semantics](2026-04-20-02-questionnaire-guard-semantics.md) | proposed | Routing / spec alignment |
+| [F-3: Phantom `/host/settings` route](2026-04-20-03-routemanifest-phantom-host-settings.md) | proposed | Routing documentation accuracy |
+| [F-4: Hardcoded English "Loading..." in guards](2026-04-20-04-guards-hardcoded-english-loading.md) | proposed | Participant UI English leak |
+| [F-5: AdminRoute silent redirect](2026-04-20-05-adminroute-redirect-inconsistency.md) | proposed | Admin UX, guard testability |
+| [F-6: StatusBadge narrow tone model](2026-04-20-06-statusbadge-tone-model.md) | proposed | All lifecycle surfaces |
+| [F-7: PlaceholderPanel English + enum leak](2026-04-20-07-placeholderpanel-english-enum.md) | proposed | Placeholder surfaces |
+| [F-8: AppHeader mixed i18n](2026-04-20-08-appheader-mixed-i18n.md) | proposed | i18n consistency |
+| [F-9: Missing Link/Badge primitives](2026-04-20-09-missing-ui-primitives-link-badge.md) | proposed | Low priority, filed for visibility |
