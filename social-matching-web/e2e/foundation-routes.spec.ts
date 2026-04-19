@@ -4,6 +4,70 @@ import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
 test.describe('foundation routes', () => {
+  test('ProtectedRoute uses shared Hebrew loading state while auth resolves', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      let releaseRolesRequest: (() => void) | null = null;
+      const rolesRequestReleased = new Promise<void>((resolve) => {
+        releaseRolesRequest = resolve;
+      });
+
+      await page.route('**/rest/v1/user_roles*', async (route) => {
+        await rolesRequestReleased;
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.goto('/dashboard');
+
+      await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+      await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
+
+      if (!releaseRolesRequest) {
+        throw new Error('Expected user_roles request interception for ProtectedRoute.');
+      }
+      releaseRolesRequest();
+
+      await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('AdminRoute uses shared Hebrew loading state while auth resolves', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+      const page = await ctx.newPage();
+
+      let releaseRolesRequest: (() => void) | null = null;
+      const rolesRequestReleased = new Promise<void>((resolve) => {
+        releaseRolesRequest = resolve;
+      });
+
+      await page.route('**/rest/v1/user_roles*', async (route) => {
+        await rolesRequestReleased;
+        await route.continue();
+      });
+
+      await page.goto('/admin/events/future-event/diagnostics');
+
+      await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+      await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
+
+      if (!releaseRolesRequest) {
+        throw new Error('Expected user_roles request interception for AdminRoute.');
+      }
+      releaseRolesRequest();
+
+      await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('host placeholder routes render a stable heading and placeholder panel', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
