@@ -22,6 +22,7 @@ import {
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationPanelContent } from '@/features/applications/presentation';
+import { EventNotFound } from '@/components/participant/EventNotFound';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
@@ -97,18 +98,7 @@ export function EventDetailPage() {
   }
 
   if (!event) {
-    return (
-      <PageShell title="המפגש לא נמצא" subtitle="יכול להיות שהוא כבר לא פומבי, או שהקישור אינו תקין.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>לא מצאנו מפגש פומבי שמתאים לקישור הזה.</p>
-            <Button asChild variant="outline">
-              <Link to="/events">חזרה לכל המפגשים</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </PageShell>
-    );
+    return <EventNotFound />;
   }
 
   const hasApplication = !!application;

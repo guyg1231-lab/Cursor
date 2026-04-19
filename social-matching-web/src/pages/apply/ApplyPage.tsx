@@ -6,6 +6,7 @@ import { PageShell } from '@/components/shared/PageShell';
 import { RouteErrorState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { EventNotFound } from '@/components/participant/EventNotFound';
 import { safeLocalStorage } from '@/lib/safeStorage';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
@@ -405,18 +406,7 @@ export function ApplyPage() {
   }
 
   if (!event) {
-    return (
-      <PageShell title="המפגש לא נמצא" subtitle="יכול להיות שהוא כבר לא פומבי או שהקישור אינו תקין.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>לא מצאנו מפגש שאפשר להגיש אליו דרך הקישור הזה.</p>
-            <Button asChild variant="outline">
-              <Link to="/events">חזרה לכל המפגשים</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </PageShell>
-    );
+    return <EventNotFound />;
   }
 
   if (!user) {

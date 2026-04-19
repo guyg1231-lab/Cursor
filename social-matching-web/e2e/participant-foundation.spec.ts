@@ -422,6 +422,29 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('landing: page body contains no English brand token', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/');
+      const body = await page.locator('body').innerText();
+      expect(body).not.toMatch(/\bCircles\b/);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('auth: page body contains no English prose word "apply"', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/auth');
+      await expect(page.locator('body')).not.toContainText(/\bapply\b/);
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('questionnaire: anonymous visitor sees Hebrew sign-in banner with link to /auth', async ({ page }) => {
     await page.goto('/questionnaire');
     await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();

@@ -9,7 +9,7 @@ export function LandingPage() {
   return (
     <PageShell
       title="מפגשים קטנים. אנשים חדשים. חוויה שמרגישה נכונה."
-      subtitle="Circles עוזרת לך להצטרף למפגשים חברתיים קטנים, נעימים ומאוצרים — עם תהליך שמרגיש בטוח יותר מרנדומליות."
+      subtitle="מצטרפים למפגשים חברתיים קטנים, נעימים ומאוצרים — עם תהליך שמרגיש בטוח יותר מרנדומליות."
       headerTransparent
     >
       <section className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] items-start">
