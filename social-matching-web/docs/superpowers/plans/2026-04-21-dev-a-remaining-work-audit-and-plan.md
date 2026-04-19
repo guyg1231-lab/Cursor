@@ -52,12 +52,12 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 
 | ID | Finding | Severity | Evidence |
 |----|---------|----------|----------|
-| D-1 | **Dev B kickoff** still states **“26 passing”** Playwright tests | Medium — misleads Dev B preflight | `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md` § “Current state” (~L38); actual **`npx playwright test --list` → 30 tests** after SP-B/C E2E additions |
+| ~~D-1~~ | ~~**Dev B kickoff** still states **“26 passing”**~~ | **Resolved** (2026-04-21) | Kickoff updated to **30** tests + `30/30` gate; see `3aab34f` |
 | D-2 | **Pass-3 implementation plan** still contains **stale** snippets (e.g. old skip/count narrative in copied blocks) | Low — historical execution artifact | `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md` (grep for “25 passing”, “2 skipped”) |
 | D-3 | **Pass-3 design spec** opening still says “26 passing” / “10 merged PRs” as *audit-era* baseline | Low — readers may think current `main` is still 26 | `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md` §1 |
 | D-4 | Implementation plan **checkboxes** (`- [ ]`) for completed tasks were never bulk-checked | Low — cosmetic | Same implementation plan file |
 
-**Recommendation:** One small **docs-only** PR by Dev A: update kickoff test count + one-line “post–Pass-3 follow-up: 30 tests” note; optionally add a banner line at top of Pass-3 spec/plan: “Remediation complete — see `2026-04-21-dev-a-remaining-work-audit-and-plan.md` for current work.”
+**Recommendation:** D-1 kickoff sync is **done** on `main`. Remaining doc hygiene (D-2–D-4) is optional: add a one-line banner to Pass-3 spec/plan pointing here, grep-replace stale counts in historical remediation docs, or bulk-check implementation-plan checkboxes if you use them as trackers.
 
 ### 3.2 Foundation ticket queue (implementation = NOT Dev A)
 
@@ -109,8 +109,8 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 
 | Priority | ID | Work item | Outcome |
 |----------|-----|-----------|---------|
-| **P0** | A-DOC-1 | Patch **Dev B kickoff**: Playwright count **26 → 30**, re-run `npx playwright test --list` and paste tail into PR body | Accurate Dev B preflight |
-| **P0** | A-DOC-2 | (Optional same PR) Add **one paragraph** to kickoff: “Pass-3 remediation + SP-D/C/B follow-ups merged; participant E2E = 30.” | Reduces archeology |
+| ~~**P0**~~ | ~~A-DOC-1~~ | ~~Patch **Dev B kickoff**: Playwright count **26 → 30**~~ | **Done** (`main` @ `3aab34f`) |
+| ~~**P0**~~ | ~~A-DOC-2~~ | ~~Kickoff note on SP-B/C/D + link to this audit~~ | **Done** (same commit) |
 | **P1** | A-DOC-3 | (Optional) Normalize **Pass-3 spec + implementation plan** headers with “completed” + link to this file | Less confusion for future agents |
 | **P2** | A-TEST-1 | Split **apply readiness** test into **per-reason** tests *if* staging fixtures can guarantee each branch | Stronger guarantees; higher fixture cost |
 | **P2** | A-FEAT-1 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
@@ -143,16 +143,14 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 
 ## 5. Plan to proceed (recommended order)
 
-### Phase 0 — Same day (docs integrity)
+### Phase 0 — Same day (docs integrity) — **DONE on `main`**
 
-1. Branch from `main`: `dev-a/docs-post-pass3-sync`  
-2. Update `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`:
-   - Replace **26** with **30** (and “5 files” if not already stated).  
-   - Add one sentence: participant remediation merged; count verified via `npx playwright test --list`.  
-3. `npx tsc -b --noEmit` + `npx playwright test --project=chromium`  
-4. Small PR, fast review, merge  
+Completed in commit `3aab34f` (pushed to `main`):
 
-**Exit criteria:** Dev B kickoff numbers match machine output.
+1. Updated `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`: Playwright **26 → 30** passing, preflight gate **30/30**, short note on SP-B/C/D + link to this audit file.  
+2. This audit document added alongside the kickoff fix.
+
+**Exit criteria:** Dev B kickoff numbers match `npx playwright test --list` — satisfied.
 
 ### Phase 1 — While Dev B is active (lightweight maintenance)
 
@@ -203,3 +201,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 | Date | Change |
 |------|--------|
 | 2026-04-21 | Initial audit + plan after Pass-3 stack + host copy follow-up on `main` |
+| 2026-04-21 | Phase 0 kickoff sync landed; audit Phase 0 section marked done |
