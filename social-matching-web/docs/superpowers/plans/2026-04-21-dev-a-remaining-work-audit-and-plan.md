@@ -150,9 +150,9 @@ Completed in commit `3aab34f` (pushed to `main`):
 1. Updated `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`: Playwright **26 → 30** passing, preflight gate **30/30**, short note on SP-B/C/D + link to this audit file.  
 2. This audit document added alongside the kickoff fix.
 
-**Follow-up (2026-04-21, same phase):** Root `package.json` `typecheck` → `tsc -b --noEmit`; kickoff “Known issues” §1 corrected; Pass-3 design spec §1 + implementation plan banner/tasks; this audit D-2/D-3/T-1/A-DOC-3 reconciled — **commit locally** if not yet on `main`.
+**Follow-up (2026-04-21, same phase):** Root `package.json` `typecheck` → `tsc -b --noEmit`; kickoff “Known issues” §1 corrected; Pass-3 design spec §1 + implementation plan banner/tasks; this audit D-2/D-3/T-1/A-DOC-3 reconciled — merged to `main` (commit message: `chore(docs): fix typecheck script and align Pass-3 handoff docs`).
 
-**Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — satisfied once the follow-up commit lands.
+**Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — **satisfied**.
 
 ### Phase 1 — While Dev B is active (lightweight maintenance)
 
