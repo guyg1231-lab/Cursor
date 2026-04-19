@@ -217,50 +217,28 @@ test.describe('participant foundation', () => {
     if (profileError) throw profileError;
     if (!profile?.id) throw new Error('E2E missing P1 profile');
 
-    const { data: registration, error: regReadError } = await admin
-      .from('event_registrations')
-      .select('status')
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id)
-      .maybeSingle();
-    if (regReadError) throw regReadError;
-    if (!registration) throw new Error('E2E missing P1 registration for E2E_EVENT_ID');
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'confirmed' },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
 
-    const previousStatus = registration.status;
-    const { error: confirmError } = await admin
-      .from('event_registrations')
-      .update({ status: 'confirmed' })
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id);
-    if (confirmError) throw confirmError;
-
-    const ctx = await browser.newContext();
-    try {
-      await authenticateAs(ctx, ENV.EMAILS.P1);
-      const page = await ctx.newPage();
-
-      await page.goto('/dashboard');
-      const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
-      await expect(appsCard.getByText('המקום שלך שמור', { exact: true })).toBeVisible();
-    } finally {
-      try {
-        await ctx.close();
-      } catch {
-        // Ignore browser context close failures during teardown.
-      }
-      try {
-        const { error: restoreError } = await admin
-          .from('event_registrations')
-          .update({ status: previousStatus })
-          .eq('event_id', ENV.EVENT_ID)
-          .eq('user_id', profile.id);
-        if (restoreError) throw restoreError;
-      } catch (restoreError) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to restore P1 application status', restoreError);
-        throw restoreError;
-      }
-    }
+          await page.goto('/dashboard');
+          const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+          await expect(appsCard.getByText('המקום שלך שמור', { exact: true })).toBeVisible();
+        } finally {
+          try {
+            await ctx.close();
+          } catch {
+            // Ignore browser context close failures during teardown.
+          }
+        }
+      },
+    );
   });
 
   test('unauthenticated apply preserves returnTo through sign-in', async ({ page }) => {
