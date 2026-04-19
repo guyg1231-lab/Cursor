@@ -13,6 +13,19 @@ import { tokens } from '@/lib/design-tokens';
 
 const STORAGE_KEY = 'social-matching-profile-base-draft-v2';
 
+/** Stable DOM ids so `<label htmlFor>` pairs with inputs (a11y + Playwright getByLabel). */
+const PROFILE_Q_IDS = {
+  full_name: 'pq-full_name',
+  email: 'pq-email',
+  phone: 'pq-phone',
+  social_link: 'pq-social_link',
+  birth_date: 'pq-birth_date',
+  current_place: 'pq-current_place',
+  origin_place: 'pq-origin_place',
+  q26_about_you: 'pq-q26_about_you',
+  q27_comfort_needs: 'pq-q27_comfort_needs',
+} as const;
+
 const copy = {
   he: {
     introEyebrow: 'שלב ראשון: להכיר אותך נכון',
@@ -306,10 +319,12 @@ function ChoiceChip({
   );
 }
 
-function FieldLabel({ title, hint }: { title: string; hint?: string }) {
+function FieldLabel({ title, hint, htmlFor }: { title: string; hint?: string; htmlFor?: string }) {
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-foreground">{title}</label>
+      <label htmlFor={htmlFor} className="block text-sm font-medium text-foreground">
+        {title}
+      </label>
       {hint ? <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p> : null}
     </div>
   );
@@ -596,8 +611,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
           {stepIndex === 0 ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <FieldLabel title={text.labels.full_name} />
+                <FieldLabel title={text.labels.full_name} htmlFor={PROFILE_Q_IDS.full_name} />
                 <input
+                  id={PROFILE_Q_IDS.full_name}
                   type="text"
                   value={form.full_name}
                   onChange={(e) => updateField('full_name', e.target.value)}
@@ -607,8 +623,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.email} />
+                <FieldLabel title={text.labels.email} htmlFor={PROFILE_Q_IDS.email} />
                 <input
+                  id={PROFILE_Q_IDS.email}
                   type="email"
                   value={form.email}
                   onChange={(e) => updateField('email', e.target.value)}
@@ -618,13 +635,14 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.phone} />
-                <PhoneInput value={form.phone} onChange={(value) => updateField('phone', value)} />
+                <FieldLabel title={text.labels.phone} htmlFor={PROFILE_Q_IDS.phone} />
+                <PhoneInput id={PROFILE_Q_IDS.phone} value={form.phone} onChange={(value) => updateField('phone', value)} />
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.social_link} hint={text.whyWeAskSocial} />
+                <FieldLabel title={text.labels.social_link} hint={text.whyWeAskSocial} htmlFor={PROFILE_Q_IDS.social_link} />
                 <input
+                  id={PROFILE_Q_IDS.social_link}
                   type="url"
                   value={form.social_link}
                   onChange={(e) => updateField('social_link', e.target.value)}
@@ -634,8 +652,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.birth_date} />
+                <FieldLabel title={text.labels.birth_date} htmlFor={PROFILE_Q_IDS.birth_date} />
                 <input
+                  id={PROFILE_Q_IDS.birth_date}
                   type="date"
                   value={form.birth_date}
                   onChange={(e) => updateField('birth_date', e.target.value)}
@@ -649,8 +668,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
           {stepIndex === 1 ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <FieldLabel title={text.labels.current_place} />
+                <FieldLabel title={text.labels.current_place} htmlFor={PROFILE_Q_IDS.current_place} />
                 <input
+                  id={PROFILE_Q_IDS.current_place}
                   type="text"
                   value={form.current_place}
                   onChange={(e) => updateField('current_place', e.target.value)}
@@ -660,8 +680,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.origin_place} hint={text.whyWeAskOrigin} />
+                <FieldLabel title={text.labels.origin_place} hint={text.whyWeAskOrigin} htmlFor={PROFILE_Q_IDS.origin_place} />
                 <input
+                  id={PROFILE_Q_IDS.origin_place}
                   type="text"
                   value={form.origin_place}
                   onChange={(e) => updateField('origin_place', e.target.value)}
@@ -780,8 +801,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
           {stepIndex === 2 ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <FieldLabel title={text.labels.q26_about_you} hint={text.whyWeAskAboutYou} />
+                <FieldLabel title={text.labels.q26_about_you} hint={text.whyWeAskAboutYou} htmlFor={PROFILE_Q_IDS.q26_about_you} />
                 <textarea
+                  id={PROFILE_Q_IDS.q26_about_you}
                   value={form.q26_about_you}
                   onChange={(e) => updateField('q26_about_you', e.target.value)}
                   className="min-h-[180px] w-full rounded-3xl border border-input bg-background/30 px-4 py-3 text-sm outline-none"
@@ -790,8 +812,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               </div>
 
               <div className="space-y-2">
-                <FieldLabel title={text.labels.q27_comfort_needs} />
+                <FieldLabel title={text.labels.q27_comfort_needs} htmlFor={PROFILE_Q_IDS.q27_comfort_needs} />
                 <textarea
+                  id={PROFILE_Q_IDS.q27_comfort_needs}
                   value={form.q27_comfort_needs}
                   onChange={(e) => updateField('q27_comfort_needs', e.target.value)}
                   className="min-h-[140px] w-full rounded-3xl border border-input bg-background/30 px-4 py-3 text-sm outline-none"
