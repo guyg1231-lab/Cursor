@@ -29,13 +29,13 @@ This kickoff does not replace that plan — it wraps it with the context a new a
 
 The Dev A stack lands the full participant surface per spec §10.1:
 
-- `/landing`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth/callback`.
+- `/`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth`, `/sign-in`, `/auth/callback`.
 - All participant pages use the shared foundation primitives: `PageShell`, `Card`, `Button`, `Link`, `StatusBadge`, `RouteEmptyState`, `RouteErrorState`, `RouteNotFoundState`, `RouteUnavailableState`, `RouteLoadingState`, `RouteGatedState`, `RouteSuccessState`.
 - Application lifecycle rendering is unified via `src/features/applications/presentation.ts` (`resolveApplicationPanelContent`) and the `ApplicationStatusPanel` component.
 - E2E coverage for participant routes: `e2e/participant-foundation.spec.ts` + `e2e/slice-*.spec.ts`.
 - Reusable E2E helper for flipping registration state: `e2e/fixtures/registrations.ts` (`withFlippedRegistrationStatus`).
 
-Dev B inherits a green Playwright suite on `chromium` (25 passing, 2 skipped — the 2 skips are intentional, blocked on disposable fixture-user infrastructure, not on Dev A's scope).
+Dev B inherits a green Playwright suite on `chromium` (26 passing, 0 skipped — PR #13 closed the two questionnaire-workflow skips via route interception).
 
 ---
 
@@ -141,9 +141,9 @@ See `docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md`. Impa
 
 See `docs/foundation-tickets/2026-04-20-02-questionnaire-guard-semantics.md`. Unlikely to affect host/admin directly but worth being aware of if Dev B touches routing / guards for any reason.
 
-### 5. Two skipped participant E2E tests
+### 5. Questionnaire-workflow tests run via route interception (PR #13)
 
-`e2e/participant-foundation.spec.ts` contains two `test.describe.skip` / `test.skip` scaffolds waiting on disposable fixture-user infrastructure. Dev B does not need to re-enable these; they are participant-scope.
+The two previously skipped questionnaire-workflow tests in `e2e/participant-foundation.spec.ts` were unblocked in PR #13 by stubbing the relevant Supabase REST endpoints (`**/rest/v1/matching_responses**`, `**/rest/v1/profiles**`) via `page.route(...)` rather than provisioning disposable fixture users. If Dev B writes new host/admin E2E tests that need a user in a specific lifecycle state without real DB mutation, mirror that pattern rather than reviving the disposable-user approach.
 
 ### 6. Playwright trace artifact flakiness
 
@@ -156,7 +156,7 @@ Occasionally the full suite emits `ENOENT` on a trace artifact during cleanup. W
 The Dev B plan has its own task-by-task structure; follow it as written. The only kickoff-level recommendation is:
 
 1. **Rebase** the Dev B workstream onto `main` AFTER Dev A PRs #1 and #3–#10 (and this kickoff's PR) are merged. Do not start against a pre-Pass-3 base.
-2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at 25/25 (plus 2 skipped). If it doesn't, do not start layering Dev B changes on top.
+2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at 26/26. If it doesn't, do not start layering Dev B changes on top.
 3. **Open one stacked PR per Dev B task** (mirroring the Dev A cadence). Keep PRs small and reviewable.
 4. **Cut a docs-only PR** under `docs/superpowers/plans/` for each task you execute (the same pattern Dev A used across PR #7–#10).
 
