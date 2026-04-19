@@ -447,4 +447,20 @@ test.describe('participant foundation', () => {
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '/auth');
   });
+
+  test('questionnaire: authenticated user sees Hebrew chip label for interest option', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/questionnaire');
+      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+      await page.getByRole('button', { name: 'המשך' }).click();
+
+      await expect(page.getByText('מוזיקה', { exact: true })).toBeVisible();
+      await expect(page.getByText('אומנות', { exact: true })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
 });
