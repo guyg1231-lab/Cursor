@@ -35,7 +35,7 @@ The Dev A stack lands the full participant surface per spec §10.1:
 - E2E coverage for participant routes: `e2e/participant-foundation.spec.ts` + `e2e/slice-*.spec.ts`.
 - Reusable E2E helper for flipping registration state: `e2e/fixtures/registrations.ts` (`withFlippedRegistrationStatus`).
 
-Dev B inherits a green Playwright suite on `chromium` (**30** passing, 0 skipped — PR #13 closed the two questionnaire-workflow skips; SP-B/C/D added coverage and hygiene on top). Verify with `npx playwright test --list`. Remaining Dev A housekeeping and phased work: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+Dev B inherits a green Playwright suite on `chromium` (**35** passing, 0 skipped — includes foundation-route coverage and SP-B/C/D hygiene). Verify with `npx playwright test --list`. Dev A / Foundation maintenance context: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
 
 ---
 
@@ -60,7 +60,7 @@ These are owned by Foundation or by Dev A. Changing them from the Dev B workstre
 **Foundation-owned (any change must go through a foundation ticket):**
 
 - `src/components/shared/*` — especially `RouteState.tsx`, `PageShell.tsx`, `StatusBadge.tsx`.
-- `src/components/ui/*` — `Card`, `Button`, `Link`, primitives.
+- `src/components/ui/*` — `Card`, `Button`, `RouterLinkButton`, primitives.
 - `src/app/router/*` — `AppRouter.tsx`, `routeManifest.ts`, `guards.tsx`.
 - `src/lib/design-tokens.ts`.
 
@@ -86,11 +86,7 @@ Use the shared `RouteState.tsx` components for empty / error / unavailable / loa
 import { RouteEmptyState, RouteErrorState } from '@/components/shared/RouteState';
 ```
 
-**Caveat:** `RouteLoadingState` currently hardcodes an English body string. This is tracked as foundation ticket F-1 (see `docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md`). Until that lands, either:
-- Accept the English body for loading states, OR
-- Render a bespoke Hebrew loading `Card` inline (as `EventsPage.tsx` does) and leave a `// TODO(foundation-F-1)` comment.
-
-Prefer the inline bespoke Hebrew `Card` for user-facing host / admin loading states; prefer `RouteLoadingState` for admin-internal surfaces where English is acceptable.
+**Note:** `RouteLoadingState` defaults to **Hebrew** title/body (foundation ticket F-1 — done). Prefer `RouteLoadingState` for host/admin loading surfaces; pass explicit `title`/`body` when copy must differ.
 
 ### Page shell
 
@@ -133,19 +129,15 @@ Either command should exit `0` before you push substantive changes.
 
 `validateEmailAddress` rejects `*@example.com`. When adding fixture users to `e2e/fixtures/env.ts`, use a real-looking address under a domain you control (e.g., `questionnaire.e2e@gmail.com` pattern already in use).
 
-### 3. Foundation ticket F-1: `RouteLoadingState` body prop
+### 3. ~~Foundation F-1 / F-2~~ (resolved on `main`)
 
-See `docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md`. Impacts any host/admin page wanting a Hebrew loading state via the shared primitive.
+F-1 (`RouteLoadingState` Hebrew defaults) and F-2 (manifest `preview` tier for `/questionnaire`) are **done** — see `docs/foundation-tickets/README.md`. Dev B should still add new routes to `routeManifest.ts` via foundation process.
 
-### 4. Foundation ticket F-2: `/questionnaire` guard semantics
-
-See `docs/foundation-tickets/2026-04-20-02-questionnaire-guard-semantics.md`. Unlikely to affect host/admin directly but worth being aware of if Dev B touches routing / guards for any reason.
-
-### 5. Questionnaire-workflow tests run via route interception (PR #13)
+### 4. Questionnaire-workflow tests run via route interception (PR #13)
 
 The two previously skipped questionnaire-workflow tests in `e2e/participant-foundation.spec.ts` were unblocked in PR #13 by stubbing the relevant Supabase REST endpoints (`**/rest/v1/matching_responses**`, `**/rest/v1/profiles**`) via `page.route(...)` rather than provisioning disposable fixture users. If Dev B writes new host/admin E2E tests that need a user in a specific lifecycle state without real DB mutation, mirror that pattern rather than reviving the disposable-user approach.
 
-### 6. Playwright trace artifact flakiness
+### 5. Playwright trace artifact flakiness
 
 Occasionally the full suite emits `ENOENT` on a trace artifact during cleanup. Workaround: `rm -rf test-results/` and re-run. Not deterministic. Not caused by test logic.
 
@@ -156,7 +148,7 @@ Occasionally the full suite emits `ENOENT` on a trace artifact during cleanup. W
 The Dev B plan has its own task-by-task structure; follow it as written. The only kickoff-level recommendation is:
 
 1. **Rebase** the Dev B workstream onto `main` AFTER Dev A PRs #1 and #3–#10 (and this kickoff's PR) are merged. Do not start against a pre-Pass-3 base.
-2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at **30/30**. If it doesn't, do not start layering Dev B changes on top.
+2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at **35/35**. If it doesn't, do not start layering Dev B changes on top.
 3. **Open one stacked PR per Dev B task** (mirroring the Dev A cadence). Keep PRs small and reviewable.
 4. **Cut a docs-only PR** under `docs/superpowers/plans/` for each task you execute (the same pattern Dev A used across PR #7–#10).
 

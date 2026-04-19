@@ -1,6 +1,6 @@
 # Pass-3 Remediation Implementation Plan
 
-> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items in this file are a **historical execution log** — many steps still show `- [ ]` in source; treat the work as **done** unless you are re-running a forensic replay. **Current verification:** `npx playwright test --list` → **30** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items in this file are a **historical execution log** — many steps still show `- [ ]` in source; treat the work as **done** unless you are re-running a forensic replay. **Current verification:** `npx playwright test --list` → **35** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

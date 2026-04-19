@@ -18,7 +18,7 @@ export function Logo({ className = '', size = 'md' }: LogoProps) {
   return (
     <img
       src={src}
-      alt="Circles"
+      alt="לוגו"
       className={`${sizeClasses[size]} w-auto ${isSvgSource ? 'dark:invert dark:brightness-110' : ''} ${className}`}
       onError={() => {
         if (src !== '/circles-logo-120.png') {

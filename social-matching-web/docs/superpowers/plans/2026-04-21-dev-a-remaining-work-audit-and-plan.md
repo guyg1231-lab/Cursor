@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-21  
 **Audience:** Developer A (participant surface), orchestrators, product  
-**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`; Dev B / Foundation carry forward workstreams.  
+**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`. **Foundation wave 2 (F-1…F-9)** is **implemented and indexed as done** in `docs/foundation-tickets/README.md`. Remaining Dev A work is **optional quality**, **participant feature** backlog, and **lightweight regression** when shared code changes — not blocked on Foundation tickets.  
 **Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`
 
 ---
@@ -30,8 +30,8 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | Check | Command / source | Result (audit date) |
 |--------|------------------|----------------------|
 | Typecheck (real) | `npm run typecheck` (→ `tsc -b --noEmit`) | Exit `0` |
-| E2E (Chromium) | `npx playwright test --project=chromium` | **30** tests, **5** files — all passing |
-| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 30 tests in 5 files` |
+| E2E (Chromium) | `npx playwright test --project=chromium` | **35** tests, **5** files — all passing |
+| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 35 tests in 5 files` |
 | Participant “event not found” duplication | `rg 'המפגש לא נמצא' src/` | Single shared component `src/components/participant/EventNotFound.tsx` + **out-of-scope** `TeamGatheringPage.tsx` (admin) |
 
 **Merged Pass-3 + follow-up (chronological, high level)**
@@ -59,21 +59,14 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 
 **Recommendation:** D-1, D-3, and most of D-2 are **done** on `main` (2026-04-21 pass). **D-4** remains optional cosmetic. **T-1** (below) is **resolved** via root `package.json` `typecheck` → `tsc -b --noEmit`.
 
-### 3.2 Foundation ticket queue (implementation = NOT Dev A)
+### 3.2 Foundation ticket queue — **resolved on `main` (2026-04)**
 
-All below are **indexed** in `docs/foundation-tickets/README.md`. Dev A’s role is **triage / +1 / consumer of APIs**, not implementation inside frozen paths.
+Tickets **F-1…F-9** are **done** (see `docs/foundation-tickets/README.md`). Dev A **consumes** the outcomes (e.g. `RouteLoadingState` defaults, guard Hebrew, `StatusBadge` tones, `RouterLinkButton`, manifest `preview` tier) but does **not** re-open Foundation work except via **new** foundation tickets.
 
-| Ticket | Topic | Blocks Dev A? |
-|--------|--------|----------------|
-| **F-1** | `RouteLoadingState` body / i18n | **Indirectly** — `EventsPage` and others still hand-roll Hebrew loading until F-1 ships; Dev A must not edit `RouteState.tsx` to “fix” it |
-| **F-2** | `/questionnaire` guard semantics | **Yes** if product wants route-level behavior change |
-| **F-3** | Phantom `/host/settings` in manifest | Documentation / E2E manifest consumers — Dev A does not edit `routeManifest.ts` |
-| **F-4** | English `Loading...` in `guards.tsx` | Participant first paint — Foundation |
-| **F-5** | `AdminRoute` vs `ProtectedRoute` redirect UX | Admin + tests — Foundation |
-| **F-6** | `StatusBadge` tone model | Cross-surface — Foundation |
-| **F-7** | `PlaceholderPanel` English + enum | Host/admin placeholders — Foundation |
-| **F-8** | `AppHeader` mixed i18n | Global chrome — Foundation |
-| **F-9** | Missing `Link`/`Badge` UI primitives | Low priority — Foundation |
+| Follow-up | Note |
+|-----------|------|
+| **Participant adoption** | `EventsPage` uses `<RouteLoadingState />` with shared defaults; further copy tweaks stay in Dev A-owned files only. |
+| **Regression** | After any PR touching `src/components/shared/**` or `src/app/router/**`, run full Chromium Playwright + `npm run typecheck`. |
 
 ### 3.3 Tooling (Foundation or dedicated tooling PR — not participant feature work)
 
@@ -85,7 +78,7 @@ All below are **indexed** in `docs/foundation-tickets/README.md`. Dev A’s role
 
 | ID | Finding | Note |
 |----|---------|------|
-| A-1 | `Logo.tsx` uses `alt="Circles"` | Screen-reader language; Hebrew-first product may want Hebrew `alt` or decorative pattern — **product + a11y** decision |
+| ~~A-1~~ | ~~`Logo.tsx` uses `alt="Circles"`~~ | **Resolved** — Hebrew `alt` (`לוגו`) for screen readers; see `src/components/shared/Logo.tsx` |
 | A-2 | `FloatingCircles` / asset filenames contain “Circles” | **Not** user-visible prose; rename is cosmetic |
 
 ### 3.5 Explicitly deferred from Pass-3 spec (still valid “later”)
@@ -115,19 +108,19 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 | **P2** | A-TEST-1 | Split **apply readiness** test into **per-reason** tests *if* staging fixtures can guarantee each branch | Stronger guarantees; higher fixture cost |
 | **P2** | A-FEAT-1 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
 
-### Bucket B — **Blocked on Foundation** (Dev A: track, do not implement in frozen paths)
+### Bucket B — **Foundation follow-through** (was “blocked”; now **tracking only**)
 
 | ID | Action for Dev A |
 |----|------------------|
-| B-F-ALL | Watch F-1…F-9; when Foundation merges, **rebase participant pages** to adopt new APIs (e.g. `RouteLoadingState` body, guard Hebrew, `StatusBadge` tones) |
-| B-F-1 | After F-1: consider replacing **inline Hebrew loading** on `EventsPage` with `RouteLoadingState` + Hebrew body prop |
-| B-F-4 / F-5 | After guard fixes: add/adjust **E2E** for non-admin denial if tests become meaningful (today F-5 note exists in `foundation-routes.spec.ts`) |
+| B-F-ALL | **Done** — F-1…F-9 merged; keep **participant regression** on future shared changes. |
+| B-F-1 | **Satisfied** — `EventsPage` uses `RouteLoadingState` (shared loading primitive). |
+| B-F-4 / F-5 | **Satisfied** — guard Hebrew + admin denial E2E live in `e2e/foundation-routes.spec.ts`. |
 
 ### Bucket C — **Optional / product** (not required for Dev B start)
 
 | ID | Work item |
 |----|-----------|
-| C-A11Y-1 | Logo `alt` text decision + implementation |
+| ~~C-A11Y-1~~ | ~~Logo `alt` text~~ — **done** (Hebrew `alt`; same row as A-1) |
 | C-REL-1 | Git tag on `main` (e.g. `dev-a-pass-3-remediation-complete`) if release hygiene wants it |
 | C-SPEC-1 | Broader English grep sweep **limited to** `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth}/**` + participant `features` — file tickets for anything that is actually product-facing Hebrew |
 
@@ -154,11 +147,10 @@ Completed in commit `3aab34f` (pushed to `main`):
 
 **Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — **satisfied**.
 
-### Phase 1 — While Dev B is active (lightweight maintenance)
+### Phase 1 — Ongoing maintenance (post–Foundation wave 2)
 
-1. **Monitor** Foundation PRs that touch `RouteState`, `guards`, `AppHeader`, `StatusBadge`, `routeManifest`.  
-2. After each Foundation merge: **participant regression** = full Chromium Playwright + `npm run typecheck`.  
-3. If Foundation adds APIs (F-1 body prop): **migrate** `EventsPage` loading from inline Card to primitive **in Dev A-owned file only**.
+1. On any PR touching **shared router/UI** (`RouteState`, `guards`, `AppHeader`, `StatusBadge`, `routeManifest`, `design-tokens`): run **full Chromium Playwright** + `npm run typecheck`.  
+2. **Participant features** and **Dev A refactors** continue under normal ownership rules; new cross-cutting changes still go through **Foundation tickets** when they hit frozen paths.
 
 ### Phase 2 — Optional quality (only if capacity)
 
@@ -206,3 +198,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 | 2026-04-21 | Phase 0 kickoff sync landed; audit Phase 0 section marked done |
 | 2026-04-21 | D-2/D-3/T-1 resolved in docs; `typecheck` script + kickoff §1; verification gates prefer `npm run typecheck` |
 | 2026-04-21 | Status header → maintenance mode; Phase 0 follow-up noted merged on `main` |
+| 2026-04-19 | Foundation F-1…F-9 complete on `main`; audit §2 counts → **35** tests; §3.2 / Bucket B / Phase 1 updated for post-foundation maintenance |
