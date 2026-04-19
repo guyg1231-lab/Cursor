@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 import { createServiceRoleClient } from './fixtures/supabase';
+import { withFlippedRegistrationStatus } from './fixtures/registrations';
 
 test.describe('participant foundation', () => {
   test('discovery links into canonical event detail before apply', async ({ page }) => {
@@ -71,48 +72,26 @@ test.describe('participant foundation', () => {
     if (profileError) throw profileError;
     if (!profile?.id) throw new Error('E2E missing P1 profile');
 
-    const { data: registration, error: regReadError } = await admin
-      .from('event_registrations')
-      .select('status')
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id)
-      .maybeSingle();
-    if (regReadError) throw regReadError;
-    if (!registration) throw new Error('E2E missing P1 registration for E2E_EVENT_ID');
-
-    const previousStatus = registration.status;
-    const { error: flipError } = await admin
-      .from('event_registrations')
-      .update({ status: 'rejected' })
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id);
-    if (flipError) throw flipError;
-
-    const ctx = await browser.newContext();
-    try {
-      await authenticateAs(ctx, ENV.EMAILS.P1);
-      const page = await ctx.newPage();
-      await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-      await expect(page.getByText('לא נבחר/ת הפעם', { exact: true })).toBeVisible();
-    } finally {
-      try {
-        await ctx.close();
-      } catch {
-        // Ignore browser context close failures during teardown.
-      }
-      try {
-        const { error: restoreError } = await admin
-          .from('event_registrations')
-          .update({ status: previousStatus })
-          .eq('event_id', ENV.EVENT_ID)
-          .eq('user_id', profile.id);
-        if (restoreError) throw restoreError;
-      } catch (restoreError) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to restore P1 application status after StatusBadge test', restoreError);
-        throw restoreError;
-      }
-    }
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'rejected' },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByText('לא נבחר/ת הפעם', { exact: true })).toBeVisible();
+        } finally {
+          try {
+            await ctx.close();
+          } catch {
+            // Ignore browser context close failures during teardown.
+          }
+        }
+      },
+    );
   });
 
   test('cancelled participant sees open apply form with prior submission summary', async ({ browser }) => {
