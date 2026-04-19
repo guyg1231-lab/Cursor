@@ -4,7 +4,7 @@ Date: 2026-04-18
 Status: Draft approved for documentation  
 Scope: `social-matching-web` near-term buildout foundation
 
-**Rollup (2026-04-19):** Shared foundation tickets **F-1…F-10** are **done** (`docs/foundation-tickets/README.md`), including legal stub routes `/terms` and `/privacy`. Dev A remains in **maintenance mode** (`docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`). Host/admin buildout remains **Dev B**–owned per §6.3–6.4; this SPEC still describes shape and boundaries, not open foundation debt.
+**Rollup (2026-04-19):** Shared foundation tickets **F-1…F-10** are **done** (`docs/foundation-tickets/README.md`), including legal stub routes `/terms` and `/privacy`. Dev A **public-readiness plan** engineering closeout adds FR coverage matrix, participant SPA deploy doc, participant data contracts, optional `VITE_SUPPORT_EMAIL` on landing, and narrow-viewport E2E — see `docs/superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`. Dev A remains in **maintenance mode** (`docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`). Host/admin buildout remains **Dev B**–owned per §6.3–6.4; this SPEC still describes shape and boundaries, not open foundation debt.
 
 ## 1. Purpose
 

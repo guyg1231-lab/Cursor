@@ -22,6 +22,7 @@ Use after **production** (or production-like) deploy of the Vite app. Adjust URL
 - [ ] `/terms` — placeholder or final copy loads.
 - [ ] `/privacy` — same.
 - [ ] Landing footer links to terms + privacy work.
+- [ ] If `VITE_SUPPORT_EMAIL` is set in production, landing shows **צור קשר** and `mailto:` opens the inbox.
 
 ## 4. Auth edge
 

@@ -5,6 +5,8 @@ import { PageShell } from '@/components/shared/PageShell';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import { tokens } from '@/lib/design-tokens';
 
+const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL?.trim();
+
 export function LandingPage() {
   return (
     <PageShell
@@ -89,7 +91,10 @@ export function LandingPage() {
       </section>
 
       <footer className="pt-8 border-t border-border/60 text-center text-xs text-muted-foreground">
-        <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="מסמכים משפטיים">
+        <nav
+          className="flex flex-wrap justify-center gap-x-4 gap-y-1"
+          aria-label={supportEmail ? 'מסמכים משפטיים ותמיכה' : 'מסמכים משפטיים'}
+        >
           <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
             תנאי שימוש
           </Link>
@@ -97,6 +102,17 @@ export function LandingPage() {
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
             מדיניות פרטיות
           </Link>
+          {supportEmail ? (
+            <>
+              <span aria-hidden>·</span>
+              <a
+                href={`mailto:${supportEmail}`}
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                צור קשר
+              </a>
+            </>
+          ) : null}
         </nav>
       </footer>
     </PageShell>

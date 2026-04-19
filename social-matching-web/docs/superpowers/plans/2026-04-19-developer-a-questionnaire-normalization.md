@@ -1,5 +1,7 @@
 # /questionnaire Normalization Implementation Plan
 
+> **Implementation status (merged to `main`):** Anonymous Hebrew banner, display-label maps for English-keyed chips, `RouteErrorState` on remote load failure, success-state CTAs, and Playwright coverage in `e2e/participant-foundation.spec.ts` are **done**. The checkbox steps below preserve the original TDD order for reference or replay; they are **not** a backlog of open work.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Bring `/questionnaire` to spec §8.3 "functional placeholder" compliance and §10.1 "canonical readiness completion route" by adding a Hebrew-only anonymous sign-in CTA, Hebrew display labels for English-keyed chip options, success-state CTAs to `/events` + `/dashboard`, a `RouteErrorState` for remote load failures, and a Playwright foundation gate — all inside Dev A scope (no foundation or shared-component edits).

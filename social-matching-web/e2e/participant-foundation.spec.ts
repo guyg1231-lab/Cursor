@@ -470,6 +470,18 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('landing: narrow viewport keeps primary CTAs visible (RTL mobile smoke)', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/');
+      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להתחיל פרופיל' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('landing footer links to terms and privacy stubs', async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
