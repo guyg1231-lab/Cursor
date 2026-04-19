@@ -13,6 +13,7 @@ export function QuestionnairePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [remoteLoadFailed, setRemoteLoadFailed] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   return (
     <PageShell title={t('questionnaireTitle')} subtitle={t('questionnaireSubtitle')}>
@@ -42,12 +43,36 @@ export function QuestionnairePage() {
               onLoadError={(hasError) => {
                 setRemoteLoadFailed(hasError);
               }}
+              onSaved={() => {
+                setJustSaved(true);
+              }}
             />
           </CardContent>
         </Card>
 
         {remoteLoadFailed ? (
           <RouteErrorState title={t('questionnaireLoadErrorTitle')} body={t('questionnaireLoadError')} />
+        ) : null}
+
+        {justSaved ? (
+          <Card className={tokens.card.accent}>
+            <CardHeader>
+              <CardTitle>{t('questionnaireSuccessTitle')}</CardTitle>
+              <CardDescription className="text-base text-foreground/90">
+                {t('questionnaireSuccessBody')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild variant="primary">
+                  <Link to="/events">{t('questionnaireGotoEvents')}</Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link to="/dashboard">{t('questionnaireGotoDashboard')}</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : null}
       </div>
     </PageShell>

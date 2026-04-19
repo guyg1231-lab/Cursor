@@ -510,4 +510,24 @@ test.describe('participant foundation', () => {
       await ctx.close();
     }
   });
+
+  test('questionnaire: success state shows CTAs to gatherings and dashboard after save', async ({ browser }) => {
+    test.skip(
+      true,
+      'Requires a staging fixture user whose matching_responses can be mutated and restored. Plan #5/#6 will introduce a dedicated questionnaire-save fixture helper; until then, rely on typecheck + manual verification (persistProfile succeeds → questionnaireSuccessTitle appears with two CTAs).',
+    );
+
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/questionnaire');
+      // Future: drive the form through all 3 steps, click submit, then:
+      await expect(page.getByText('הפרופיל נשמר. מה הלאה?', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveAttribute('href', '/events');
+      await expect(page.getByRole('link', { name: 'לאזור האישי' })).toHaveAttribute('href', '/dashboard');
+    } finally {
+      await ctx.close();
+    }
+  });
 });

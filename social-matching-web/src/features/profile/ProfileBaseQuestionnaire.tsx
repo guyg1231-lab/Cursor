@@ -317,9 +317,10 @@ function FieldLabel({ title, hint }: { title: string; hint?: string }) {
 
 type ProfileBaseQuestionnaireProps = {
   onLoadError?: (hasError: boolean) => void;
+  onSaved?: () => void;
 };
 
-export function ProfileBaseQuestionnaire({ onLoadError }: ProfileBaseQuestionnaireProps = {}) {
+export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQuestionnaireProps = {}) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const text = copy[language];
@@ -531,6 +532,7 @@ export function ProfileBaseQuestionnaire({ onLoadError }: ProfileBaseQuestionnai
       }
 
       setMessage(text.saveSuccess);
+      onSaved?.();
     } catch {
       setError(text.submitError);
     } finally {
