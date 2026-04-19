@@ -82,7 +82,7 @@ function validateDraft(values: HostEventRequestDraftInput) {
 
   const maxCapacity = Number(values.max_capacity);
   if (!Number.isInteger(maxCapacity) || maxCapacity < 5 || maxCapacity > 8) {
-    return 'בקיבולת הראשונית של Circles אפשר לבחור בין 5 ל-8 משתתפים.';
+    return 'בקיבולת הראשונית של המערכת אפשר לבחור בין 5 ל-8 משתתפים.';
   }
 
   if (values.registration_deadline) {
