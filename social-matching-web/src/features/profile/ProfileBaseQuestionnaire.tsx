@@ -175,6 +175,63 @@ const languageOptions = ['Hebrew', 'Hebrew + English is fine', 'Comfortable in E
 const matchPreferenceOptions = ['People more similar to me', 'People more different from me', 'A mix of both'] as const;
 const motivationOptions = ['Meet new people', 'Break routine', 'Build meaningful connections', 'Try a new kind of experience'] as const;
 
+const interestDisplayLabels: Record<(typeof interestOptions)[number], string> = {
+  Music: 'מוזיקה',
+  Art: 'אומנות',
+  Books: 'ספרים',
+  Film: 'קולנוע',
+  'Philosophy / ideas': 'פילוסופיה / רעיונות',
+  'Nature / outdoors': 'טבע / טיולים',
+  'Movement / sports': 'תנועה / ספורט',
+  'Food / culinary': 'אוכל / קולינריה',
+  'Community / people': 'קהילה / אנשים',
+  'Entrepreneurship / career': 'יזמות / קריירה',
+  Technology: 'טכנולוגיה',
+  Games: 'משחקים',
+  'Urban culture': 'תרבות עירונית',
+  'Personal growth': 'צמיחה אישית',
+};
+
+const socialStyleDisplayLabels: Record<(typeof socialStyleOptions)[number], string> = {
+  Initiator: 'יוזם/ת',
+  Connector: 'מחבר/ת',
+  Flexible: 'גמיש/ה',
+  Listener: 'מקשיב/ה',
+};
+
+const rechargeDisplayLabels: Record<(typeof rechargeOptions)[number], string> = {
+  'With people': 'עם אנשים',
+  Alone: 'לבד',
+  'A mix of both': 'שילוב של שניהם',
+};
+
+const meetingPriorityDisplayLabels: Record<(typeof meetingPriorityOptions)[number], string> = {
+  'Light and enjoyable conversation': 'שיחה קלה ונעימה',
+  'Feeling heard': 'תחושה שמקשיבים',
+  'Meeting people different from me': 'להכיר אנשים שונים ממני',
+  'Feeling comfortable and opening up gradually': 'להרגיש בנוח ולהיפתח בהדרגה',
+};
+
+const languageDisplayLabels: Record<(typeof languageOptions)[number], string> = {
+  Hebrew: 'עברית',
+  'Hebrew + English is fine': 'עברית + אנגלית זה בסדר',
+  'Comfortable in English': 'נוח באנגלית',
+  'English only': 'אנגלית בלבד',
+};
+
+const matchPreferenceDisplayLabels: Record<(typeof matchPreferenceOptions)[number], string> = {
+  'People more similar to me': 'אנשים דומים לי',
+  'People more different from me': 'אנשים שונים ממני',
+  'A mix of both': 'שילוב של שניהם',
+};
+
+const motivationDisplayLabels: Record<(typeof motivationOptions)[number], string> = {
+  'Meet new people': 'להכיר אנשים חדשים',
+  'Break routine': 'לשבור שגרה',
+  'Build meaningful connections': 'לבנות קשרים משמעותיים',
+  'Try a new kind of experience': 'לנסות חוויה חדשה',
+};
+
 type FormState = {
   full_name: string;
   email: string;
@@ -614,7 +671,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.language_pref === option}
                       onClick={() => updateField('language_pref', option)}
                     >
-                      {option}
+                      {languageDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -629,7 +686,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q22_interests.includes(option)}
                       onClick={() => toggleMulti('q22_interests', option, 5)}
                     >
-                      {option}
+                      {interestDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -644,7 +701,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q13_social_style === option}
                       onClick={() => updateField('q13_social_style', option)}
                     >
-                      {option}
+                      {socialStyleDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -659,7 +716,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q17_recharge === option}
                       onClick={() => updateField('q17_recharge', option)}
                     >
-                      {option}
+                      {rechargeDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -674,7 +731,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q20_meeting_priority.includes(option)}
                       onClick={() => toggleMulti('q20_meeting_priority', option, 2)}
                     >
-                      {option}
+                      {meetingPriorityDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -689,7 +746,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q_match_preference === option}
                       onClick={() => updateField('q_match_preference', option)}
                     >
-                      {option}
+                      {matchPreferenceDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
@@ -704,7 +761,7 @@ export function ProfileBaseQuestionnaire() {
                       selected={form.q25_motivation === option}
                       onClick={() => updateField('q25_motivation', option)}
                     >
-                      {option}
+                      {motivationDisplayLabels[option]}
                     </ChoiceChip>
                   ))}
                 </div>
