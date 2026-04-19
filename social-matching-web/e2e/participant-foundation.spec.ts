@@ -371,7 +371,7 @@ test.describe('participant foundation', () => {
 
   test('auth callback keeps a visible loading state before redirect completes', async ({ page }) => {
     const sawLoading = page.waitForFunction(
-      () => /loading|טוענים|מאמתים/i.test(document.body.innerText),
+      () => /מאמתים/.test(document.body.innerText),
       { timeout: 15_000 },
     );
     await Promise.all([page.goto('/auth/callback'), sawLoading]);
