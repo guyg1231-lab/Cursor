@@ -11,6 +11,8 @@ interface PhoneInputProps {
   isTouched?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
+  /** Optional id for the inner tel input (pairs with an external `<label htmlFor>`). */
+  id?: string;
   /** Optional override for the outer container classes (background, focus background, etc.) */
   containerClassName?: string;
 }
@@ -181,6 +183,7 @@ export function PhoneInput({
   isTouched,
   placeholder = '50-123-4567',
   autoFocus = false,
+  id,
   containerClassName,
 }: PhoneInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -302,6 +305,7 @@ export function PhoneInput({
         <div className="flex-1">
           <input
             ref={inputRef}
+            id={id}
             type="tel"
             inputMode="tel"
             value={displayNumber}
