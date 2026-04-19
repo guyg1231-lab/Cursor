@@ -324,8 +324,17 @@ test.describe('participant foundation', () => {
           const page = await ctx.newPage();
           await page.goto(`/gathering/${ENV.EVENT_ID}`);
           await expect(page.getByText(/הסטטוס הנוכחי שלך/)).toBeVisible({ timeout: 15_000 });
-          await expect(page.locator('body')).not.toContainText(/waitlist|cancelled|no_show/i);
-          await expect(page.getByText('רשימת המתנה', { exact: false })).toBeVisible();
+          // Scope the assertion to the composed status line — catches both the
+          // English-token leak and any mis-mapping that would render a different
+          // Hebrew label in that slot.
+          await expect(
+            page.getByText(/הסטטוס הנוכחי שלך:\s*רשימת המתנה/),
+          ).toBeVisible();
+          // Defensive: none of the raw English enum tokens appear anywhere in the
+          // rendered body (in case the status slot escapes narrowing later).
+          await expect(page.locator('body')).not.toHaveText(
+            /\b(waitlist|cancelled|no_show|pending|awaiting_response|confirmed|approved|rejected|attended)\b/i,
+          );
         } finally {
           try {
             await ctx.close();
@@ -349,10 +358,16 @@ test.describe('participant foundation', () => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
       await page.route('**/auth/v1/verify**', async (route) => {
-        await route.fulfill({
+        if (route.request().method() !== 'POST') {
+          return route.continue();
+        }
+        return route.fulfill({
           status: 400,
           contentType: 'application/json',
-          body: JSON.stringify({ error: 'invalid_grant', error_description: 'Invalid OTP' }),
+          body: JSON.stringify({
+            error: 'invalid_otp',
+            error_description: 'Token has expired or is invalid',
+          }),
         });
       });
 
