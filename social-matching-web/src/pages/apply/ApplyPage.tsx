@@ -585,6 +585,15 @@ export function ApplyPage() {
           <CardTitle className="text-2xl">לפני שמתחילים</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-foreground/85 leading-relaxed">
+          {/**
+           * Intentional asymmetry with EventDetailPage: the reapply-eligible state there
+           * renders ApplicationStatusPanel via resolveApplicationPanelContent, while here
+           * we use inline prose + StatusBadge (rendered below, outside this card). This
+           * page also renders the actual application form a few sections down; a full
+           * panel competes with the form the user is filling in. If future
+           * work requires symmetry, extract a shared ReapplyHeader (badge + prose) —
+           * do not adopt ApplicationStatusPanel here without a UX review.
+           */}
           {existingApplication && canReapplyToEvent(existingApplication.status) ? (
             <p>
               הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
