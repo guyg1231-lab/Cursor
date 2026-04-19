@@ -24,3 +24,9 @@ This note is for **developers** (not end-user copy). It explains how participant
 ## Route registration
 
 Declared routes are listed in [`src/app/router/routeManifest.ts`](../src/app/router/routeManifest.ts). Treat that file as the inventory of paths; this document explains **intent** and **canonical vs legacy** usage, not the manifest format itself.
+
+## Readiness route — /questionnaire
+
+- In the route manifest, `/questionnaire` remains **auth: 'public'** (foundation-owned; do not change in Dev A passes).
+- Anonymous visitors get a **preview** questionnaire: drafts persist **locally**; **Supabase** persistence for profile / `matching_responses` runs **after sign-in** (`ProfileBaseQuestionnaire`).
+- Public access is **intentional** for onboarding; tightening guards is a **foundation** ticket, not Dev A.
