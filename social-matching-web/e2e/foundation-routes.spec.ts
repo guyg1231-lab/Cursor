@@ -124,5 +124,6 @@ test.describe('foundation routes', () => {
         expect.objectContaining({ path: '/admin/events/:eventId/diagnostics', workstream: 'admin', auth: 'admin' }),
       ]),
     );
+    expect(routeManifest.find((route) => route.path === '/host/settings')).toBeUndefined();
   });
 });
