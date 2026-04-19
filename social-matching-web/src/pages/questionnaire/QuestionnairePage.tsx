@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ProfileBaseQuestionnaire } from '@/features/profile/ProfileBaseQuestionnaire';
@@ -10,6 +12,7 @@ import { tokens } from '@/lib/design-tokens';
 export function QuestionnairePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const [remoteLoadFailed, setRemoteLoadFailed] = useState(false);
 
   return (
     <PageShell title={t('questionnaireTitle')} subtitle={t('questionnaireSubtitle')}>
@@ -35,9 +38,17 @@ export function QuestionnairePage() {
             <CardTitle>{t('questionnaireTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProfileBaseQuestionnaire />
+            <ProfileBaseQuestionnaire
+              onLoadError={(hasError) => {
+                setRemoteLoadFailed(hasError);
+              }}
+            />
           </CardContent>
         </Card>
+
+        {remoteLoadFailed ? (
+          <RouteErrorState title={t('questionnaireLoadErrorTitle')} body={t('questionnaireLoadError')} />
+        ) : null}
       </div>
     </PageShell>
   );

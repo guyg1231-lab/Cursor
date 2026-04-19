@@ -489,4 +489,25 @@ test.describe('participant foundation', () => {
       await ctx.close();
     }
   });
+
+  test('questionnaire: matching_responses load failure shows RouteErrorState and keeps form', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    try {
+      await page.route('**/rest/v1/matching_responses**', async (route) => {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+      });
+
+      await page.goto('/questionnaire');
+
+      await expect(page.getByText('שגיאת טעינה', { exact: true })).toBeVisible();
+      await expect(
+        page.getByText('לא הצלחנו לטעון את הנתונים השמורים. אפשר לרענן ולנסות שוב.', { exact: true }),
+      ).toBeVisible();
+      await expect(page.getByRole('button', { name: 'המשך' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
 });
