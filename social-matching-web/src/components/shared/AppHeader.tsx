@@ -3,6 +3,7 @@ import { Logo } from '@/components/shared/Logo';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { Button } from '@/components/ui/button';
+import { RouterLinkButton } from '@/components/ui/router-link-button';
 import { cn } from '@/lib/utils';
 import { useThemeMode } from '@/hooks/useTheme';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -31,6 +32,8 @@ export function AppHeader({
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
 
+  const navLinkClassName = 'rounded-full text-muted-foreground hover:text-foreground';
+
   return (
     <header
       className={cn(
@@ -50,29 +53,24 @@ export function AppHeader({
         </Link>
 
         <div className="hidden md:flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-            <Link to="/events">{t('navEvents')}</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-            <Link to="/questionnaire">{t('navQuestionnaire')}</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-            <Link to="/dashboard">{t('navDashboard')}</Link>
-          </Button>
+          <RouterLinkButton to="/events" variant="ghost" size="sm" className={navLinkClassName}>
+            {t('navEvents')}
+          </RouterLinkButton>
+          <RouterLinkButton to="/questionnaire" variant="ghost" size="sm" className={navLinkClassName}>
+            {t('navQuestionnaire')}
+          </RouterLinkButton>
+          <RouterLinkButton to="/dashboard" variant="ghost" size="sm" className={navLinkClassName}>
+            {t('navDashboard')}
+          </RouterLinkButton>
           {user ? (
-            <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              <Link to="/host/events">{t('navHostRequest')}</Link>
-            </Button>
+            <RouterLinkButton to="/host/events" variant="ghost" size="sm" className={navLinkClassName}>
+              {t('navHostRequest')}
+            </RouterLinkButton>
           ) : null}
           {isAdmin ? (
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="rounded-full text-muted-foreground hover:text-foreground"
-            >
-              <Link to="/admin/events">{t('navAdmin')}</Link>
-            </Button>
+            <RouterLinkButton to="/admin/events" variant="ghost" size="sm" className={navLinkClassName}>
+              {t('navAdmin')}
+            </RouterLinkButton>
           ) : null}
         </div>
 
@@ -90,9 +88,9 @@ export function AppHeader({
               {t('navSignOut')}
             </Button>
           ) : (
-            <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              <Link to="/auth">{t('navSignIn')}</Link>
-            </Button>
+            <RouterLinkButton to="/auth" variant="ghost" size="sm" className={navLinkClassName}>
+              {t('navSignIn')}
+            </RouterLinkButton>
           )}
           {actions}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />

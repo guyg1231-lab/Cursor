@@ -1,6 +1,7 @@
 # F-2: Clarify `/questionnaire` guard semantics in `routeManifest.ts`
 
-- **Status:** proposed
+- **Status:** done
+- **Resolution:** **Option A** — Introduced manifest auth tier `preview` with file-level JSDoc; `/questionnaire` and `/auth/callback` use `preview`. Runtime routing unchanged (same as `public`); guards not modified.
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Routing correctness / spec alignment. No current user-visible bug.
 - **Blocking:** No

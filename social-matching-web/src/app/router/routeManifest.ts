@@ -1,3 +1,14 @@
+/**
+ * Route inventory metadata (documentation + audits). Not consumed by runtime guards today.
+ *
+ * **Auth tier semantics**
+ * - `public` — no session required; page is useful for anonymous visitors.
+ * - `preview` — reachable without a session, but full functionality expects a signed-in user
+ *   (page shows graceful empty/login states for anon). Same routing behavior as `public` in
+ *   `AppRouter`; the tier documents intent for readers of this file.
+ * - `protected` — requires auth; unauthenticated users are redirected by route guards.
+ * - `admin` — operator/admin surfaces (`AdminRoute`).
+ */
 export type Workstream = 'shared' | 'participant' | 'host' | 'admin';
 export type RouteDataStatus = 'real' | 'mixed' | 'stubbed';
 export type RouteClassification =
@@ -19,7 +30,7 @@ export type RouteSupportedState =
 export type RouteManifestEntry = {
   path: string;
   workstream: Workstream;
-  auth: 'public' | 'protected' | 'admin';
+  auth: 'public' | 'preview' | 'protected' | 'admin';
   dataStatus: RouteDataStatus;
   classification: RouteClassification;
   supportedStates: RouteSupportedState[];
@@ -57,7 +68,7 @@ export const routeManifest: RouteManifestEntry[] = [
   {
     path: '/auth/callback',
     workstream: 'participant',
-    auth: 'public',
+    auth: 'preview',
     dataStatus: 'real',
     classification: 'Existing and keep',
     supportedStates: ['loading', 'error', 'success'],
@@ -93,7 +104,7 @@ export const routeManifest: RouteManifestEntry[] = [
   {
     path: '/questionnaire',
     workstream: 'participant',
-    auth: 'public',
+    auth: 'preview',
     dataStatus: 'real',
     classification: 'Existing and keep',
     supportedStates: ['loading', 'error', 'success'],

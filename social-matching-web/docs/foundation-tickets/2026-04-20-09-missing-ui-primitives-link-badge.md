@@ -1,6 +1,7 @@
 # F-9: Missing `Link` and `Badge` UI primitives (low priority)
 
-- **Status:** proposed
+- **Status:** done
+- **Resolution:** **Option A** — Added `src/components/ui/router-link-button.tsx` (`RouterLinkButton`) and migrated `AppHeader` nav links to use it. Option B (relocating `StatusBadge` to `ui/badge`) was not required: F-6 already normalized operator dashboard badges; further rename is optional follow-up.
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Low. `src/components/ui/` currently holds only `Button` and `Card`. Two minor patterns are handled ad-hoc across the codebase: (a) essentially every `<Link>` used as a styled CTA pairs with `<Button asChild>` as a repeated idiom, and (b) there is at least one inline "pill" span that sidesteps `StatusBadge`. Filed for visibility, not urgency.
 - **Blocking:** No. Existing patterns work; this is an ergonomics / organization question.

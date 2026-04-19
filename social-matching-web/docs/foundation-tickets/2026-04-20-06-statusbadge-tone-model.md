@@ -1,7 +1,6 @@
 # F-6: `StatusBadge` tone model is too narrow
 
-- **Status:** in-progress
-- **PR:** _(add merge PR link)_
+- **Status:** done
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Every "status" surface — application lifecycle list, event detail, apply page, profile readiness card, placeholder panel — renders badges in the same neutral tone regardless of semantic severity. There is no way to distinguish `confirmed` (success) from `waitlist` (warning) from `cancelled` (danger) from `pending` (default). Callers either accept the flat look or reach around the primitive with inline color classes, defeating its purpose.
 - **Blocking:** No (purely cosmetic today), but blocks a consistent severity UX across all lifecycle surfaces.
