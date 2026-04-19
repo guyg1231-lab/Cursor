@@ -455,6 +455,32 @@ test.describe('participant foundation', () => {
     try {
       await page.goto('/questionnaire');
       await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+
+      const fullNameInput = page.locator('input[type="text"]').first();
+      if ((await fullNameInput.inputValue()) === '') {
+        await fullNameInput.fill('Test User');
+      }
+
+      const emailInput = page.locator('input[type="email"]').first();
+      if ((await emailInput.inputValue()) === '') {
+        await emailInput.fill('questionnaire.e2e@gmail.com');
+      }
+
+      const phoneInput = page.locator('input[type="tel"]').first();
+      if ((await phoneInput.inputValue()) === '') {
+        await phoneInput.fill('0501234567');
+      }
+
+      const socialUrlInput = page.locator('input[type="url"]').first();
+      if ((await socialUrlInput.inputValue()) === '') {
+        await socialUrlInput.fill('https://instagram.com/testuser');
+      }
+
+      const birthDateInput = page.locator('input[type="date"]').first();
+      if ((await birthDateInput.inputValue()) === '') {
+        await birthDateInput.fill('1990-01-01');
+      }
+
       await page.getByRole('button', { name: 'המשך' }).click();
 
       await expect(page.getByText('מוזיקה', { exact: true })).toBeVisible();
