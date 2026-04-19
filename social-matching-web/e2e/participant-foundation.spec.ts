@@ -435,4 +435,16 @@ test.describe('participant foundation', () => {
       await ctx.close();
     }
   });
+
+  test('questionnaire: anonymous visitor sees Hebrew sign-in banner with link to /auth', async ({ page }) => {
+    await page.goto('/questionnaire');
+    await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+    await expect(page.getByText('רוצים לשמור את התשובות בחשבון?', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('אפשר למלא את השאלון גם בלי להתחבר', { exact: false }),
+    ).toBeVisible();
+    const cta = page.getByRole('link', { name: 'להתחברות' });
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute('href', '/auth');
+  });
 });
