@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
-import { RouteEmptyState, RouteErrorState } from '@/components/shared/RouteState';
-import { tokens } from '@/lib/design-tokens';
+import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
 import type { VisibleEvent } from '@/features/events/types';
@@ -46,9 +44,7 @@ export function EventsPage() {
       subtitle="כל המפגשים שפתוחים עכשיו. כניסה ישירה לעמוד ההרשמה של המפגש."
     >
       {isLoading ? (
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים מפגשים...</CardContent>
-        </Card>
+        <RouteLoadingState />
       ) : error ? (
         <RouteErrorState title="שגיאת טעינה" body={error} />
       ) : events.length === 0 ? (

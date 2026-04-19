@@ -43,7 +43,7 @@ folder as historical record (do not delete).
 
 | Ticket | Status | Impact |
 | --- | --- | --- |
-| [F-1: `RouteLoadingState` body prop](2026-04-20-01-routeloadingstate-body-prop.md) | proposed | Dev A (deferred), Dev B (upcoming) |
+| [F-1: `RouteLoadingState` body prop](2026-04-20-01-routeloadingstate-body-prop.md) | in-progress | Dev A (deferred), Dev B (upcoming) |
 | [F-2: `/questionnaire` guard semantics](2026-04-20-02-questionnaire-guard-semantics.md) | proposed | Routing / spec alignment |
 | [F-3: Phantom `/host/settings` route](2026-04-20-03-routemanifest-phantom-host-settings.md) | proposed | Routing documentation accuracy |
 | [F-4: Hardcoded English "Loading..." in guards](2026-04-20-04-guards-hardcoded-english-loading.md) | proposed | Participant UI English leak |
