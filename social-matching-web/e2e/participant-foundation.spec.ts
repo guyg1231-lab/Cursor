@@ -531,3 +531,63 @@ test.describe('participant foundation', () => {
     }
   });
 });
+
+// §13.2 new-user workflow scaffold. `test.describe.skip` — not `serial` — because
+// Playwright runs `beforeAll`/`afterAll` even when an inner `test.skip(true, ...)`
+// short-circuits the test body. Deleting P2's matching_responses on every full
+// Playwright run and relying on `afterAll` restore would strand staging data if
+// the restore ever failed. `describe.skip` skips hooks too, keeping this scaffold
+// inert until a disposable fixture user exists (Plan #5/#6). To enable later:
+//   1. Seed a dedicated disposable participant user (own email) with no matching_responses.
+//   2. Replace `test.describe.skip` with `test.describe.serial`.
+//   3. Remove the inner `test.skip(true, ...)` guard.
+//   4. Swap `ENV.EMAILS.P2` for the disposable user's env var.
+test.describe.skip('questionnaire workflow §13.2 (optional)', () => {
+  const admin = createServiceRoleClient();
+  let userId: string;
+  let hadRow: boolean;
+  let snapshot: Record<string, unknown> | null;
+
+  test.beforeAll(async () => {
+    const { data: profile, error } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P2)
+      .maybeSingle();
+    if (error) throw error;
+    if (!profile?.id) throw new Error('Missing profile for ENV.EMAILS.P2');
+    userId = profile.id;
+
+    const { data: row } = await admin
+      .from('matching_responses')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    hadRow = Boolean(row);
+    snapshot = row ? { ...row } : null;
+
+    const { error: delError } = await admin.from('matching_responses').delete().eq('user_id', userId);
+    if (delError) throw delError;
+  });
+
+  test.afterAll(async () => {
+    if (!hadRow) return;
+    if (!snapshot) return;
+    const { error } = await admin.from('matching_responses').upsert(snapshot, { onConflict: 'user_id' });
+    if (error) throw error;
+  });
+
+  test('new user completes questionnaire and can proceed toward apply', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P2);
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/questionnaire');
+      // TODO: drive the form through all 3 steps, submit, then assert
+      // readiness flips and apply unblocks per spec §13.2.
+      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+});
