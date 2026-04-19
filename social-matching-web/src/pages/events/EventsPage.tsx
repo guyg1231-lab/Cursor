@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteEmptyState, RouteErrorState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
@@ -49,13 +50,12 @@ export function EventsPage() {
           <CardContent className="py-10 text-sm text-muted-foreground">טוענים מפגשים...</CardContent>
         </Card>
       ) : error ? (
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-destructive">{error}</CardContent>
-        </Card>
+        <RouteErrorState title="שגיאת טעינה" body={error} />
       ) : events.length === 0 ? (
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">אין כרגע מפגשים פתוחים</CardContent>
-        </Card>
+        <RouteEmptyState
+          title="אין כרגע מפגשים פתוחים"
+          body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
+        />
       ) : (
         <div className="flex flex-col gap-4">
           {events.map((event) => (
