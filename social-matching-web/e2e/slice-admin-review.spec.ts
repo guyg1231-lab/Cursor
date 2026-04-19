@@ -67,21 +67,24 @@ test.describe('Circles admin-review slice', () => {
     // Step 1: host fills draft + submits to review.
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.HOST1);
-      const page = await ctx.newPage();
-      await page.goto('/host/events');
-      await expect(page.getByRole('button', { name: 'טיוטה חדשה' })).toBeVisible();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.HOST1);
+        const page = await ctx.newPage();
+        await page.goto('/host/events');
+        await expect(page.getByRole('button', { name: 'טיוטה חדשה' })).toBeVisible();
 
-      await page.getByLabel('כותרת האירוע').fill(uniqueTitle);
-      await page.getByLabel('תיאור קצר').fill(longDescription);
-      await page.getByLabel('עיר / אזור').fill('Tel Aviv');
-      await page.getByLabel('קיבולת רצויה').fill('5');
-      await fillDateTimeLocal(page, 'מועד האירוע', toLocalInputValue(starts));
-      await fillDateTimeLocal(page, 'דדליין להגשה', toLocalInputValue(deadline));
+        await page.getByLabel('כותרת האירוע').fill(uniqueTitle);
+        await page.getByLabel('תיאור קצר').fill(longDescription);
+        await page.getByLabel('עיר / אזור').fill('Tel Aviv');
+        await page.getByLabel('קיבולת רצויה').fill('5');
+        await fillDateTimeLocal(page, 'מועד האירוע', toLocalInputValue(starts));
+        await fillDateTimeLocal(page, 'דדליין להגשה', toLocalInputValue(deadline));
 
-      await page.getByRole('button', { name: 'שליחה לבדיקה מנהלית' }).click();
-      await expect(page.getByText('בקשת האירוע נשלחה לבדיקה מנהלית.')).toBeVisible();
-      await ctx.close();
+        await page.getByRole('button', { name: 'שליחה לבדיקה מנהלית' }).click();
+        await expect(page.getByText('בקשת האירוע נשלחה לבדיקה מנהלית.')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     const submittedEventId = await findEventIdByTitleAndCreator(uniqueTitle, ENV.EMAILS.HOST1);
@@ -96,22 +99,25 @@ test.describe('Circles admin-review slice', () => {
     // Step 2: admin approves via /admin/event-requests.
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-      const page = await ctx.newPage();
-      await page.goto('/admin/event-requests');
-      await expect(page.getByRole('heading', { name: 'Submitted for review' })).toBeVisible();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+        const page = await ctx.newPage();
+        await page.goto('/admin/event-requests');
+        await expect(page.getByRole('heading', { name: 'Submitted for review' })).toBeVisible();
 
-      // Card title is rendered as its own element with the exact title, while the
-      // post-approve banner wraps it in quotes. Use exact match so the row-title
-      // locator stops matching once the card is removed.
-      const rowTitle = page.getByText(uniqueTitle, { exact: true });
-      await expect(rowTitle).toBeVisible();
-      const row = page.locator('div').filter({ has: rowTitle }).last();
-      await row.getByRole('button', { name: 'Approve & publish' }).click();
+        // Card title is rendered as its own element with the exact title, while the
+        // post-approve banner wraps it in quotes. Use exact match so the row-title
+        // locator stops matching once the card is removed.
+        const rowTitle = page.getByText(uniqueTitle, { exact: true });
+        await expect(rowTitle).toBeVisible();
+        const row = page.locator('div').filter({ has: rowTitle }).last();
+        await row.getByRole('button', { name: 'Approve & publish' }).click();
 
-      await expect(page.getByText(`Approved and published: "${uniqueTitle}".`)).toBeVisible();
-      await expect(rowTitle).toHaveCount(0);
-      await ctx.close();
+        await expect(page.getByText(`Approved and published: "${uniqueTitle}".`)).toBeVisible();
+        await expect(rowTitle).toHaveCount(0);
+      } finally {
+        await ctx.close();
+      }
     }
 
     const afterApprove = await fetchEventById(submittedEventId!);
@@ -126,11 +132,14 @@ test.describe('Circles admin-review slice', () => {
     // Step 3: host sees shareable link after approval.
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.HOST1);
-      const hostPage = await ctx.newPage();
-      await hostPage.goto('/host/events');
-      await expect(hostPage.getByText('/gathering/')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.HOST1);
+        const hostPage = await ctx.newPage();
+        await hostPage.goto('/host/events');
+        await expect(hostPage.getByText('/gathering/')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     // Step 4: /events exposes the truncated public description preview
@@ -138,11 +147,14 @@ test.describe('Circles admin-review slice', () => {
     // existing events.description field, no applicant data).
     {
       const ctx = await browser.newContext();
-      const page = await ctx.newPage();
-      await page.goto('/events');
-      await expect(page.getByText(previewPrefix, { exact: false })).toBeVisible();
-      await expect(page.getByText(longDescription, { exact: true })).toHaveCount(0);
-      await ctx.close();
+      try {
+        const page = await ctx.newPage();
+        await page.goto('/events');
+        await expect(page.getByText(previewPrefix, { exact: false })).toBeVisible();
+        await expect(page.getByText(longDescription, { exact: true })).toHaveCount(0);
+      } finally {
+        await ctx.close();
+      }
     }
   });
 });

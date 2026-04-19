@@ -15,19 +15,25 @@ test.describe('Circles vertical slice - happy path', () => {
     // Discovery: /events lists the active+published fixture with an entry button.
     {
       const ctx = await browser.newContext();
-      const page = await ctx.newPage();
-      await page.goto('/events');
-      await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toBeVisible();
-      await ctx.close();
+      try {
+        const page = await ctx.newPage();
+        await page.goto('/events');
+        await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     // Step 1: four participants submit applications via UI.
     for (const p of participants) {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, p.email);
-      const page = await ctx.newPage();
-      await submitApplicationViaUi(page, p.fullName, p.phone, `I want to join ${p.label} slice.`);
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, p.email);
+        const page = await ctx.newPage();
+        await submitApplicationViaUi(page, p.fullName, p.phone, `I want to join ${p.label} slice.`);
+      } finally {
+        await ctx.close();
+      }
     }
 
     const afterSubmit = await fetchRegistrationsByEmail();
@@ -41,15 +47,18 @@ test.describe('Circles vertical slice - happy path', () => {
     // Step 2: operator sends invitations via UI.
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-      const page = await ctx.newPage();
-      await page.goto(TEAM_PATH);
-      await expect(page.getByRole('heading', { name: 'רשימת הנרשמים' })).toBeVisible();
-      const sendBtn = page.getByRole('button', { name: 'שליחת הזמנות' });
-      await expect(sendBtn).toBeEnabled();
-      await sendBtn.click();
-      await expect(page.getByText('ההזמנות נשלחו')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+        const page = await ctx.newPage();
+        await page.goto(TEAM_PATH);
+        await expect(page.getByRole('heading', { name: 'רשימת הנרשמים' })).toBeVisible();
+        const sendBtn = page.getByRole('button', { name: 'שליחת הזמנות' });
+        await expect(sendBtn).toBeEnabled();
+        await sendBtn.click();
+        await expect(page.getByText('ההזמנות נשלחו')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     const afterInvites = await fetchRegistrationsByEmail();
@@ -62,13 +71,16 @@ test.describe('Circles vertical slice - happy path', () => {
     // Step 3: all four accept via UI.
     for (const p of participants) {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, p.email);
-      const page = await ctx.newPage();
-      await page.goto(EVENT_PATH);
-      await expect(page.getByText('נשמר עבורך מקום במפגש')).toBeVisible();
-      await page.getByRole('button', { name: 'אישור המקום' }).click();
-      await expect(page.getByText('המקום שלך במפגש שמור')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, p.email);
+        const page = await ctx.newPage();
+        await page.goto(EVENT_PATH);
+        await expect(page.getByText('נשמר עבורך מקום במפגש')).toBeVisible();
+        await page.getByRole('button', { name: 'אישור המקום' }).click();
+        await expect(page.getByText('המקום שלך במפגש שמור')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     const afterAccept = await fetchRegistrationsByEmail();
@@ -80,14 +92,17 @@ test.describe('Circles vertical slice - happy path', () => {
     // Step 4: operator marks attended via UI.
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-      const page = await ctx.newPage();
-      await page.goto(TEAM_PATH);
-      const markBtn = page.getByRole('button', { name: 'סימון הגעה' });
-      await expect(markBtn).toBeEnabled();
-      await markBtn.click();
-      await expect(page.getByText('סומנו כ-attended')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+        const page = await ctx.newPage();
+        await page.goto(TEAM_PATH);
+        const markBtn = page.getByRole('button', { name: 'סימון הגעה' });
+        await expect(markBtn).toBeEnabled();
+        await markBtn.click();
+        await expect(page.getByText('סומנו כ-attended')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     const final = await fetchRegistrationsByEmail();

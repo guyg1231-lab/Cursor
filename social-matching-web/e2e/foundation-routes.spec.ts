@@ -6,38 +6,47 @@ import { ENV } from './fixtures/env';
 test.describe('foundation routes', () => {
   test('host placeholder routes render a stable heading and placeholder panel', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.HOST1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.HOST1);
+      const page = await ctx.newPage();
 
-    await page.goto('/host/events/future-workspace');
-    await expect(page.getByRole('heading', { level: 1, name: 'Host event workspace' })).toBeVisible();
-    await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/host/events/future-workspace');
+      await expect(page.getByRole('heading', { level: 1, name: 'Host event workspace' })).toBeVisible();
+      await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
-  test('admin placeholder routes render behind admin guard', async ({ browser }) => {
+  // NOTE: does not verify the guard rejects non-admins — AdminRoute currently
+  // silently redirects to /, which makes a positive denial assertion hard.
+  // See foundation ticket F-5 (docs/foundation-tickets/2026-04-20-05-*).
+  test('admin placeholder routes render expected copy when signed in as admin', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+      const page = await ctx.newPage();
 
-    await page.goto('/admin/events/future-event/diagnostics');
-    await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
-    await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/admin/events/future-event/diagnostics');
+      await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
+      await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('placeholder routes expose a consistent back-link and purpose copy', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+      const page = await ctx.newPage();
 
-    await page.goto('/admin/events/future-event/audit');
-    await expect(page.getByRole('link', { name: 'Back to event dashboard' })).toBeVisible();
-    await expect(page.getByText('Reserved for a later implementation pass.')).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/admin/events/future-event/audit');
+      await expect(page.getByRole('link', { name: 'Back to event dashboard' })).toBeVisible();
+      await expect(page.getByText('Reserved for a later implementation pass.')).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('route manifest tracks host and admin placeholder ownership', () => {
