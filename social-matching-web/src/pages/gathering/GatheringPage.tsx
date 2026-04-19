@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { PageActionBar } from '@/components/shared/PageActionBar';
+import { EventNotFound } from '@/components/participant/EventNotFound';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildAuthPath } from '@/lib/authReturnTo';
@@ -281,15 +282,7 @@ export function GatheringPage() {
   }
 
   if (!event) {
-    return (
-      <PageShell title="המפגש לא נמצא" subtitle="יכול להיות שהוא כבר לא פומבי, או שהקישור אינו תקין.">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-8 text-sm text-muted-foreground">
-            לא מצאנו מפגש פומבי שמתאים לקישור הזה.
-          </CardContent>
-        </Card>
-      </PageShell>
-    );
+    return <EventNotFound />;
   }
 
   const trimmedDescription = event.description?.trim() || null;

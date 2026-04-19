@@ -327,7 +327,7 @@ export function AuthPage() {
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             <p>1. מזינים אימייל ומקבלים קוד בן 6 ספרות.</p>
             <p>2. מזינים את הקוד כאן, והסשן נוצר מיד אחרי האימות.</p>
-            <p>3. חוזרים אוטומטית ל-apply או לדשבורד, בלי לחפש שוב את המקום הנכון.</p>
+            <p>3. חוזרים אוטומטית להגשה או לדשבורד, בלי לחפש שוב את המקום הנכון.</p>
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>
             </Button>
