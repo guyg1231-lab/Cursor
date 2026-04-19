@@ -1,10 +1,11 @@
 # F-4: Hardcoded English `Loading...` in `guards.tsx`
 
-- **Status:** in-progress
+- **Status:** done
 - **Raised by:** Developer A (participant workstream), 2026-04-20
 - **Impact:** Every protected and admin page shows English `Loading...` to Hebrew users on first render while auth resolves. This is the most visible English leak on the participant surface — any Hebrew-speaking visitor who lands on `/dashboard` (or any other protected URL) while the session is still loading sees the literal ASCII word.
 - **Blocking:** Does not block any feature. Depends on F-1 (Hebrew `body` prop on `RouteLoadingState`) for the clean fix; a stopgap Hebrew literal can ship independently.
 - **Owner:** Foundation (TBD)
+- **PR:** [#21](https://github.com/guyg1231-lab/Cursor/pull/21)
 
 ## Current state
 
