@@ -1,8 +1,10 @@
 # Near-Term Buildout Foundation SPEC
 
-Date: 2026-04-18
-Status: Draft approved for documentation
+Date: 2026-04-18  
+Status: Draft approved for documentation  
 Scope: `social-matching-web` near-term buildout foundation
+
+**Rollup (2026-04-19):** Shared foundation tickets **F-1…F-9** are **done** (`docs/foundation-tickets/README.md`). Dev A remains in **maintenance mode** (`docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`). Host/admin buildout remains **Dev B**–owned per §6.3–6.4; this SPEC still describes shape and boundaries, not open foundation debt.
 
 ## 1. Purpose
 

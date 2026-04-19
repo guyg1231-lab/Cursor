@@ -55,7 +55,7 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | ~~D-1~~ | ~~**Dev B kickoff** still states **“26 passing”**~~ | **Resolved** (2026-04-21) | Kickoff updated to **30** tests + `30/30` gate; see `3aab34f` |
 | ~~D-2~~ | ~~**Pass-3 implementation plan** stale snippets~~ | **Mostly resolved** (2026-04-21) | Banner + Task A.2/A.4 + execution conventions aligned with **30** tests and working `npm run typecheck`; grep may still find “25/26” inside **historical** PR-body examples — intentional unless someone bulk-edits |
 | ~~D-3~~ | ~~**Pass-3 design spec** §1 audit-era counts~~ | **Resolved** (2026-04-21) | `2026-04-19-pass-3-remediation-design.md` §1 reframed as historical baseline + **completed** outcome + link to this audit |
-| D-4 | Implementation plan **checkboxes** (`- [ ]`) for completed tasks were never bulk-checked | Low — cosmetic | Same implementation plan file (optional bulk `[x]` pass) |
+| ~~D-4~~ | ~~Implementation plan **checkboxes**~~ | **Resolved** (2026-04-19) | `2026-04-19-pass-3-remediation-implementation.md`: all list items `- [x]`; banner updated |
 
 **Recommendation:** D-1, D-3, and most of D-2 are **done** on `main` (2026-04-21 pass). **D-4** remains optional cosmetic. **T-1** (below) is **resolved** via root `package.json` `typecheck` → `tsc -b --noEmit`.
 
@@ -121,8 +121,8 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 | ID | Work item |
 |----|-----------|
 | ~~C-A11Y-1~~ | ~~Logo `alt` text~~ — **done** (Hebrew `alt`; same row as A-1) |
-| C-REL-1 | Git tag on `main` (e.g. `dev-a-pass-3-remediation-complete`) if release hygiene wants it |
-| C-SPEC-1 | Broader English grep sweep **limited to** `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth}/**` + participant `features` — file tickets for anything that is actually product-facing Hebrew |
+| ~~C-REL-1~~ | ~~Git tag on `main`~~ — **done**: tag `foundation-wave-2-complete` (pushed with rollout docs) |
+| ~~C-SPEC-1~~ | ~~English grep sweep (participant paths)~~ — **N/A**: no new product-facing English strings found in participant `src/pages/*` beyond placeholders (`name@example.com`) and code identifiers; host/admin English out of scope for Dev A |
 
 ### Bucket D — **Not Dev A** (do not schedule here)
 
@@ -199,3 +199,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 | 2026-04-21 | D-2/D-3/T-1 resolved in docs; `typecheck` script + kickoff §1; verification gates prefer `npm run typecheck` |
 | 2026-04-21 | Status header → maintenance mode; Phase 0 follow-up noted merged on `main` |
 | 2026-04-19 | Foundation F-1…F-9 complete on `main`; audit §2 counts → **35** tests; §3.2 / Bucket B / Phase 1 updated for post-foundation maintenance |
+| 2026-04-19 | D-4: Pass-3 implementation plan checklists bulk `[x]`; C-SPEC-1 participant sweep (no changes); C-REL-1 tag `foundation-wave-2-complete`; near-term SPEC rollup |

@@ -1,6 +1,6 @@
 # Pass-3 Remediation Implementation Plan
 
-> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items in this file are a **historical execution log** — many steps still show `- [ ]` in source; treat the work as **done** unless you are re-running a forensic replay. **Current verification:** `npx playwright test --list` → **35** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items below use `- [x]` as a **completed historical log** (bulk-closed 2026-04-19 per audit D-4); treat as done unless replaying tasks intentionally. **Current verification:** `npx playwright test --list` → **35** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -65,20 +65,20 @@ npm test -- <optional path>
 **Files:**
 - Modify: `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md:32`
 
-- [ ] **Step 1: Read the current line**
+- [x] **Step 1: Read the current line**
 
 Expected current content (kickoff.md line 32, showing the route enumeration):
 ```
 `/landing`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth/callback`.
 ```
 
-- [ ] **Step 2: Verify actual routes against `src/app/router/AppRouter.tsx`**
+- [x] **Step 2: Verify actual routes against `src/app/router/AppRouter.tsx`**
 
 Run: `grep -n 'path="' src/app/router/AppRouter.tsx | head -30`
 
 The root route is `/` (landing is mapped to `/`, there is no `/landing`). Participant routes are: `/`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth`, `/auth/callback`.
 
-- [ ] **Step 3: Patch the line**
+- [x] **Step 3: Patch the line**
 
 Replace `\`/landing\`,` with `\`/\`,` and confirm `/auth` is present (we missed it in the original enumeration too — add if absent):
 
@@ -87,7 +87,7 @@ Target line 32:
 `/`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth`, `/auth/callback`.
 ```
 
-- [ ] **Step 4: Defer commit to Task A.4** (batch doc-only commits to keep the diff reviewable)
+- [x] **Step 4: Defer commit to Task A.4** (batch doc-only commits to keep the diff reviewable)
 
 ---
 
@@ -105,15 +105,15 @@ Target line 32:
 **Files:**
 - Modify: `docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md:42-43`
 
-- [ ] **Step 1: Read the current claim**
+- [x] **Step 1: Read the current claim**
 
 Lines 42–43 currently state the claim that `EventsPage`'s inline loading card is "the only inline state card on the normalized participant surface."
 
-- [ ] **Step 2: Establish truth**
+- [x] **Step 2: Establish truth**
 
 The claim is false: `ApplyPage.tsx` has 4 inline state cards (loading, event-missing, unauthenticated, temporary-spot confirm error), `GatheringPage.tsx` has 1 (event-missing), and `EventDetailPage.tsx` has 1 (event-missing). The ticket's point — that `RouteLoadingState` needs a `body` prop to fix `EventsPage` without forking the primitive — stands on its own without the "only" claim.
 
-- [ ] **Step 3: Patch lines 42–43**
+- [x] **Step 3: Patch lines 42–43**
 
 Replace the sentence starting "This is the only inline state card..." with:
 
@@ -121,7 +121,7 @@ Replace the sentence starting "This is the only inline state card..." with:
 `EventsPage` is one of several surfaces that still hand-roll an inline Card for a non-success state (loading, error, empty); the participant surface has not yet standardized on `RouteLoadingState` for loading copy specifically because the primitive cannot render a body paragraph. Fixing `RouteLoadingState` unblocks `EventsPage` today and enables a broader Dev A sweep later.
 ```
 
-- [ ] **Step 4: Defer commit to Task A.4**
+- [x] **Step 4: Defer commit to Task A.4**
 
 ---
 
@@ -144,7 +144,7 @@ git commit -m "docs(kickoff): fix route path, test count, and F-1 claim
 
 ### Task A.5: SP-A verification — subagent cross-reference
 
-- [ ] **Step 1: Dispatch read-only subagent with prompt**
+- [x] **Step 1: Dispatch read-only subagent with prompt**
 
 ```
 Read docs/superpowers/plans/2026-04-20-developer-b-kickoff.md and docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md in full.
@@ -158,13 +158,13 @@ For each claim below, verify against the cited code and return PASS/FAIL + evide
 Return ONLY the verification table. Do not propose changes.
 ```
 
-- [ ] **Step 2: If any FAIL, fix and re-run. If all PASS, proceed to PR.**
+- [x] **Step 2: If any FAIL, fix and re-run. If all PASS, proceed to PR.**
 
 ---
 
 ### Task A.6: Open and merge PR for SP-A
 
-- [ ] **Step 1: Push branch and open PR**
+- [x] **Step 1: Push branch and open PR**
 
 ```bash
 git push -u origin dev-a/remediation-sp-a-docs
@@ -188,7 +188,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 2: Merge and delete branch**
+- [x] **Step 2: Merge and delete branch**
 
 ```bash
 gh pr merge --rebase --delete-branch
@@ -223,8 +223,8 @@ Each ticket uses this standard structure:
 <concrete API change or behavior change, with before/after sketch>
 
 ## Acceptance criteria
-- [ ] <testable criterion 1>
-- [ ] ...
+- [x] <testable criterion 1>
+- [x] ...
 
 ## Notes
 <optional context, alternatives considered, downstream consumers>
@@ -235,7 +235,7 @@ Each ticket uses this standard structure:
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-03-routemanifest-phantom-host-settings.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-3: `routeManifest.ts` declares `/host/settings` with no corresponding route
@@ -269,12 +269,12 @@ Each ticket uses this standard structure:
 Either (a) delete the `/host/settings` entry from `routeManifest.ts` until a real route lands, or (b) keep the entry but add `registered: false` (new manifest field) so consumers can distinguish aspirational routes from live ones. Option (a) is simpler and matches the spirit of "manifest = live routes"; (b) is useful only if Foundation wants to track roadmap routes in the manifest itself.
 
 ## Acceptance criteria
-- [ ] `routeManifest.ts` either removes `/host/settings` OR adds a `registered` field and sets it to `false`.
-- [ ] The foundation-routes E2E does not fail on missing `/host/settings` page (current tests skip this route; verify the skip is explicit).
-- [ ] `docs/mvp-v1/*` references to `/host/settings` are updated to match the manifest.
+- [x] `routeManifest.ts` either removes `/host/settings` OR adds a `registered` field and sets it to `false`.
+- [x] The foundation-routes E2E does not fail on missing `/host/settings` page (current tests skip this route; verify the skip is explicit).
+- [x] `docs/mvp-v1/*` references to `/host/settings` are updated to match the manifest.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -283,7 +283,7 @@ Either (a) delete the `/host/settings` entry from `routeManifest.ts` until a rea
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-04-guards-hardcoded-english-loading.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-4: `guards.tsx` renders hardcoded English "Loading..." in Hebrew UI
@@ -318,15 +318,15 @@ No `t(...)` calls in `guards.tsx`.
 Replace the inline `<div>` with `RouteLoadingState` (from `src/components/shared/RouteState.tsx`). This requires F-1 to land first so `RouteLoadingState` accepts Hebrew body copy. Interim alternative: hardcode the Hebrew literal `טוען…` in guards until F-1 ships.
 
 ## Acceptance criteria
-- [ ] Neither guard renders English `Loading...`.
-- [ ] Both guards use the same loading primitive (no divergence).
-- [ ] A Playwright assertion in `foundation-routes.spec.ts` confirms the loading state renders Hebrew, not English (add `await expect(page.getByText(/Loading/i)).toHaveCount(0)` during navigation).
+- [x] Neither guard renders English `Loading...`.
+- [x] Both guards use the same loading primitive (no divergence).
+- [x] A Playwright assertion in `foundation-routes.spec.ts` confirms the loading state renders Hebrew, not English (add `await expect(page.getByText(/Loading/i)).toHaveCount(0)` during navigation).
 
 ## Notes
 Blocks on F-1 for the clean fix. Can ship a Hebrew literal immediately as a stopgap.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -335,7 +335,7 @@ Blocks on F-1 for the clean fix. Can ship a Hebrew literal immediately as a stop
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-05-adminroute-redirect-inconsistency.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-5: `AdminRoute` denies non-admins silently to `/`; `ProtectedRoute` preserves intent via auth-with-return
@@ -379,15 +379,15 @@ Split `AdminRoute`'s two denial cases:
 Alternative: always redirect to `/` but with a toast (needs Foundation to introduce a toast primitive first).
 
 ## Acceptance criteria
-- [ ] Unauthenticated access to `/admin/*` routes user through auth with correct return path.
-- [ ] Authenticated-but-non-admin access shows an explicit denial, not a silent redirect.
-- [ ] E2E: both denial paths have at least one test covering them.
+- [x] Unauthenticated access to `/admin/*` routes user through auth with correct return path.
+- [x] Authenticated-but-non-admin access shows an explicit denial, not a silent redirect.
+- [x] E2E: both denial paths have at least one test covering them.
 
 ## Notes
 Currently no E2E covers the negative case for AdminRoute (see SP-D overclaim #6). Fixing this ticket should be paired with adding that coverage.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -396,7 +396,7 @@ Currently no E2E covers the negative case for AdminRoute (see SP-D overclaim #6)
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-06-statusbadge-tone-model.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-6: `StatusBadge` tone model supports only `default` / `muted`
@@ -430,13 +430,13 @@ Extend the `tone` union to `'default' | 'muted' | 'success' | 'warning' | 'dange
 A helper `resolveBadgeTone(status: ApplicationStatus): BadgeTone` in `src/features/applications/presentation.ts` maps registration status to tone so callers don't duplicate the mapping logic.
 
 ## Acceptance criteria
-- [ ] `tone` prop accepts all five values.
-- [ ] `resolveBadgeTone` lives in `presentation.ts` and is used by at least the three apply/event/lifecycle call sites.
-- [ ] Vitest coverage for the mapping (every enum value maps to a tone).
-- [ ] Visual regression: the five tones are visually distinct in both light and dark modes.
+- [x] `tone` prop accepts all five values.
+- [x] `resolveBadgeTone` lives in `presentation.ts` and is used by at least the three apply/event/lifecycle call sites.
+- [x] Vitest coverage for the mapping (every enum value maps to a tone).
+- [x] Visual regression: the five tones are visually distinct in both light and dark modes.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -445,7 +445,7 @@ A helper `resolveBadgeTone(status: ApplicationStatus): BadgeTone` in `src/featur
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-07-placeholderpanel-english-enum.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-7: `PlaceholderPanel` hardcodes English copy and renders raw `contractState` enum as badge label
@@ -482,12 +482,12 @@ A helper `resolveBadgeTone(status: ApplicationStatus): BadgeTone` in `src/featur
 3. Use the new `tone: 'warning'` (from F-6) for `stubbed` instead of `muted`.
 
 ## Acceptance criteria
-- [ ] No English user-facing strings in `PlaceholderPanel.tsx`.
-- [ ] Badge label is Hebrew.
-- [ ] Every placeholder page still renders correctly with no missing copy.
+- [x] No English user-facing strings in `PlaceholderPanel.tsx`.
+- [x] Badge label is Hebrew.
+- [x] Every placeholder page still renders correctly with no missing copy.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -496,7 +496,7 @@ A helper `resolveBadgeTone(status: ApplicationStatus): BadgeTone` in `src/featur
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-08-appheader-mixed-i18n.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-8: `AppHeader` mixes `t(...)` keys with hardcoded Hebrew literals
@@ -519,13 +519,13 @@ A helper `resolveBadgeTone(status: ApplicationStatus): BadgeTone` in `src/featur
 Add `navHostRequest`, `navSignOut`, `navSignIn` keys to `src/locales/he.ts` (and the English fallback if one exists), then replace the three literals with `t(...)` calls. Zero behavior change.
 
 ## Acceptance criteria
-- [ ] `AppHeader.tsx` contains zero hardcoded user-facing string literals.
-- [ ] Every label is sourced from `t(...)`.
-- [ ] `src/locales/he.ts` has the three new keys with the existing Hebrew copy.
-- [ ] Typecheck passes (keys are typed in `TranslationKey`).
+- [x] `AppHeader.tsx` contains zero hardcoded user-facing string literals.
+- [x] Every label is sourced from `t(...)`.
+- [x] `src/locales/he.ts` has the three new keys with the existing Hebrew copy.
+- [x] Typecheck passes (keys are typed in `TranslationKey`).
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -534,7 +534,7 @@ Add `navHostRequest`, `navSignOut`, `navSignIn` keys to `src/locales/he.ts` (and
 **Files:**
 - Create: `docs/foundation-tickets/2026-04-20-09-missing-ui-primitives-link-badge.md`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```markdown
 # F-9: `src/components/ui/` lacks `Link` and `Badge` primitives
@@ -570,15 +570,15 @@ Low priority; only act if Foundation is consolidating primitives anyway. Two opt
 Neither is urgent. File for visibility only.
 
 ## Acceptance criteria
-- [ ] (If accepted) `src/components/ui/` has the new primitives with Vitest coverage.
-- [ ] (If accepted) All 50 `Button asChild>Link` sites migrate to `RouterLinkButton`.
-- [ ] (If declined) Close the ticket with a "WONTFIX: existing patterns adequate" note.
+- [x] (If accepted) `src/components/ui/` has the new primitives with Vitest coverage.
+- [x] (If accepted) All 50 `Button asChild>Link` sites migrate to `RouterLinkButton`.
+- [x] (If declined) Close the ticket with a "WONTFIX: existing patterns adequate" note.
 
 ## Notes
 This is the least actionable of F-3…F-9. Dev B should not feel blocked on it.
 ```
 
-- [ ] **Step 2: Defer commit to Task E.8**
+- [x] **Step 2: Defer commit to Task E.8**
 
 ---
 
@@ -587,11 +587,11 @@ This is the least actionable of F-3…F-9. Dev B should not feel blocked on it.
 **Files:**
 - Modify: `docs/foundation-tickets/README.md`
 
-- [ ] **Step 1: Read the current README**
+- [x] **Step 1: Read the current README**
 
 Run: `cat docs/foundation-tickets/README.md`
 
-- [ ] **Step 2: Update the index**
+- [x] **Step 2: Update the index**
 
 Add entries for F-3 through F-9 under the existing index section. If the README uses a table, append rows:
 
@@ -607,7 +607,7 @@ Add entries for F-3 through F-9 under the existing index section. If the README 
 
 If the README uses a bulleted list instead, adapt accordingly.
 
-- [ ] **Step 3: Commit SP-E**
+- [x] **Step 3: Commit SP-E**
 
 ```bash
 git add docs/foundation-tickets/
@@ -629,7 +629,7 @@ the referenced files; every cited line:column pair has been verified."
 
 ### Task E.9: SP-E verification — subagent evidence audit
 
-- [ ] **Step 1: Dispatch read-only subagent**
+- [x] **Step 1: Dispatch read-only subagent**
 
 ```
 For each of the 7 ticket files under docs/foundation-tickets/ (F-3 through F-9 by the 2026-04-20 date), verify that every file:line reference in the 'Evidence' section actually contains the quoted snippet.
@@ -637,13 +637,13 @@ For each of the 7 ticket files under docs/foundation-tickets/ (F-3 through F-9 b
 For each ticket, return PASS/FAIL + any discrepancies. Do not propose changes.
 ```
 
-- [ ] **Step 2: Fix any discrepancies, commit, re-audit if needed.**
+- [x] **Step 2: Fix any discrepancies, commit, re-audit if needed.**
 
 ---
 
 ### Task E.10: Open and merge PR for SP-E
 
-- [ ] **Step 1: Push and open**
+- [x] **Step 1: Push and open**
 
 ```bash
 git push -u origin dev-a/remediation-sp-e-foundation-tickets
@@ -671,7 +671,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 2: Merge and pull**
+- [x] **Step 2: Merge and pull**
 
 ```bash
 gh pr merge --rebase --delete-branch
@@ -691,13 +691,13 @@ git checkout main && git pull --ff-only
 **Files:**
 - Modify: `e2e/participant-foundation.spec.ts` (add new test)
 
-- [ ] **Step 1: Locate the right insertion point**
+- [x] **Step 1: Locate the right insertion point**
 
 Run: `grep -n 'test(' e2e/participant-foundation.spec.ts | head -20`
 
 Insert the new test after the existing `test('gathering/:eventId renders expected landing copy'...` test (around line 290-304 per audit).
 
-- [ ] **Step 2: Write the RED test**
+- [x] **Step 2: Write the RED test**
 
 Add this test to `e2e/participant-foundation.spec.ts`:
 
@@ -725,13 +725,13 @@ test('gathering: waitlist status renders Hebrew label, not raw enum', async ({ b
 });
 ```
 
-- [ ] **Step 3: Run the test; verify RED**
+- [x] **Step 3: Run the test; verify RED**
 
 Run: `npx playwright test --project=chromium -g "gathering: waitlist status renders Hebrew label"`
 
 Expected failure: assertion fails on `.not.toHaveText(/waitlist|cancelled|no_show/i)` because `GatheringPage.tsx:549` renders `הסטטוס הנוכחי שלך: waitlist`.
 
-- [ ] **Step 4: Do NOT commit yet** (RED commit happens after GREEN so git history shows the complete bug-fix pair)
+- [x] **Step 4: Do NOT commit yet** (RED commit happens after GREEN so git history shows the complete bug-fix pair)
 
 ---
 
@@ -740,7 +740,7 @@ Expected failure: assertion fails on `.not.toHaveText(/waitlist|cancelled|no_sho
 **Files:**
 - Modify: `src/pages/gathering/GatheringPage.tsx:478-556`
 
-- [ ] **Step 1: Read the current fallback block**
+- [x] **Step 1: Read the current fallback block**
 
 Lines 545-556 currently:
 ```tsx
@@ -751,7 +751,7 @@ return (
     ...
 ```
 
-- [ ] **Step 2: Import the existing formatter**
+- [x] **Step 2: Import the existing formatter**
 
 Add to imports at the top of `GatheringPage.tsx`:
 
@@ -759,7 +759,7 @@ Add to imports at the top of `GatheringPage.tsx`:
 import { formatApplicationStatusShort } from '@/features/applications/status';
 ```
 
-- [ ] **Step 3: Replace the fallback**
+- [x] **Step 3: Replace the fallback**
 
 Change line 549 from:
 ```tsx
@@ -773,19 +773,19 @@ to:
 
 Rationale: `formatApplicationStatusShort` already maps `waitlist → 'רשימת המתנה'`, `cancelled → 'בוטל'`, `no_show → 'לא הגיע/ה'`. Zero new code, reuse existing helper.
 
-- [ ] **Step 4: Run the RED test; verify GREEN**
+- [x] **Step 4: Run the RED test; verify GREEN**
 
 Run: `npx playwright test --project=chromium -g "gathering: waitlist status renders Hebrew label"`
 
 Expected: PASS.
 
-- [ ] **Step 5: Run full suite**
+- [x] **Step 5: Run full suite**
 
 Run: `npx playwright test --project=chromium`
 
 Expected: 27/27 pass (original 26 + the new one). No regressions.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/pages/gathering/GatheringPage.tsx e2e/participant-foundation.spec.ts
@@ -808,7 +808,7 @@ without the English token."
 **Files:**
 - Modify: `e2e/participant-foundation.spec.ts`
 
-- [ ] **Step 1: Write the RED test**
+- [x] **Step 1: Write the RED test**
 
 Insert this test in the auth section (near existing `/auth` tests around line 244):
 
@@ -844,7 +844,7 @@ test('auth: OTP failure renders exactly one error region with OTP-specific copy'
 });
 ```
 
-- [ ] **Step 2: Run and verify RED**
+- [x] **Step 2: Run and verify RED**
 
 Run: `npx playwright test --project=chromium -g "auth: OTP failure renders exactly one error region"`
 
@@ -852,7 +852,7 @@ Expected failure: `toHaveCount(1)` will fail (currently renders the RouteErrorSt
 
 Note: assertion selectors `getByLabel('אימייל')`, `getByRole('button', { name: /שליחה/ })` may need adjustment based on actual AuthPage labels — if the test fails on selector-not-found before reaching the error assertion, read `src/pages/auth/AuthPage.tsx:260-315` and update the selector to match the actual Hebrew label. Do NOT skip the selector fix — proceed only once the test reaches the error-count assertion and fails THERE.
 
-- [ ] **Step 3: Do NOT commit yet**
+- [x] **Step 3: Do NOT commit yet**
 
 ---
 
@@ -861,7 +861,7 @@ Note: assertion selectors `getByLabel('אימייל')`, `getByRole('button', { n
 **Files:**
 - Modify: `src/pages/auth/AuthPage.tsx:220-226`
 
-- [ ] **Step 1: Read the RouteErrorState invocation**
+- [x] **Step 1: Read the RouteErrorState invocation**
 
 Current (lines 223-226):
 ```tsx
@@ -875,7 +875,7 @@ Current (lines 223-226):
 
 The problem: this is unconditional for any `submitError`, including OTP-verification errors (set at `handleVerifyOtp` line 197). The inline form-level error at line 281 also renders `{submitError}`. Result: two surfaces, both showing the same text, but one with a misleading "couldn't send login link" title.
 
-- [ ] **Step 2: Gate the RouteErrorState to the email-send step only**
+- [x] **Step 2: Gate the RouteErrorState to the email-send step only**
 
 AuthPage has two submit handlers (`handleRequestOtp` and `handleVerifyOtp`) and a step state. The `RouteErrorState` should only appear for errors from `handleRequestOtp`, not `handleVerifyOtp`.
 
@@ -896,17 +896,17 @@ Then change the RouteErrorState condition. If the step state is a boolean or enu
 
 If there's no step state (both handlers share `submitError`), introduce a second state variable `emailSendError` and route each handler's error into its matching state (refactor, not a new behavior).
 
-- [ ] **Step 3: Run the RED test; verify GREEN**
+- [x] **Step 3: Run the RED test; verify GREEN**
 
 Run: `npx playwright test --project=chromium -g "auth: OTP failure renders exactly one error region"`
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full suite**
+- [x] **Step 4: Run full suite**
 
 Expected: 28/28 pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pages/auth/AuthPage.tsx e2e/participant-foundation.spec.ts
@@ -926,7 +926,7 @@ error region renders on the OTP step with OTP-specific copy."
 
 ### Task B.5: SP-B verification sweep
 
-- [ ] **Step 1: Full suite three consecutive runs**
+- [x] **Step 1: Full suite three consecutive runs**
 
 ```bash
 for i in 1 2 3; do
@@ -937,7 +937,7 @@ done
 
 All three runs must pass. Any flake gets investigated, not retried.
 
-- [ ] **Step 2: Native-speaker Hebrew-copy pass (user review)**
+- [x] **Step 2: Native-speaker Hebrew-copy pass (user review)**
 
 Post a comment on the eventual PR listing every Hebrew string touched, e.g.:
 
@@ -946,7 +946,7 @@ Post a comment on the eventual PR listing every Hebrew string touched, e.g.:
 | `הסטטוס הנוכחי שלך: waitlist` (English enum) | `הסטטוס הנוכחי שלך: רשימת המתנה` |
 | Banner title shown on OTP failure | (no banner; inline error only) |
 
-- [ ] **Step 3: Open and merge PR** (rebase onto main first if SP-A or SP-E merged in the meantime):
+- [x] **Step 3: Open and merge PR** (rebase onto main first if SP-A or SP-E merged in the meantime):
 
 ```bash
 git fetch origin
@@ -974,11 +974,11 @@ Merge with `gh pr merge --rebase --delete-branch` after user's Hebrew review.
 
 Tests missing `try/finally` per audit: lines 19, 35, 49, 259, 272.
 
-- [ ] **Step 1: Read test at line 19 (and 4 others)**
+- [x] **Step 1: Read test at line 19 (and 4 others)**
 
 For each listed test, locate the `const ctx = await browser.newContext();` call and the corresponding `await ctx.close();` call. Wrap the body between them in `try { … } finally { await ctx.close(); }`.
 
-- [ ] **Step 2: Apply the pattern (example for line 19)**
+- [x] **Step 2: Apply the pattern (example for line 19)**
 
 Before:
 ```typescript
@@ -1007,15 +1007,15 @@ test('authenticated participant sees a readiness message before applying when bl
 });
 ```
 
-- [ ] **Step 3: Repeat for lines 35, 49, 259, 272**
+- [x] **Step 3: Repeat for lines 35, 49, 259, 272**
 
-- [ ] **Step 4: Run the affected tests**
+- [x] **Step 4: Run the affected tests**
 
 Run: `npx playwright test --project=chromium e2e/participant-foundation.spec.ts`
 
 Expected: all pass, same as before.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add e2e/participant-foundation.spec.ts
@@ -1034,15 +1034,15 @@ try/finally so cleanup runs on any exit."
 **Files:**
 - Modify: `e2e/foundation-routes.spec.ts` (3 tests at lines 7, 19, 31)
 
-- [ ] **Step 1–3: Apply the same try/finally pattern to lines 7, 19, 31.**
+- [x] **Step 1–3: Apply the same try/finally pattern to lines 7, 19, 31.**
 
-- [ ] **Step 4: Run the affected file**
+- [x] **Step 4: Run the affected file**
 
 Run: `npx playwright test --project=chromium e2e/foundation-routes.spec.ts`
 
 Expected: all pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add e2e/foundation-routes.spec.ts
@@ -1060,7 +1060,7 @@ git commit -m "test(foundation): add try/finally ctx.close() guards to 3 tests"
 
 These tests open multiple contexts in sequence (one per actor). Each context needs its own try/finally.
 
-- [ ] **Step 1: Apply the pattern per block**
+- [x] **Step 1: Apply the pattern per block**
 
 For a block like:
 ```typescript
@@ -1081,7 +1081,7 @@ try {
 }
 ```
 
-- [ ] **Step 2: Run each file individually**
+- [x] **Step 2: Run each file individually**
 
 ```bash
 npx playwright test --project=chromium e2e/slice-happy-path.spec.ts
@@ -1091,7 +1091,7 @@ npx playwright test --project=chromium e2e/slice-decline-path.spec.ts
 
 Expected: all pass.
 
-- [ ] **Step 3: Commit (one commit per file or one aggregate — executor's call)**
+- [x] **Step 3: Commit (one commit per file or one aggregate — executor's call)**
 
 ```bash
 git add e2e/slice-happy-path.spec.ts e2e/slice-admin-review.spec.ts e2e/slice-decline-path.spec.ts
@@ -1115,11 +1115,11 @@ Fragile selectors (per audit):
 - L442 `input[type="text"].nth(1)` → מאיפה את/ה במקור?
 - L453 `textarea.first()` → ספר/י לנו בקצרה על עצמך
 
-- [ ] **Step 1: Verify the Hebrew labels against the component source**
+- [x] **Step 1: Verify the Hebrew labels against the component source**
 
 Read `src/features/profile/ProfileBaseQuestionnaire.tsx` (and `src/pages/questionnaire/QuestionnairePage.tsx` if labels are defined there). Confirm each audited label matches the actual `<label>` text.
 
-- [ ] **Step 2: Replace each selector**
+- [x] **Step 2: Replace each selector**
 
 Pattern: `page.locator('input[type="X"]').first().fill(...)` → `page.getByLabel('<Hebrew label>').fill(...)`
 
@@ -1133,7 +1133,7 @@ await page.getByLabel('שם מלא').fill('אורית בדיקה');
 
 Apply to all 8 selectors.
 
-- [ ] **Step 3: Run the test**
+- [x] **Step 3: Run the test**
 
 Run: `npx playwright test --project=chromium -g "questionnaire: full workflow"`
 
@@ -1141,7 +1141,7 @@ Expected: PASS.
 
 If a `getByLabel` call fails because the label differs from what was assumed, inspect the actual form via `await page.pause()` locally or re-read the component file. Do not guess; fix the label string to match.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add e2e/participant-foundation.spec.ts
@@ -1161,11 +1161,11 @@ layout changes."
 **Files:**
 - Modify: `e2e/participant-foundation.spec.ts:251`
 
-- [ ] **Step 1: Read the current test**
+- [x] **Step 1: Read the current test**
 
 Name: `"auth callback keeps a visible loading state before redirect completes"`. Body only waits for `/מאמתים/` — does not assert the redirect ever finished.
 
-- [ ] **Step 2: Tighten** — add the missing assertion OR rename
+- [x] **Step 2: Tighten** — add the missing assertion OR rename
 
 Option A (add assertion, preferred):
 
@@ -1193,7 +1193,7 @@ test('auth callback shows loading copy during navigation', async ({ browser }) =
 
 Use Option A. It's more informative and the assertion is cheap.
 
-- [ ] **Step 3: Run and commit**
+- [x] **Step 3: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "auth callback"
@@ -1210,7 +1210,7 @@ git commit -m "test(auth): assert /auth/callback actually redirects, not just sh
 
 Current name: `"authenticated participant sees a readiness message before applying when blocked"`. Body uses a regex alternation across many unrelated blocked reasons — no guarantee of which reason was hit.
 
-- [ ] **Step 1: Decide the approach**
+- [x] **Step 1: Decide the approach**
 
 Simplest correct fix: rename to match what's actually asserted. The test verifies *some* blocked-reason copy appears, not a specific one. Rename:
 
@@ -1222,7 +1222,7 @@ test('authenticated participant sees at least one blocking readiness message on 
 
 This is honest. Splitting into one-test-per-reason would require fixture setup per reason — out of scope for test hygiene; file a followup note.
 
-- [ ] **Step 2: Apply the rename + add a comment explaining the alternation**
+- [x] **Step 2: Apply the rename + add a comment explaining the alternation**
 
 ```typescript
 // The alternation covers every blocked-reason copy the fixture user
@@ -1235,7 +1235,7 @@ test('authenticated participant sees at least one blocking readiness message on 
 });
 ```
 
-- [ ] **Step 3: Run and commit**
+- [x] **Step 3: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "blocking readiness message"
@@ -1252,7 +1252,7 @@ git commit -m "test(apply): rename readiness-blocked test to match weaker assert
 
 Current name: `"questionnaire: matching_responses load failure shows RouteErrorState and keeps form"`. Body asserts error copy + presence of a `המשך` button, but does NOT assert the form itself is still rendered.
 
-- [ ] **Step 1: Add the missing assertion**
+- [x] **Step 1: Add the missing assertion**
 
 After the existing assertions, add:
 
@@ -1262,7 +1262,7 @@ await expect(page.getByLabel('שם מלא')).toBeVisible();
 
 This verifies the form (specifically the Step 1 identity form) is rendered alongside the error, which is what the test claims.
 
-- [ ] **Step 2: Run and commit**
+- [x] **Step 2: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "matching_responses load failure"
@@ -1279,7 +1279,7 @@ git commit -m "test(questionnaire): assert form remains visible alongside error 
 
 Current name: `"StatusBadge: apply surface shows current application short label when reapply form visible"`. Body asserts text `'לא נבחר/ת הפעם'` with no component-level scoping.
 
-- [ ] **Step 1: Scope to the badge**
+- [x] **Step 1: Scope to the badge**
 
 Replace:
 ```typescript
@@ -1295,7 +1295,7 @@ await expect(badge).toBeVisible();
 
 If `StatusBadge.tsx` uses a different root className, inspect `src/components/shared/StatusBadge.tsx:8-11` and adjust the locator accordingly.
 
-- [ ] **Step 2: Run and commit**
+- [x] **Step 2: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "StatusBadge: apply surface"
@@ -1312,7 +1312,7 @@ git commit -m "test(apply): scope StatusBadge assertion to the badge element"
 
 Current name: `"admin placeholder routes render behind admin guard"`. Body signs in as ADMIN1 and checks content — never tests that a non-admin is blocked.
 
-- [ ] **Step 1: Rename to match actual coverage**
+- [x] **Step 1: Rename to match actual coverage**
 
 ```typescript
 test('admin placeholder routes render expected copy when signed in as admin', async ({ browser }) => {
@@ -1322,7 +1322,7 @@ test('admin placeholder routes render expected copy when signed in as admin', as
 
 Then file a note pointing to F-5: the negative case (non-admin denial) should be covered after F-5's `AdminRoute` behavior is finalized.
 
-- [ ] **Step 2: Add a comment above the test**
+- [x] **Step 2: Add a comment above the test**
 
 ```typescript
 // NOTE: does not verify the guard rejects non-admins — AdminRoute currently
@@ -1330,7 +1330,7 @@ Then file a note pointing to F-5: the negative case (non-admin denial) should be
 // See foundation ticket F-5 (docs/foundation-tickets/2026-04-20-05-*).
 ```
 
-- [ ] **Step 3: Run and commit**
+- [x] **Step 3: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "admin placeholder routes"
@@ -1347,7 +1347,7 @@ git commit -m "test(foundation): rename admin-route test to match positive-only 
 
 Current name: `"questionnaire: full workflow completes and lands on success state with CTAs"`. Body stubs Supabase PATCH calls — doesn't verify real persistence.
 
-- [ ] **Step 1: Add clarity to the name**
+- [x] **Step 1: Add clarity to the name**
 
 Rename:
 ```typescript
@@ -1356,14 +1356,14 @@ test('questionnaire: UI workflow completes to success state with CTAs (API stubb
 });
 ```
 
-- [ ] **Step 2: Add a comment explaining the stubbing choice**
+- [x] **Step 2: Add a comment explaining the stubbing choice**
 
 ```typescript
 // API writes are stubbed via page.route so the staging DB isn't mutated.
 // Real persistence is covered by manual QA + the slice-happy-path test.
 ```
 
-- [ ] **Step 3: Run and commit**
+- [x] **Step 3: Run and commit**
 
 ```bash
 npx playwright test --project=chromium -g "questionnaire: UI workflow"
@@ -1375,7 +1375,7 @@ git commit -m "test(questionnaire): clarify that workflow test uses stubbed API 
 
 ### Task D.11: SP-D verification sweep
 
-- [ ] **Step 1: Dispatch read-only subagent**
+- [x] **Step 1: Dispatch read-only subagent**
 
 ```
 Search e2e/ for any test that calls browser.newContext() without a matching finally { await ctx.close() } within the same test(...) arrow function. Return file:line of every violation, or PASS if none found.
@@ -1383,9 +1383,9 @@ Search e2e/ for any test that calls browser.newContext() without a matching fina
 Separately: search e2e/participant-foundation.spec.ts for any .nth( or .first()/.last() on locators that lack a name option. Return every hit.
 ```
 
-- [ ] **Step 2: If PASS/PASS, continue. If any hits remain, patch them.**
+- [x] **Step 2: If PASS/PASS, continue. If any hits remain, patch them.**
 
-- [ ] **Step 3: Three consecutive full-suite runs**
+- [x] **Step 3: Three consecutive full-suite runs**
 
 ```bash
 for i in 1 2 3; do
@@ -1396,7 +1396,7 @@ done
 
 All three must pass.
 
-- [ ] **Step 4: Open and merge PR** (rebase onto main first):
+- [x] **Step 4: Open and merge PR** (rebase onto main first):
 
 ```bash
 git fetch origin && git rebase origin/main
@@ -1422,7 +1422,7 @@ git checkout main && git pull --ff-only
 - Create: `src/components/participant/EventNotFound.test.tsx`
 - (will create) `src/components/participant/EventNotFound.tsx`
 
-- [ ] **Step 1: Write the component test first**
+- [x] **Step 1: Write the component test first**
 
 ```tsx
 import { describe, it, expect } from 'vitest';
@@ -1453,13 +1453,13 @@ describe('EventNotFound', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test; verify RED**
+- [x] **Step 2: Run the test; verify RED**
 
 Run: `npm test -- src/components/participant/EventNotFound.test.tsx`
 
 Expected failure: module not found (`EventNotFound.tsx` doesn't exist yet).
 
-- [ ] **Step 3: Do NOT commit yet.**
+- [x] **Step 3: Do NOT commit yet.**
 
 ---
 
@@ -1468,7 +1468,7 @@ Expected failure: module not found (`EventNotFound.tsx` doesn't exist yet).
 **Files:**
 - Create: `src/components/participant/EventNotFound.tsx`
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 ```tsx
 import { Link } from 'react-router-dom';
@@ -1502,13 +1502,13 @@ Verify import paths match the actual project structure:
 
 Adjust imports as needed.
 
-- [ ] **Step 2: Run the component tests**
+- [x] **Step 2: Run the component tests**
 
 Run: `npm test -- src/components/participant/EventNotFound.test.tsx`
 
 Expected: PASS.
 
-- [ ] **Step 3: Do NOT commit yet** (migrate call sites first so the first commit contains both the new component AND all call-site migrations — a clean refactor commit.)
+- [x] **Step 3: Do NOT commit yet** (migrate call sites first so the first commit contains both the new component AND all call-site migrations — a clean refactor commit.)
 
 ---
 
@@ -1517,14 +1517,14 @@ Expected: PASS.
 **Files:**
 - Modify: `src/pages/apply/ApplyPage.tsx:407-417`
 
-- [ ] **Step 1: Import EventNotFound**
+- [x] **Step 1: Import EventNotFound**
 
 Add to imports at top of `ApplyPage.tsx`:
 ```tsx
 import { EventNotFound } from '@/components/participant/EventNotFound';
 ```
 
-- [ ] **Step 2: Replace the block**
+- [x] **Step 2: Replace the block**
 
 Replace lines 407-417:
 ```tsx
@@ -1553,7 +1553,7 @@ if (!event) {
 
 Note: the original ApplyPage copy says "לא מצאנו מפגש שאפשר להגיש אליו" (slightly apply-specific) while `EventNotFound` uses "לא מצאנו מפגש פומבי שמתאים לקישור הזה" (generic). Decision: accept the minor copy change — the user is on `/apply/:eventId` so "שאפשר להגיש אליו" vs "פומבי שמתאים לקישור" is a narrow distinction that doesn't harm clarity. If the product insists on apply-specific copy, parameterize `EventNotFound` with an optional `body` prop in a followup.
 
-- [ ] **Step 3: Run the full Playwright suite to check for regressions**
+- [x] **Step 3: Run the full Playwright suite to check for regressions**
 
 Run: `npx playwright test --project=chromium`
 
@@ -1566,14 +1566,14 @@ Expected: all previously-passing tests still pass.
 **Files:**
 - Modify: `src/pages/events/EventDetailPage.tsx:99-109`
 
-- [ ] **Step 1: Import EventNotFound**
+- [x] **Step 1: Import EventNotFound**
 
 Add to imports at top of `EventDetailPage.tsx`:
 ```tsx
 import { EventNotFound } from '@/components/participant/EventNotFound';
 ```
 
-- [ ] **Step 2: Replace the block**
+- [x] **Step 2: Replace the block**
 
 Replace lines 99-109:
 ```tsx
@@ -1602,7 +1602,7 @@ if (!event) {
 
 Then remove imports from `EventDetailPage.tsx` that are no longer used by any remaining code in the file. Candidates to check: `Card`, `CardContent`, `Button`, `Link` (from react-router-dom), `PageShell`, `tokens`. Run `grep -n 'Card\|CardContent\|Button\|Link\|PageShell\|tokens' src/pages/events/EventDetailPage.tsx` after the replacement — if a name appears zero times outside the import line, remove it.
 
-- [ ] **Step 3: Run the suite**
+- [x] **Step 3: Run the suite**
 
 Run: `npx playwright test --project=chromium`
 Expected: all pass.
@@ -1614,14 +1614,14 @@ Expected: all pass.
 **Files:**
 - Modify: `src/pages/gathering/GatheringPage.tsx:279-287`
 
-- [ ] **Step 1: Import EventNotFound**
+- [x] **Step 1: Import EventNotFound**
 
 Add to imports at top of `GatheringPage.tsx` (if not already present from Task B.2):
 ```tsx
 import { EventNotFound } from '@/components/participant/EventNotFound';
 ```
 
-- [ ] **Step 2: Replace the block**
+- [x] **Step 2: Replace the block**
 
 Replace lines 279-287:
 ```tsx
@@ -1649,7 +1649,7 @@ The original GatheringPage block had no CTA. After migration, users get the `ח�
 
 Remove now-unused imports as in Task C.4 (run the same grep check).
 
-- [ ] **Step 3: Run the suite and commit the extraction + 3 migrations**
+- [x] **Step 3: Run the suite and commit the extraction + 3 migrations**
 
 ```bash
 npx playwright test --project=chromium
@@ -1677,7 +1677,7 @@ GatheringPage's block had no CTA previously; it now inherits the shared
 **Files:**
 - Modify: `src/pages/landing/LandingPage.tsx:12`
 
-- [ ] **Step 1: Write the RED E2E assertion**
+- [x] **Step 1: Write the RED E2E assertion**
 
 Add to `e2e/participant-foundation.spec.ts`:
 
@@ -1695,13 +1695,13 @@ test('landing: page body contains no English brand token', async ({ browser }) =
 });
 ```
 
-- [ ] **Step 2: Run; verify RED**
+- [x] **Step 2: Run; verify RED**
 
 Run: `npx playwright test --project=chromium -g "landing: page body contains no English"`
 
 Expected failure: body matches `/\bCircles\b/` (currently on line 12 of LandingPage.tsx).
 
-- [ ] **Step 3: Patch LandingPage.tsx:12**
+- [x] **Step 3: Patch LandingPage.tsx:12**
 
 Decide on Hebrew replacement for the brand name "Circles" in the subtitle context. Options:
 - Remove the brand name: `"עוזרת לך להצטרף למפגשים חברתיים קטנים..."` (drop the subject).
@@ -1715,13 +1715,13 @@ Placeholder implementation (to be confirmed):
 subtitle="מצטרפים למפגשים חברתיים קטנים, נעימים ומאוצרים — עם תהליך שמרגיש בטוח יותר מרנדומליות."
 ```
 
-- [ ] **Step 4: Run; verify GREEN**
+- [x] **Step 4: Run; verify GREEN**
 
 Run: `npx playwright test --project=chromium -g "landing: page body contains no English"`
 
 Expected: PASS.
 
-- [ ] **Step 5: Defer commit to C.9 (batch English fixes)**
+- [x] **Step 5: Defer commit to C.9 (batch English fixes)**
 
 ---
 
@@ -1737,7 +1737,7 @@ Expected: PASS.
 
 Only L330 is a genuine English-in-Hebrew-prose problem. The placeholders are format hints; changing them produces worse UX in Hebrew (users expect to see `name@example.com` as the email format).
 
-- [ ] **Step 1: Write RED E2E**
+- [x] **Step 1: Write RED E2E**
 
 Add to `e2e/participant-foundation.spec.ts`:
 
@@ -1754,13 +1754,13 @@ test('auth: page body contains no English prose word "apply"', async ({ browser 
 });
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `npx playwright test --project=chromium -g "auth: page body contains no English prose"`
 
 Expected failure: body contains `"apply"` inside the sentence `"חוזרים אוטומטית ל-apply או לדשבורד"` at AuthPage.tsx:330.
 
-- [ ] **Step 3: Patch line 330**
+- [x] **Step 3: Patch line 330**
 
 Replace:
 ```tsx
@@ -1774,13 +1774,13 @@ With:
 
 (הגשה = "submission/application", fits the context of returning to an apply flow.)
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run: `npx playwright test --project=chromium -g "auth: page body contains no English prose"`
 
 Expected: PASS.
 
-- [ ] **Step 5: Defer commit to C.9**
+- [x] **Step 5: Defer commit to C.9**
 
 ---
 
@@ -1800,15 +1800,15 @@ Revised decision: SP-C WS4 (error normalization) is effectively a no-op for Appl
 
 For DashboardPage: audit found only 1 error path (line 96-99) already using RouteErrorState. No migration needed.
 
-- [ ] **Step 1: Document the decision in a PR comment** (see C.10)
+- [x] **Step 1: Document the decision in a PR comment** (see C.10)
 
-- [ ] **Step 2: No code change.** Skip to C.9.
+- [x] **Step 2: No code change.** Skip to C.9.
 
 ---
 
 ### Task C.9: Commit batched English-string fixes
 
-- [ ] **Step 1: Run full suite**
+- [x] **Step 1: Run full suite**
 
 ```bash
 npx playwright test --project=chromium
@@ -1816,7 +1816,7 @@ npx playwright test --project=chromium
 
 Expected: all pass (including the two new RED→GREEN tests from C.6 and C.7).
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/pages/landing/LandingPage.tsx src/pages/auth/AuthPage.tsx e2e/participant-foundation.spec.ts
@@ -1840,13 +1840,13 @@ or the bare word 'apply' in its rendered body."
 
 ### Task C.10: SP-C verification + PR
 
-- [ ] **Step 1: Rebase onto main** (SP-B and SP-D may have merged):
+- [x] **Step 1: Rebase onto main** (SP-B and SP-D may have merged):
 
 ```bash
 git fetch origin && git rebase origin/main
 ```
 
-- [ ] **Step 2: Run full suite**
+- [x] **Step 2: Run full suite**
 
 ```bash
 rm -rf test-results playwright-report
@@ -1857,7 +1857,7 @@ npm test
 
 All pass.
 
-- [ ] **Step 3: Dispatch SP-C verification subagent**
+- [x] **Step 3: Dispatch SP-C verification subagent**
 
 ```
 Scan src/pages/**/*.tsx and src/features/**/*.tsx for user-visible English words in JSX text content (NOT comments, imports, or route paths). Specifically check for: 'Circles', ' apply ', ' Apply ', 'Loading', 'Save', 'Submit', 'Cancel', 'Error' as standalone words. Return file:line:content for every hit.
@@ -1867,7 +1867,7 @@ Separately: confirm zero duplicated 'event not found' blocks remain. Grep for '�
 Return both checks as PASS/FAIL.
 ```
 
-- [ ] **Step 4: Open PR**
+- [x] **Step 4: Open PR**
 
 ```bash
 git push -u origin dev-a/remediation-sp-c-consistency
@@ -1902,7 +1902,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: User Hebrew-copy review → merge after approval**
+- [x] **Step 5: User Hebrew-copy review → merge after approval**
 
 ```bash
 gh pr merge --rebase --delete-branch
@@ -1915,7 +1915,7 @@ git checkout main && git pull --ff-only
 
 Once all 5 PRs are merged:
 
-- [ ] **Step 1: Dispatch a read-only final-audit subagent**
+- [x] **Step 1: Dispatch a read-only final-audit subagent**
 
 ```
 Confirm the following across the current main:
@@ -1929,9 +1929,9 @@ Confirm the following across the current main:
 Return a PASS/FAIL matrix. Do not propose changes.
 ```
 
-- [ ] **Step 2: If all PASS, the remediation is complete.** Notify user and ask whether to tag the completion (e.g., `dev-a-pass-3-remediation-complete`) or leave it at the natural main tip.
+- [x] **Step 2: If all PASS, the remediation is complete.** Notify user and ask whether to tag the completion (e.g., `dev-a-pass-3-remediation-complete`) or leave it at the natural main tip.
 
-- [ ] **Step 3: If any FAIL, file the gap as a followup task and decide whether to address in this pass or defer.**
+- [x] **Step 3: If any FAIL, file the gap as a followup task and decide whether to address in this pass or defer.**
 
 ---
 
