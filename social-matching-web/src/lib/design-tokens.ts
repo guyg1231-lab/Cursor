@@ -35,4 +35,19 @@ export const tokens = {
     secondary: 'rounded-full',
     ghost: 'rounded-full',
   },
+  /** Semantic pill styles for `StatusBadge` — uses theme CSS variables (see `index.css`). */
+  statusBadge: {
+    default:
+      'rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-xs text-foreground',
+    muted:
+      'rounded-full border border-border px-2 py-1 text-xs text-muted-foreground',
+    success:
+      'rounded-full border border-sage/30 bg-sage/15 px-2 py-1 text-xs text-sage dark:border-sage/35 dark:bg-sage/20 dark:text-sage',
+    warning:
+      'rounded-full border border-primary/20 bg-accent-periwinkle/25 px-2 py-1 text-xs text-primary dark:border-primary/25 dark:bg-accent-periwinkle/20 dark:text-primary',
+    danger:
+      'rounded-full border border-destructive/30 bg-destructive/15 px-2 py-1 text-xs text-destructive dark:border-destructive/35 dark:bg-destructive/20 dark:text-destructive',
+  },
 } as const;
+
+export type StatusBadgeTone = keyof typeof tokens.statusBadge;

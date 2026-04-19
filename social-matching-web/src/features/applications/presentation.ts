@@ -1,3 +1,4 @@
+import type { StatusBadgeTone } from '@/lib/design-tokens';
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   canReapplyToEvent,
@@ -7,6 +8,25 @@ import {
   isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
+
+/** Maps DB registration status to badge severity — straw-man from foundation ticket F-6. */
+export function resolveApplicationBadgeTone(status: EventRegistrationRow['status']): StatusBadgeTone {
+  switch (status) {
+    case 'confirmed':
+    case 'approved':
+    case 'attended':
+      return 'success';
+    case 'awaiting_response':
+    case 'waitlist':
+      return 'warning';
+    case 'rejected':
+    case 'cancelled':
+    case 'no_show':
+      return 'danger';
+    case 'pending':
+      return 'default';
+  }
+}
 
 export type ApplicationPanelContent = {
   title: string;

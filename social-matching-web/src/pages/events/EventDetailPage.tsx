@@ -21,7 +21,7 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
-import { resolveApplicationPanelContent } from '@/features/applications/presentation';
+import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { EventNotFound } from '@/components/participant/EventNotFound';
 
 export function EventDetailPage() {
@@ -156,7 +156,10 @@ export function EventDetailPage() {
             {application && applicationPanelContent ? (
               <>
                 <div className="mb-2">
-                  <StatusBadge label={formatApplicationStatusShort(application.status)} />
+                  <StatusBadge
+                    label={formatApplicationStatusShort(application.status)}
+                    tone={resolveApplicationBadgeTone(application.status)}
+                  />
                 </div>
                 <ApplicationStatusPanel
                   title={applicationPanelContent.title}

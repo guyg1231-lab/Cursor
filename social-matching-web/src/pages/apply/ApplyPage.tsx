@@ -30,7 +30,7 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
-import { resolveApplicationPanelContent } from '@/features/applications/presentation';
+import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
 import type {
   EventRegistrationRow,
@@ -611,7 +611,10 @@ export function ApplyPage() {
 
       {existingApplication && canReapplyToEvent(existingApplication.status) ? (
         <div className="mb-3">
-          <StatusBadge label={formatApplicationStatusShort(existingApplication.status)} />
+          <StatusBadge
+            label={formatApplicationStatusShort(existingApplication.status)}
+            tone={resolveApplicationBadgeTone(existingApplication.status)}
+          />
         </div>
       ) : null}
 

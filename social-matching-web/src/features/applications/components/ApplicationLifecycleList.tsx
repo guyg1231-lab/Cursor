@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { resolveApplicationBadgeTone } from '@/features/applications/presentation';
 import { listDashboardApplications } from '@/features/events/query';
 import {
   formatApplicationStatusShort,
@@ -19,7 +20,11 @@ export function ApplicationLifecycleList({ applications }: { applications: Appli
         <div key={application.id} className="rounded-3xl border border-border bg-background/30 p-4">
           <p className="font-medium text-foreground">{application.event?.title ?? 'מפגש'}</p>
           <p className="mt-1 text-muted-foreground">
-            סטטוס: <StatusBadge label={formatApplicationStatusShort(application.status)} />
+            סטטוס:{' '}
+            <StatusBadge
+              label={formatApplicationStatusShort(application.status)}
+              tone={resolveApplicationBadgeTone(application.status)}
+            />
           </p>
           {isAwaitingParticipantResponse(application.status) ? (
             <p className="mt-2 text-sm text-muted-foreground">

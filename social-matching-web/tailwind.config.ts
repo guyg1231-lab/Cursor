@@ -43,6 +43,10 @@ export default {
           DEFAULT: 'hsl(var(--card) / <alpha-value>)',
           foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
         },
+        sage: {
+          DEFAULT: 'hsl(var(--sage) / <alpha-value>)',
+        },
+        'accent-periwinkle': 'hsl(var(--accent-periwinkle) / <alpha-value>)',
       },
       borderRadius: {
         lg: 'var(--radius)',

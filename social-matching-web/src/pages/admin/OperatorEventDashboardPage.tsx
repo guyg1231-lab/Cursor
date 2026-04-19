@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import {
   AdminOfferActionError,
@@ -16,6 +17,7 @@ import {
 } from '@/features/admin/api';
 import type { AdminApplicantReview } from '@/features/admin/types';
 import { formatEventDate } from '@/features/events/formatters';
+import { resolveApplicationBadgeTone } from '@/features/applications/presentation';
 import {
   canManuallyOfferTemporarySpot,
   formatApplicationStatusDetailed,
@@ -367,9 +369,10 @@ export function OperatorEventDashboardPage() {
                               </p>
                             ) : null}
                           </div>
-                          <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs">
-                            {formatApplicationStatusShort(a.status)}
-                          </span>
+                          <StatusBadge
+                            label={formatApplicationStatusShort(a.status)}
+                            tone={resolveApplicationBadgeTone(a.status)}
+                          />
                         </div>
                         <p className="text-muted-foreground">{applicantNote(a)}</p>
                         <div className="flex flex-wrap gap-2">

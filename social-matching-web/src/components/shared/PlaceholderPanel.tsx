@@ -24,7 +24,7 @@ export function PlaceholderPanel({
           <CardTitle className="text-xl">{title}</CardTitle>
           <StatusBadge
             label={CONTRACT_STATE_LABEL[contractState]}
-            tone={contractState === 'stubbed' ? 'muted' : 'default'}
+            tone={contractState === 'stubbed' ? 'warning' : 'default'}
           />
         </div>
       </CardHeader>
