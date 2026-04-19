@@ -47,7 +47,7 @@ folder as historical record (do not delete).
 | [F-2: `/questionnaire` guard semantics](2026-04-20-02-questionnaire-guard-semantics.md) | proposed | Routing / spec alignment |
 | [F-3: Phantom `/host/settings` route](2026-04-20-03-routemanifest-phantom-host-settings.md) | done | Routing documentation accuracy |
 | [F-4: Hardcoded English "Loading..." in guards](2026-04-20-04-guards-hardcoded-english-loading.md) | done | Participant UI English leak |
-| [F-5: AdminRoute silent redirect](2026-04-20-05-adminroute-redirect-inconsistency.md) | proposed | Admin UX, guard testability |
+| [F-5: AdminRoute silent redirect](2026-04-20-05-adminroute-redirect-inconsistency.md) | in-progress | Admin UX, guard testability |
 | [F-6: StatusBadge narrow tone model](2026-04-20-06-statusbadge-tone-model.md) | proposed | All lifecycle surfaces |
 | [F-7: PlaceholderPanel English + enum leak](2026-04-20-07-placeholderpanel-english-enum.md) | proposed | Placeholder surfaces |
 | [F-8: AppHeader mixed i18n](2026-04-20-08-appheader-mixed-i18n.md) | proposed | i18n consistency |

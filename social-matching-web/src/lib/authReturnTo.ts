@@ -11,6 +11,10 @@ function isAllowedInternalPath(pathOnly: string) {
 
   if (pathname === '/dashboard') return true;
   if (pathname === '/host/events') return true;
+  if (pathname === '/admin') return true;
+  if (pathname === '/admin/events') return true;
+  if (pathname === '/admin/event-requests') return true;
+  if (pathname === '/admin/events/new') return true;
 
   if (pathname.startsWith('/events/')) {
     const match = pathname.match(/^\/events\/([a-zA-Z0-9_-]+)\/apply$/);
@@ -19,6 +23,16 @@ function isAllowedInternalPath(pathOnly: string) {
 
   if (pathname.startsWith('/gathering/')) {
     const match = pathname.match(/^\/gathering\/([a-zA-Z0-9_-]+)$/);
+    return !!match;
+  }
+
+  if (pathname.startsWith('/admin/events/')) {
+    const match = pathname.match(/^\/admin\/events\/([a-zA-Z0-9_-]+)(\/diagnostics|\/audit)?$/);
+    return !!match;
+  }
+
+  if (pathname.startsWith('/team/gathering/')) {
+    const match = pathname.match(/^\/team\/gathering\/([a-zA-Z0-9_-]+)$/);
     return !!match;
   }
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { tokens } from '@/lib/design-tokens';
 
@@ -7,12 +8,16 @@ type RouteStateProps = {
   tone?: 'default' | 'danger';
 };
 
+type RouteStateCardProps = RouteStateProps & {
+  action?: ReactNode;
+};
+
 type RouteLoadingStateProps = {
   title?: string;
   body?: string;
 };
 
-function RouteStateCard({ title, body, tone = 'default' }: RouteStateProps) {
+function RouteStateCard({ title, body, tone = 'default', action }: RouteStateCardProps) {
   return (
     <Card className={tokens.card.surface}>
       <CardContent
@@ -22,6 +27,7 @@ function RouteStateCard({ title, body, tone = 'default' }: RouteStateProps) {
       >
         <p className="font-medium text-foreground">{title}</p>
         <p>{body}</p>
+        {action ? <div className="pt-2">{action}</div> : null}
       </CardContent>
     </Card>
   );
@@ -50,8 +56,8 @@ export function RouteNotFoundState({ title, body }: RouteStateProps) {
   return <RouteStateCard title={title} body={body} />;
 }
 
-export function RouteGatedState({ title, body }: RouteStateProps) {
-  return <RouteStateCard title={title} body={body} />;
+export function RouteGatedState({ title, body, action }: RouteStateCardProps) {
+  return <RouteStateCard title={title} body={body} action={action} />;
 }
 
 export function RouteSuccessState({ title, body }: RouteStateProps) {
