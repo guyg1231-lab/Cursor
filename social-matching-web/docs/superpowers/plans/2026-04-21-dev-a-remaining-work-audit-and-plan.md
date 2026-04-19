@@ -29,7 +29,7 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 
 | Check | Command / source | Result (audit date) |
 |--------|------------------|----------------------|
-| Typecheck (real) | `npx tsc -b --noEmit` | Exit `0` |
+| Typecheck (real) | `npm run typecheck` (→ `tsc -b --noEmit`) | Exit `0` |
 | E2E (Chromium) | `npx playwright test --project=chromium` | **30** tests, **5** files — all passing |
 | E2E inventory | `npx playwright test --list \| tail -1` | `Total: 30 tests in 5 files` |
 | Participant “event not found” duplication | `rg 'המפגש לא נמצא' src/` | Single shared component `src/components/participant/EventNotFound.tsx` + **out-of-scope** `TeamGatheringPage.tsx` (admin) |
@@ -53,11 +53,11 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | ID | Finding | Severity | Evidence |
 |----|---------|----------|----------|
 | ~~D-1~~ | ~~**Dev B kickoff** still states **“26 passing”**~~ | **Resolved** (2026-04-21) | Kickoff updated to **30** tests + `30/30` gate; see `3aab34f` |
-| D-2 | **Pass-3 implementation plan** still contains **stale** snippets (e.g. old skip/count narrative in copied blocks) | Low — historical execution artifact | `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md` (grep for “25 passing”, “2 skipped”) |
-| D-3 | **Pass-3 design spec** opening still says “26 passing” / “10 merged PRs” as *audit-era* baseline | Low — readers may think current `main` is still 26 | `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md` §1 |
-| D-4 | Implementation plan **checkboxes** (`- [ ]`) for completed tasks were never bulk-checked | Low — cosmetic | Same implementation plan file |
+| ~~D-2~~ | ~~**Pass-3 implementation plan** stale snippets~~ | **Mostly resolved** (2026-04-21) | Banner + Task A.2/A.4 + execution conventions aligned with **30** tests and working `npm run typecheck`; grep may still find “25/26” inside **historical** PR-body examples — intentional unless someone bulk-edits |
+| ~~D-3~~ | ~~**Pass-3 design spec** §1 audit-era counts~~ | **Resolved** (2026-04-21) | `2026-04-19-pass-3-remediation-design.md` §1 reframed as historical baseline + **completed** outcome + link to this audit |
+| D-4 | Implementation plan **checkboxes** (`- [ ]`) for completed tasks were never bulk-checked | Low — cosmetic | Same implementation plan file (optional bulk `[x]` pass) |
 
-**Recommendation:** D-1 kickoff sync is **done** on `main`. Remaining doc hygiene (D-2–D-4) is optional: add a one-line banner to Pass-3 spec/plan pointing here, grep-replace stale counts in historical remediation docs, or bulk-check implementation-plan checkboxes if you use them as trackers.
+**Recommendation:** D-1, D-3, and most of D-2 are **done** on `main` (2026-04-21 pass). **D-4** remains optional cosmetic. **T-1** (below) is **resolved** via root `package.json` `typecheck` → `tsc -b --noEmit`.
 
 ### 3.2 Foundation ticket queue (implementation = NOT Dev A)
 
@@ -79,7 +79,7 @@ All below are **indexed** in `docs/foundation-tickets/README.md`. Dev A’s role
 
 | ID | Finding | Owner |
 |----|---------|--------|
-| T-1 | `npm run typecheck` does **not** compile project references (`tsconfig` `files: []` pattern) | Documented in kickoff; **fix = tsconfig/script change** — align with Foundation or a small infra PR **outside** participant UX scope |
+| ~~T-1~~ | ~~`npm run typecheck` no-op~~ | **Resolved** (2026-04-21): root `package.json` `"typecheck": "tsc -b --noEmit"`; kickoff “Known issues” §1 updated to match |
 
 ### 3.4 Optional product / a11y (participant-adjacent but cross-cutting)
 
@@ -111,7 +111,7 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 |----------|-----|-----------|---------|
 | ~~**P0**~~ | ~~A-DOC-1~~ | ~~Patch **Dev B kickoff**: Playwright count **26 → 30**~~ | **Done** (`main` @ `3aab34f`) |
 | ~~**P0**~~ | ~~A-DOC-2~~ | ~~Kickoff note on SP-B/C/D + link to this audit~~ | **Done** (same commit) |
-| **P1** | A-DOC-3 | (Optional) Normalize **Pass-3 spec + implementation plan** headers with “completed” + link to this file | Less confusion for future agents |
+| ~~**P1**~~ | ~~A-DOC-3~~ | ~~Normalize **Pass-3 spec + implementation plan** headers~~ | **Done** (2026-04-21): spec §1 + status; implementation plan banner + A.2/A.4/conventions; kickoff typecheck §1 |
 | **P2** | A-TEST-1 | Split **apply readiness** test into **per-reason** tests *if* staging fixtures can guarantee each branch | Stronger guarantees; higher fixture cost |
 | **P2** | A-FEAT-1 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
 
@@ -137,7 +137,7 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 |------------|----------|
 | **Dev B** | Host/admin pages, `e2e/host-admin-foundation.spec.ts`, product plan `2026-04-18-developer-b-host-admin-product.md` |
 | **Foundation** | Implementing F-1…F-9, router/guards/ui/shared refactors |
-| **Infra** | Fixing `npm run typecheck` script/tsconfig (coordinate with Foundation) |
+| **Infra** | Broader CI/tsconfig changes beyond what Dev A owns (e.g. new check scripts) — coordinate with Foundation |
 
 ---
 
@@ -150,12 +150,14 @@ Completed in commit `3aab34f` (pushed to `main`):
 1. Updated `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`: Playwright **26 → 30** passing, preflight gate **30/30**, short note on SP-B/C/D + link to this audit file.  
 2. This audit document added alongside the kickoff fix.
 
-**Exit criteria:** Dev B kickoff numbers match `npx playwright test --list` — satisfied.
+**Follow-up (2026-04-21, same phase):** Root `package.json` `typecheck` → `tsc -b --noEmit`; kickoff “Known issues” §1 corrected; Pass-3 design spec §1 + implementation plan banner/tasks; this audit D-2/D-3/T-1/A-DOC-3 reconciled — **commit locally** if not yet on `main`.
+
+**Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — satisfied once the follow-up commit lands.
 
 ### Phase 1 — While Dev B is active (lightweight maintenance)
 
 1. **Monitor** Foundation PRs that touch `RouteState`, `guards`, `AppHeader`, `StatusBadge`, `routeManifest`.  
-2. After each Foundation merge: **participant regression** = full Chromium Playwright + `tsc -b`.  
+2. After each Foundation merge: **participant regression** = full Chromium Playwright + `npm run typecheck`.  
 3. If Foundation adds APIs (F-1 body prop): **migrate** `EventsPage` loading from inline Card to primitive **in Dev A-owned file only**.
 
 ### Phase 2 — Optional quality (only if capacity)
@@ -174,7 +176,7 @@ Completed in commit `3aab34f` (pushed to `main`):
 ## 6. Verification gates (every Dev A PR)
 
 ```bash
-npx tsc -b --noEmit
+npm run typecheck
 npx playwright test --project=chromium
 ```
 
@@ -202,3 +204,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 |------|--------|
 | 2026-04-21 | Initial audit + plan after Pass-3 stack + host copy follow-up on `main` |
 | 2026-04-21 | Phase 0 kickoff sync landed; audit Phase 0 section marked done |
+| 2026-04-21 | D-2/D-3/T-1 resolved in docs; `typecheck` script + kickoff §1; verification gates prefer `npm run typecheck` |

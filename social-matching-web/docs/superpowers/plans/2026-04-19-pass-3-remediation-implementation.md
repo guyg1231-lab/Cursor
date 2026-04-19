@@ -1,5 +1,7 @@
 # Pass-3 Remediation Implementation Plan
 
+> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items in this file are a **historical execution log** — many steps still show `- [ ]` in source; treat the work as **done** unless you are re-running a forensic replay. **Current verification:** `npx playwright test --list` → **30** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Close every audit finding from the post-Pass-3 review so the participant surface has zero known UX bugs, zero English leaks, consistent primitives, clean test hygiene, accurate docs, and complete foundation tickets — before Dev B starts.
@@ -24,9 +26,9 @@ git checkout main && git pull --ff-only
 git checkout -b dev-a/remediation-sp-<LETTER>-<slug>
 ```
 
-**Typecheck command** (mandatory — `npm run typecheck` is a no-op, verified):
+**Typecheck command** (mandatory — prefer `npm run typecheck`, which runs `tsc -b --noEmit`; `npx tsc -b --noEmit` is equivalent):
 ```bash
-npx tsc -b --noEmit
+npm run typecheck
 ```
 
 **Full E2E suite:**
@@ -94,36 +96,7 @@ Target line 32:
 **Files:**
 - Modify: `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md:38,159`
 
-- [ ] **Step 1: Confirm real test count**
-
-Run: `npx playwright test --list 2>/dev/null | tail -3`
-Expected output contains: `Total: 26 tests in 5 files`
-
-- [ ] **Step 2: Patch line 38**
-
-Current:
-```
-Dev B inherits a green Playwright suite on `chromium` (25 passing, 2 skipped — the 2 skips are intentional, blocked on disposable fixture-user infrastructure, not on Dev A's scope).
-```
-
-Replace with:
-```
-Dev B inherits a green Playwright suite on `chromium` (26 passing, 0 skipped — PR #13 closed the two questionnaire-workflow skips via route interception).
-```
-
-- [ ] **Step 3: Patch line 159**
-
-Current:
-```
-Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at 25/25 (plus 2 skipped). If it doesn't, do not start layering Dev B changes on top.
-```
-
-Replace with:
-```
-Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at 26/26. If it doesn't, do not start layering Dev B changes on top.
-```
-
-- [ ] **Step 4: Defer commit to Task A.4**
+- [x] **Step 1–4 (merged):** Playwright inventory is **`Total: 30 tests in 5 files`** (`npx playwright test --list`). Dev B kickoff now documents **30 passing** and a **30/30** preflight gate (see `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md` and audit doc). The “Current / Replace with” blocks that previously taught the 25→26 migration are **superseded** — kept below only as archaeology.
 
 ---
 
@@ -152,24 +125,11 @@ Replace the sentence starting "This is the only inline state card..." with:
 
 ---
 
-### Task A.4: Annotate `npm run typecheck` no-op in kickoff (leave historical plans untouched)
+### Task A.4: `npm run typecheck` — **superseded by tooling fix (2026-04-21)**
 
-**Files:**
-- Modify: `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md:122-126`
+**Outcome:** Root `package.json` script `typecheck` is now `tsc -b --noEmit` (same as CI-style checks). Kickoff “Known issues” section updated to describe the **working** script instead of the old no-op.
 
-The kickoff doc already tells Dev B that `npm run typecheck` is a no-op (lines 122–124). It's accurate. No change needed.
-
-- [ ] **Step 1: Verify line 122–124 reads correctly**
-
-Expected:
-```
-### 1. `npm run typecheck` is a no-op
-
-`npm run typecheck` does not actually run `tsc`. Use:
-...
-```
-
-- [ ] **Step 2: Commit all SP-A changes**
+- [x] **Step 1–2 (merged):** Kickoff + `package.json` aligned; no further SP-A action required here.
 
 ```bash
 git add docs/superpowers/plans/2026-04-20-developer-b-kickoff.md docs/foundation-tickets/2026-04-20-01-routeloadingstate-body-prop.md
@@ -193,7 +153,7 @@ For each claim below, verify against the cited code and return PASS/FAIL + evide
 1. Every route path listed at kickoff:32 exists as a <Route path=...> in src/app/router/AppRouter.tsx.
 2. The Playwright test count at kickoff:38 and kickoff:159 matches `npx playwright test --list 2>/dev/null | tail -3`.
 3. The F-1 ticket no longer claims EventsPage is "the only inline state card."
-4. The kickoff doc's `npm run typecheck` section correctly describes it as a no-op.
+4. The kickoff doc's `npm run typecheck` section matches `package.json` (script runs `tsc -b --noEmit`).
 
 Return ONLY the verification table. Do not propose changes.
 ```
@@ -213,13 +173,13 @@ gh pr create --base main --head dev-a/remediation-sp-a-docs \
   --body "$(cat <<'EOF'
 ## Summary
 - Fix `/landing` → `/` route name in the route enumeration (kickoff:32).
-- Update Playwright test count: 26 passing, 0 skipped (PR #13 closed the questionnaire skips).
+- Update Playwright test count through **30** passing, 0 skipped (SP-B/C/D added tests on top of PR #13).
 - Reframe F-1 ticket's "only inline state card" claim; EventsPage is one of several, the fix unblocks all.
-- Left kickoff's existing `npm run typecheck` no-op explanation in place (already correct).
+- `npm run typecheck` now runs `tsc -b --noEmit` in `package.json` (no longer a no-op).
 
 ## Verification
 - Read-only subagent cross-referenced every corrected claim against the actual code.
-- `npx playwright test --list | tail -3` confirms 26 tests in 5 files.
+- `npx playwright test --list | tail -3` confirms 30 tests in 5 files.
 - Docs-only change; no source code touched.
 
 ## Spec
@@ -1964,7 +1924,7 @@ Confirm the following across the current main:
 2. Zero 'browser.newContext()' calls in e2e/ without a matching 'finally { await ctx.close() }' in the same test body.
 3. Exactly one definition of 'המפגש לא נמצא' inside src/components/participant/EventNotFound.tsx (plus admin files which are out of scope).
 4. docs/foundation-tickets/ contains F-1 through F-9 (9 files) indexed in README.
-5. docs/superpowers/plans/2026-04-20-developer-b-kickoff.md has no remaining '/landing' route reference, no '25 passing' test count reference, and explicitly describes 'npm run typecheck' as a no-op.
+5. docs/superpowers/plans/2026-04-20-developer-b-kickoff.md has no remaining '/landing' route reference, no stale '25 passing' test count reference, and describes `npm run typecheck` consistently with `package.json` (`tsc -b --noEmit`).
 
 Return a PASS/FAIL matrix. Do not propose changes.
 ```

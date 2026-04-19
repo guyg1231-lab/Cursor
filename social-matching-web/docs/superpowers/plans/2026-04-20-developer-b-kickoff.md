@@ -119,15 +119,15 @@ All user-facing strings (participant, host, admin) are Hebrew. Admin-internal st
 
 ## Known open issues Dev B may encounter
 
-### 1. `npm run typecheck` is a no-op
+### 1. Typecheck (`npm run typecheck`)
 
-`npm run typecheck` does not actually run `tsc`. Use:
+Root `package.json` defines `typecheck` as `tsc -b --noEmit`, which respects project references (same intent as `npx tsc -b --noEmit`). Prefer:
 
 ```bash
-npx tsc -b --noEmit
+npm run typecheck
 ```
 
-Tracked as a non-blocking follow-up. Fix is outside Dev A/Dev B scope (tooling).
+Either command should exit `0` before you push substantive changes.
 
 ### 2. `example.com` email blocklist
 

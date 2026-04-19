@@ -1,17 +1,21 @@
 # Pass-3 Remediation — Design Spec
 
-**Date:** 2026-04-19
-**Owner:** Dev A
-**Status:** Approved for implementation planning
+**Date:** 2026-04-19  
+**Owner:** Dev A  
+**Status:** **Completed (merged to `main`, 2026-04)** — this document is the **approved design record** for the remediation that ran SP-A→E→B→D→C.  
 **Scope:** Close out audit findings from the "everything fully perfect and optimal?" review after Pass-3 completion.
+
+> **Aftercare:** Current Dev A maintenance / Dev B handoff is tracked in `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`. Playwright on `chromium`: **30** tests in **5** files as of merge.
 
 ---
 
 ## 1. Context
 
-Pass-3 closed with 10 merged PRs, 26 passing Playwright tests, zero `test.skip`, and a declared "Dev A is done." A five-agent read-only audit dispatched afterward (per user request) surfaced ~28 issues across five categories: doc inaccuracies, user-facing UX bugs, consistency gaps, test hygiene debt, and unreported foundation issues.
+**Historical baseline (audit day):** Pass-3 had closed with 10 merged PRs, 26 passing Playwright tests, zero `test.skip`, and a declared "Dev A is done." A five-agent read-only audit dispatched afterward surfaced ~28 issues across five categories: doc inaccuracies, user-facing UX bugs, consistency gaps, test hygiene debt, and unreported foundation issues.
 
-This spec defines the remediation that closes those findings before Dev B picks up host/admin work. The goal, in the user's words, is "to make the whole system perfect" — not "good enough to ship."
+**Outcome:** The remediation defined in §4–§7 was **implemented and merged** (through SP-C plus follow-ups). The suite grew to **30** passing Chromium tests (SP-B/C/D additions). Foundation tickets **F-3…F-9** were filed (see `docs/foundation-tickets/README.md`).
+
+This spec remains the authoritative **design** for that remediation. For **execution** detail and forensic checklists, see `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md` (banner at top marks it historical).
 
 ## 2. Goals
 
@@ -31,7 +35,7 @@ Explicitly out of scope:
 3. Any change to `/questionnaire` guard semantics — F-2 is open.
 4. `example.com` email blocklist / validation rules — product decision.
 5. Host- or admin-side product work — Dev B's scope.
-6. Fixing `npm run typecheck` — tooling pass with its own review gate.
+6. ~~Fixing `npm run typecheck`~~ — **Done separately (2026-04-21):** root `package.json` `typecheck` script now runs `tsc -b --noEmit` (was a no-op when this spec was written).
 7. New Playwright fixtures or disposable test users — route-interception pattern (established in PR #13) is sufficient.
 8. Design-system changes (tokens, colors, typography).
 9. Performance work.
