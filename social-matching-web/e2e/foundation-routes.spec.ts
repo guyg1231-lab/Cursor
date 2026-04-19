@@ -106,9 +106,6 @@ test.describe('foundation routes', () => {
     }
   });
 
-  // NOTE: does not verify the guard rejects non-admins — AdminRoute currently
-  // silently redirects to /, which makes a positive denial assertion hard.
-  // See foundation ticket F-5 (docs/foundation-tickets/2026-04-20-05-*).
   test('admin placeholder routes render expected copy when signed in as admin', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
