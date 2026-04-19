@@ -1,7 +1,8 @@
 # F-7: `PlaceholderPanel` leaks English copy and raw `contractState` enum
 
-- **Status:** proposed
+- **Status:** in-progress
 - **Raised by:** Developer A (participant workstream), 2026-04-20
+- **PR:** _(add merge PR link)_
 - **Impact:** Every placeholder-backed route (host workspace stubs, admin diagnostics, admin audit) renders English fallback copy AND a raw English enum label (`real`, `mixed`, `stubbed`) inside a `StatusBadge` to Hebrew users. Visible on every stubbed surface a user visits.
 - **Blocking:** No, but embarrassing for any Hebrew user who opens a placeholder route.
 - **Owner:** Foundation (TBD)

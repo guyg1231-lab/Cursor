@@ -1,7 +1,8 @@
 # F-8: `AppHeader` mixes `t()` calls with hardcoded Hebrew literals
 
-- **Status:** proposed
+- **Status:** in-progress
 - **Raised by:** Developer A (participant workstream), 2026-04-20
+- **PR:** _(add merge PR link)_
 - **Impact:** The single most-viewed component in the app (renders on every page) uses `t(...)` from the language context for some nav labels but falls back to hardcoded Hebrew string literals for the host CTA and the auth controls. Defeats the purpose of routing copy through a central i18n layer: any future translation effort will miss the hardcoded strings and leave the header half-translated.
 - **Blocking:** No — all user-facing strings are currently Hebrew as expected, so there is no visible bug today. Leaves a landmine for the day the product ships an English (or any other) locale.
 - **Owner:** Foundation (TBD)

@@ -49,6 +49,6 @@ folder as historical record (do not delete).
 | [F-4: Hardcoded English "Loading..." in guards](2026-04-20-04-guards-hardcoded-english-loading.md) | done | Participant UI English leak |
 | [F-5: AdminRoute silent redirect](2026-04-20-05-adminroute-redirect-inconsistency.md) | done | Admin UX, guard testability |
 | [F-6: StatusBadge narrow tone model](2026-04-20-06-statusbadge-tone-model.md) | proposed | All lifecycle surfaces |
-| [F-7: PlaceholderPanel English + enum leak](2026-04-20-07-placeholderpanel-english-enum.md) | proposed | Placeholder surfaces |
-| [F-8: AppHeader mixed i18n](2026-04-20-08-appheader-mixed-i18n.md) | proposed | i18n consistency |
+| [F-7: PlaceholderPanel English + enum leak](2026-04-20-07-placeholderpanel-english-enum.md) | in-progress | Placeholder surfaces |
+| [F-8: AppHeader mixed i18n](2026-04-20-08-appheader-mixed-i18n.md) | in-progress | i18n consistency |
 | [F-9: Missing Link/Badge primitives](2026-04-20-09-missing-ui-primitives-link-badge.md) | proposed | Low priority, filed for visibility |

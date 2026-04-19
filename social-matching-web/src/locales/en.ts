@@ -7,6 +7,9 @@ export const en = {
   navQuestionnaire: 'Questionnaire',
   navDashboard: 'Dashboard',
   navAdmin: 'Admin',
+  navHostRequest: 'Request an event',
+  navSignOut: 'Sign out',
+  navSignIn: 'Sign in',
   skipToContent: 'Skip to content',
   questionnaireTitle: 'Profile Base Questionnaire',
   questionnaireSubtitle:

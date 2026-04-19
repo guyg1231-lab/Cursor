@@ -100,7 +100,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/host/events/future-workspace');
       await expect(page.getByRole('heading', { level: 1, name: 'Host event workspace' })).toBeVisible();
-      await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
+      await expect(page.getByText('הדף הזה מצומצם כרגע בכוונה.', { exact: true })).toBeVisible();
     } finally {
       await ctx.close();
     }
@@ -114,7 +114,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/admin/events/future-event/diagnostics');
       await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
-      await expect(page.getByText('This surface is intentionally minimal for now.')).toBeVisible();
+      await expect(page.getByText('הדף הזה מצומצם כרגע בכוונה.', { exact: true })).toBeVisible();
     } finally {
       await ctx.close();
     }

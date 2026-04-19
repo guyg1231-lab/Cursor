@@ -2,6 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 
+const CONTRACT_STATE_LABEL: Record<'real' | 'mixed' | 'stubbed', string> = {
+  real: 'ממשק פעיל',
+  mixed: 'ממשק חלקי',
+  stubbed: 'ממשק זמני',
+};
+
 export function PlaceholderPanel({
   title,
   body,
@@ -17,13 +23,13 @@ export function PlaceholderPanel({
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="text-xl">{title}</CardTitle>
           <StatusBadge
-            label={contractState}
+            label={CONTRACT_STATE_LABEL[contractState]}
             tone={contractState === 'stubbed' ? 'muted' : 'default'}
           />
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm text-muted-foreground">
-        <p>This surface is intentionally minimal for now.</p>
+        <p>הדף הזה מצומצם כרגע בכוונה.</p>
         <p>{body}</p>
       </CardContent>
     </Card>

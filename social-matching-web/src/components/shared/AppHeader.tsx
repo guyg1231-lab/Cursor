@@ -61,7 +61,7 @@ export function AppHeader({
           </Button>
           {user ? (
             <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              <Link to="/host/events">בקשת אירוע</Link>
+              <Link to="/host/events">{t('navHostRequest')}</Link>
             </Button>
           ) : null}
           {isAdmin ? (
@@ -87,11 +87,11 @@ export function AppHeader({
                 void signOut();
               }}
             >
-              יציאה
+              {t('navSignOut')}
             </Button>
           ) : (
             <Button asChild variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              <Link to="/auth">כניסה</Link>
+              <Link to="/auth">{t('navSignIn')}</Link>
             </Button>
           )}
           {actions}
