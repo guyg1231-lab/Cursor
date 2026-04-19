@@ -178,61 +178,33 @@ test.describe('participant foundation', () => {
     if (profileError) throw profileError;
     if (!profile?.id) throw new Error('E2E missing P1 profile');
 
-    const { data: registration, error: regReadError } = await admin
-      .from('event_registrations')
-      .select('status, expires_at, offered_at')
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id)
-      .maybeSingle();
-    if (regReadError) throw regReadError;
-    if (!registration) throw new Error('E2E missing P1 registration for E2E_EVENT_ID');
-
-    const previousStatus = registration.status;
-    const previousExpiresAt = registration.expires_at;
-    const previousOfferedAt = registration.offered_at;
-
     const futureExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const { error: flipError } = await admin
-      .from('event_registrations')
-      .update({
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
         status: 'awaiting_response',
         expires_at: futureExpires,
-        offered_at: previousOfferedAt ?? new Date().toISOString(),
-      })
-      .eq('event_id', ENV.EVENT_ID)
-      .eq('user_id', profile.id);
-    if (flipError) throw flipError;
-
-    const ctx = await browser.newContext();
-    try {
-      await authenticateAs(ctx, ENV.EMAILS.P1);
-      const page = await ctx.newPage();
-      await page.goto(`/events/${ENV.EVENT_ID}`);
-      await expect(page.getByText(/מועד אחרון לתגובה/)).toBeVisible();
-      await expect(page.getByText('מקום זמני ממתין לתגובה', { exact: true })).toBeVisible();
-    } finally {
-      try {
-        await ctx.close();
-      } catch {
-        // Ignore browser context close failures during teardown.
-      }
-      try {
-        const { error: restoreError } = await admin
-          .from('event_registrations')
-          .update({
-            status: previousStatus,
-            expires_at: previousExpiresAt,
-            offered_at: previousOfferedAt,
-          })
-          .eq('event_id', ENV.EVENT_ID)
-          .eq('user_id', profile.id);
-        if (restoreError) throw restoreError;
-      } catch (restoreError) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to restore P1 application after event detail awaiting test', restoreError);
-        throw restoreError;
-      }
-    }
+        offered_at: new Date().toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}`);
+          await expect(page.getByText(/מועד אחרון לתגובה/)).toBeVisible();
+          await expect(page.getByText('מקום זמני ממתין לתגובה', { exact: true })).toBeVisible();
+        } finally {
+          try {
+            await ctx.close();
+          } catch {
+            // Ignore browser context close failures during teardown.
+          }
+        }
+      },
+    );
   });
 
   test('dashboard lifecycle list shows reserved status chip for confirmed application', async ({ browser }) => {
