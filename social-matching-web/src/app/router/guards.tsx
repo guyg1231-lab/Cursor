@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { RouteLoadingState } from '@/components/shared/RouteState';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildAuthPath, parseSafeReturnTo, storePostAuthReturnTo } from '@/lib/authReturnTo';
 
@@ -8,7 +9,7 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
   const location = useLocation();
 
   if (isLoading) {
-    return <div className="container py-10 text-sm text-muted-foreground">Loading...</div>;
+    return <RouteLoadingState />;
   }
 
   if (!user) {
@@ -24,7 +25,7 @@ export function AdminRoute({ children }: PropsWithChildren) {
   const { user, isAdmin, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="container py-10 text-sm text-muted-foreground">Loading...</div>;
+    return <RouteLoadingState />;
   }
 
   if (!user || !isAdmin) {
