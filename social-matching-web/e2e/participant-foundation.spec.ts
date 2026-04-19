@@ -16,48 +16,59 @@ test.describe('participant foundation', () => {
     ).toBeVisible();
   });
 
-  test('authenticated participant sees a readiness message before applying when blocked', async ({ browser }) => {
+  // The alternation covers every blocked-reason copy the fixture user
+  // might legitimately hit (profile incomplete, saved seat, ended event,
+  // etc.). This test asserts the page surfaces *one* of them, not any
+  // specific one. Splitting into per-reason tests requires per-reason
+  // fixture setup — tracked as a followup.
+  test('authenticated participant sees at least one blocking readiness message on /apply', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.P1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
 
-    await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-    await expect(
-      page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה/i),
-    ).toBeVisible();
-
-    await ctx.close();
+      await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+      await expect(
+        page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה/i }),
+      ).toBeVisible();
+      await expect(
+        page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה/i),
+      ).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('dashboard exposes participant next steps with a questionnaire handoff', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.P1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
 
-    await page.goto('/dashboard');
-    await expect(page.getByRole('link', { name: 'לשאלון הפרופיל' })).toBeVisible();
-    await expect(
-      page.getByRole('heading', { level: 3, name: /לפני ההגשה הבאה/i }),
-    ).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/dashboard');
+      await expect(page.getByRole('link', { name: 'לשאלון הפרופיל' })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { level: 3, name: /לפני ההגשה הבאה/i }),
+      ).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('dashboard shows profile readiness as ready', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.P1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
 
-    await page.goto('/dashboard');
-    await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'מוכנות להגשה' })).toBeVisible();
-    await expect(page.getByText('מוכנים להגיש למפגשים', { exact: true })).toBeVisible();
-    await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/dashboard');
+      await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 3, name: 'מוכנות להגשה' })).toBeVisible();
+      await expect(page.getByText('מוכנים להגיש למפגשים', { exact: true })).toBeVisible();
+      await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('StatusBadge: apply surface shows current application short label when reapply form visible', async ({
@@ -82,7 +93,8 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByText('לא נבחר/ת הפעם', { exact: true })).toBeVisible();
+          const badge = page.locator('span.rounded-full', { hasText: 'לא נבחר/ת הפעם' });
+          await expect(badge).toBeVisible();
         } finally {
           try {
             await ctx.close();
@@ -248,43 +260,57 @@ test.describe('participant foundation', () => {
     await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
   });
 
-  test('auth callback keeps a visible loading state before redirect completes', async ({ page }) => {
-    const sawLoading = page.waitForFunction(
-      () => /מאמתים/.test(document.body.innerText),
-      { timeout: 15_000 },
-    );
-    await Promise.all([page.goto('/auth/callback'), sawLoading]);
+  // Without magic-link tokens, AuthCallbackPage may flash the loading shell then
+  // land on the error UI on the same URL (AuthCallbackPage.tsx). Redirect only
+  // happens when a session exists. `waitForFunction` proves /מאמתים/ appeared
+  // during navigation; a follow-up visibility assert can race the transition.
+  test('auth callback shows loading copy during session resolution', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      const page = await ctx.newPage();
+      const sawLoading = page.waitForFunction(
+        () => /מאמתים/.test(document.body.innerText),
+        { timeout: 15_000 },
+      );
+      await Promise.all([page.goto('/auth/callback'), sawLoading]);
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('dashboard shows empty applications state with CTA to events', async ({ browser }) => {
     const ctx = await browser.newContext();
-    // Staging: P1–P4 each have ≥1 registration; ADMIN1 has zero event_registrations (see plan Task 3).
-    await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-    const page = await ctx.newPage();
+    try {
+      // Staging: P1–P4 each have ≥1 registration; ADMIN1 has zero event_registrations (see plan Task 3).
+      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+      const page = await ctx.newPage();
 
-    await page.goto('/dashboard');
-    await expect(page.getByText('אין עדיין הגשות', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'למפגשים פתוחים' })).toBeVisible();
-
-    await ctx.close();
+      await page.goto('/dashboard');
+      await expect(page.getByText('אין עדיין הגשות', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'למפגשים פתוחים' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('regression: dashboard readiness and applications render together', async ({ browser }) => {
     const ctx = await browser.newContext();
-    await authenticateAs(ctx, ENV.EMAILS.P1);
-    const page = await ctx.newPage();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
 
-    await page.goto('/dashboard');
+      await page.goto('/dashboard');
 
-    await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'מוכנות להגשה' })).toBeVisible();
-    await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'האזור האישי שלך' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 3, name: 'מוכנות להגשה' })).toBeVisible();
+      await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
 
-    await expect(page.getByRole('heading', { level: 3, name: 'ההגשות שלך' })).toBeVisible();
-    const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
-    await expect(appsCard.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first()).toBeVisible();
-
-    await ctx.close();
+      await expect(page.getByRole('heading', { level: 3, name: 'ההגשות שלך' })).toBeVisible();
+      const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+      await expect(appsCard.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first()).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   test('gathering page frames itself as a participant gathering view and links to event details', async ({
@@ -416,27 +442,27 @@ test.describe('participant foundation', () => {
       await page.goto('/questionnaire');
       await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
 
-      const fullNameInput = page.locator('input[type="text"]').first();
+      const fullNameInput = page.getByLabel('שם מלא');
       if ((await fullNameInput.inputValue()) === '') {
         await fullNameInput.fill('Test User');
       }
 
-      const emailInput = page.locator('input[type="email"]').first();
+      const emailInput = page.getByLabel('אימייל');
       if ((await emailInput.inputValue()) === '') {
         await emailInput.fill('questionnaire.e2e@gmail.com');
       }
 
-      const phoneInput = page.locator('input[type="tel"]').first();
+      const phoneInput = page.getByLabel('טלפון');
       if ((await phoneInput.inputValue()) === '') {
         await phoneInput.fill('0501234567');
       }
 
-      const socialUrlInput = page.locator('input[type="url"]').first();
+      const socialUrlInput = page.getByLabel('קישור לפרופיל חברתי');
       if ((await socialUrlInput.inputValue()) === '') {
         await socialUrlInput.fill('https://instagram.com/testuser');
       }
 
-      const birthDateInput = page.locator('input[type="date"]').first();
+      const birthDateInput = page.getByLabel('תאריך לידה');
       if ((await birthDateInput.inputValue()) === '') {
         await birthDateInput.fill('1990-01-01');
       }
@@ -466,12 +492,16 @@ test.describe('participant foundation', () => {
         page.getByText('לא הצלחנו לטעון את הנתונים השמורים. אפשר לרענן ולנסות שוב.', { exact: true }),
       ).toBeVisible();
       await expect(page.getByRole('button', { name: 'המשך' })).toBeVisible();
+      await expect(page.getByLabel('שם מלא')).toBeVisible();
     } finally {
       await ctx.close();
     }
   });
 
   // §13.2 questionnaire workflow verification.
+  //
+  // API writes are stubbed via page.route so the staging DB isn't mutated.
+  // Real persistence is covered by manual QA + the slice-happy-path test.
   //
   // Drives the full 3-step questionnaire form end-to-end and asserts the
   // post-save success state (title + two CTAs linking to /events and
@@ -484,7 +514,7 @@ test.describe('participant foundation', () => {
   // the form boots in "new user" shape regardless of which authenticated
   // user we pick — this lets us reuse P1 as the auth identity without
   // depending on her DB state.
-  test('questionnaire: full workflow completes and lands on success state with CTAs', async ({ browser }) => {
+  test('questionnaire: UI workflow completes to success state with CTAs (API stubbed)', async ({ browser }) => {
     const ctx = await browser.newContext();
     await authenticateAs(ctx, ENV.EMAILS.P1);
     const page = await ctx.newPage();
@@ -509,18 +539,18 @@ test.describe('participant foundation', () => {
       await page.goto('/questionnaire');
       await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
 
-      await page.locator('input[type="text"]').first().fill('אורית בדיקה');
-      await page.locator('input[type="email"]').first().fill('questionnaire.e2e@gmail.com');
-      await page.locator('input[type="tel"]').first().fill('0501234567');
-      await page.locator('input[type="url"]').first().fill('https://instagram.com/testuser');
-      await page.locator('input[type="date"]').first().fill('1990-01-01');
+      await page.getByLabel('שם מלא').fill('אורית בדיקה');
+      await page.getByLabel('אימייל').fill('questionnaire.e2e@gmail.com');
+      await page.getByLabel('טלפון').fill('0501234567');
+      await page.getByLabel('קישור לפרופיל חברתי').fill('https://instagram.com/testuser');
+      await page.getByLabel('תאריך לידה').fill('1990-01-01');
 
       await page.getByRole('button', { name: 'המשך' }).click();
 
       await expect(page.getByText('מוזיקה', { exact: true })).toBeVisible();
 
-      await page.locator('input[type="text"]').nth(0).fill('תל אביב');
-      await page.locator('input[type="text"]').nth(1).fill('חיפה');
+      await page.getByLabel('איפה את/ה גר/ה היום?').fill('תל אביב');
+      await page.getByLabel('מאיפה את/ה במקור?').fill('חיפה');
       await page.getByRole('button', { name: 'עברית', exact: true }).click();
       await page.getByRole('button', { name: 'מוזיקה', exact: true }).click();
       await page.getByRole('button', { name: 'יוזם/ת', exact: true }).click();
@@ -531,7 +561,9 @@ test.describe('participant foundation', () => {
 
       await page.getByRole('button', { name: 'המשך' }).click();
 
-      await page.locator('textarea').first().fill('זה טקסט בדיקה ארוך מספיק כדי לעבור את האימות של החלק הזה בשאלון.');
+      await page
+        .getByLabel('ספר/י לנו בקצרה על עצמך')
+        .fill('זה טקסט בדיקה ארוך מספיק כדי לעבור את האימות של החלק הזה בשאלון.');
 
       await page.getByRole('button', { name: 'שמירת פרופיל' }).click();
 

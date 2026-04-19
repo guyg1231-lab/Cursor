@@ -14,31 +14,40 @@ test.describe('Circles vertical slice - decline path', () => {
 
     for (const p of participants) {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, p.email);
-      const page = await ctx.newPage();
-      await submitApplicationViaUi(page, p.fullName, p.phone, `I want to join ${p.label} decline.`);
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, p.email);
+        const page = await ctx.newPage();
+        await submitApplicationViaUi(page, p.fullName, p.phone, `I want to join ${p.label} decline.`);
+      } finally {
+        await ctx.close();
+      }
     }
 
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-      const page = await ctx.newPage();
-      await page.goto(TEAM_PATH);
-      await page.getByRole('button', { name: 'שליחת הזמנות' }).click();
-      await expect(page.getByText('ההזמנות נשלחו')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+        const page = await ctx.newPage();
+        await page.goto(TEAM_PATH);
+        await page.getByRole('button', { name: 'שליחת הזמנות' }).click();
+        await expect(page.getByText('ההזמנות נשלחו')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     {
       const ctx = await browser.newContext();
-      await authenticateAs(ctx, ENV.EMAILS.P1);
-      const page = await ctx.newPage();
-      await page.goto(EVENT_PATH);
-      await expect(page.getByText('נשמר עבורך מקום במפגש')).toBeVisible();
-      await page.getByRole('button', { name: 'לא אוכל להגיע' }).click();
-      await expect(page.getByText('הפעם זה לא יצא')).toBeVisible();
-      await ctx.close();
+      try {
+        await authenticateAs(ctx, ENV.EMAILS.P1);
+        const page = await ctx.newPage();
+        await page.goto(EVENT_PATH);
+        await expect(page.getByText('נשמר עבורך מקום במפגש')).toBeVisible();
+        await page.getByRole('button', { name: 'לא אוכל להגיע' }).click();
+        await expect(page.getByText('הפעם זה לא יצא')).toBeVisible();
+      } finally {
+        await ctx.close();
+      }
     }
 
     const p1Snap = await fetchStatusForEmail(ENV.EMAILS.P1);
