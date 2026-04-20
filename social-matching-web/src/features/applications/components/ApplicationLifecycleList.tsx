@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { resolveApplicationBadgeTone } from '@/features/applications/presentation';
+import {
+  resolveApplicationBadgeTone,
+  resolveApplicationLifecycleRowContent,
+} from '@/features/applications/presentation';
 import { listDashboardApplications } from '@/features/events/query';
 import {
   formatApplicationStatusShort,
-  formatLifecycleDateTime,
   isAwaitingParticipantResponse,
-  isConfirmedParticipation,
   isOfferExpired,
 } from '@/features/applications/status';
 
@@ -16,42 +17,41 @@ type ApplicationRow = Awaited<ReturnType<typeof listDashboardApplications>>[numb
 export function ApplicationLifecycleList({ applications }: { applications: ApplicationRow[] }) {
   return (
     <div className="space-y-3">
-      {applications.map((application) => (
-        <div key={application.id} className="rounded-3xl border border-border bg-background/30 p-4">
-          <p className="font-medium text-foreground">{application.event?.title ?? 'מפגש'}</p>
-          <p className="mt-1 text-muted-foreground">
-            סטטוס:{' '}
-            <StatusBadge
-              label={formatApplicationStatusShort(application.status)}
-              tone={resolveApplicationBadgeTone(application.status)}
-            />
-          </p>
-          {isAwaitingParticipantResponse(application.status) ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {isOfferExpired(application)
-                ? `חלון התגובה למקום הזמני נסגר${application.expires_at ? ` ב-${formatLifecycleDateTime(application.expires_at)}` : ''}.`
-                : `נשמר עבורך מקום זמני. צריך להגיב עד ${formatLifecycleDateTime(application.expires_at)}.`}
+      {applications.map((application) => {
+        const rowContent = resolveApplicationLifecycleRowContent(application);
+
+        return (
+          <div key={application.id} className="rounded-3xl border border-border bg-background/30 p-4">
+            <p className="font-medium text-foreground">{application.event?.title ?? 'מפגש'}</p>
+            <p className="mt-1 text-muted-foreground">
+              סטטוס:{' '}
+              <StatusBadge
+                label={formatApplicationStatusShort(application.status)}
+                tone={resolveApplicationBadgeTone(application.status)}
+              />
             </p>
-          ) : isConfirmedParticipation(application.status) ? (
-            <p className="mt-2 text-sm text-muted-foreground">המקום שלך למפגש הזה כבר שמור.</p>
-          ) : null}
-          {application.event ? (
-            <div className="mt-3 flex flex-wrap gap-3">
-              {isAwaitingParticipantResponse(application.status) ? (
-                <Button asChild size="sm" variant={isOfferExpired(application) ? 'outline' : 'primary'}>
-                  <Link to={`/events/${application.event.id}/apply`}>
-                    {isOfferExpired(application) ? 'לצפייה בסטטוס' : 'לתגובה על המקום הזמני'}
-                  </Link>
-                </Button>
-              ) : (
-                <Button asChild size="sm" variant="outline">
-                  <Link to={`/events/${application.event.id}`}>לפרטי המפגש</Link>
-                </Button>
-              )}
-            </div>
-          ) : null}
-        </div>
-      ))}
+            <p className="mt-2 text-sm text-muted-foreground">{rowContent.summary}</p>
+            {rowContent.deadlineLine ? (
+              <p className="mt-1 text-xs text-muted-foreground">{rowContent.deadlineLine}</p>
+            ) : null}
+            {application.event ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {isAwaitingParticipantResponse(application.status) ? (
+                  <Button asChild size="sm" variant={isOfferExpired(application) ? 'outline' : 'primary'}>
+                    <Link to={`/events/${application.event.id}/apply`}>
+                      {isOfferExpired(application) ? 'לצפייה בסטטוס' : 'לתגובה על המקום הזמני'}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild size="sm" variant="outline">
+                    <Link to={`/events/${application.event.id}`}>לפרטי המפגש</Link>
+                  </Button>
+                )}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
