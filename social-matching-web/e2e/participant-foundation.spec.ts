@@ -207,6 +207,66 @@ test.describe('participant foundation', () => {
     );
   });
 
+  test('apply: confirmed status shows reserved-place panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'confirmed', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
+          await expect(page.getByText('המקום שלך למפגש הזה כבר שמור.', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: no_show status shows completed-event panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'no_show', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המפגש כבר הסתיים', { exact: true })).toBeVisible();
+          await expect(page.getByText('סומן/ה כהיעדרות', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
   test('dashboard exposes participant next steps with a questionnaire handoff', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
