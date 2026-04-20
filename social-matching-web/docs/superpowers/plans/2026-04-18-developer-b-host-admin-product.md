@@ -2,9 +2,16 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Expand the host workspace and admin/operator surfaces after shared foundation normalization, while keeping host and admin permissions clearly separated.
+**Goal:** Expand the host workspace and admin surfaces after shared foundation normalization, while keeping host and admin permissions clearly separated.
 
-**Architecture:** Reuse the shared foundation placeholder pages registered in the first plan, then deepen them into real route-linked workspaces with minimal but stable contract-first structure. Keep host work under `src/pages/host` and internal operations under `src/pages/admin`, using `src/features/host-events` and `src/features/admin` as the only contract layers touched by this plan.
+**Architecture:** Reuse the shared foundation placeholder pages registered in the first plan, then deepen them into real route-linked workspaces with minimal but stable contract-first structure. Keep host work under `src/pages/host` and internal admin operations under `src/pages/admin`, using `src/features/host-events` and `src/features/admin` as the only contract layers touched by this plan.
+
+**Scope boundary update (2026-04-20):**
+
+- `admin` is the canonical role term in active planning.
+- Existing file and component names with `Operator*` are legacy code naming and may remain until a later cleanup.
+- Creator-side proposal/request flow belongs to Dev A and is not part of this plan.
+- This plan owns the admin review/build side only.
 
 **Tech Stack:** React 18, TypeScript, React Router 6, Tailwind, Supabase client, Playwright
 
@@ -37,7 +44,7 @@ Merge the shared foundation plan first. This plan assumes the following routes a
 - Create: `src/features/admin/components/OperatorDiagnosticsPanel.tsx`
 - Create: `src/features/admin/components/OperatorAuditPlaceholder.tsx`
 - Create: `src/features/admin/components/OperatorLifecyclePanel.tsx`
-- Test: `e2e/host-admin-foundation.spec.ts`
+- Create: `e2e/host-admin-foundation.spec.ts`
 
 ## Task 1: Turn Host Event Cards Into Workspace Entry Points
 
@@ -46,7 +53,7 @@ Merge the shared foundation plan first. This plan assumes the following routes a
 - Modify: `src/pages/host/HostEventWorkspacePage.tsx`
 - Create: `src/features/host-events/components/HostMilestoneRail.tsx`
 - Create: `src/features/host-events/components/HostSummaryStat.tsx`
-- Test: `e2e/host-admin-foundation.spec.ts`
+- Create: `e2e/host-admin-foundation.spec.ts`
 
 - [ ] **Step 1: Write the failing host navigation test**
 
@@ -178,7 +185,7 @@ git commit -m "feat: connect host events to workspace routes"
 - Modify: `src/pages/host/HostEventCommunicationsPage.tsx`
 - Modify: `src/pages/host/HostEventFollowUpPage.tsx`
 - Create: `src/features/host-events/components/HostMilestoneRail.tsx`
-- Test: `e2e/host-admin-foundation.spec.ts`
+- Modify: `e2e/host-admin-foundation.spec.ts`
 
 - [ ] **Step 1: Write the failing host workspace navigation test**
 
@@ -291,12 +298,12 @@ git commit -m "feat: add host workspace sub-surface placeholders"
 - Modify: `src/pages/admin/AdminEventRequestsPage.tsx`
 - Modify: `src/pages/admin/OperatorEventDashboardPage.tsx`
 - Create: `src/features/admin/components/OperatorLifecyclePanel.tsx`
-- Test: `e2e/host-admin-foundation.spec.ts`
+- Modify: `e2e/host-admin-foundation.spec.ts`
 
 - [ ] **Step 1: Write the failing admin lifecycle test**
 
 ```ts
-test('admin review queue and operator dashboard expose lifecycle actions', async ({ browser }) => {
+test('admin review queue and admin dashboard expose lifecycle actions', async ({ browser }) => {
   const ctx = await browser.newContext();
   await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
   const page = await ctx.newPage();
@@ -369,7 +376,7 @@ git add src/pages/admin/AdminEventRequestsPage.tsx src/pages/admin/OperatorEvent
 git commit -m "feat: normalize admin lifecycle action surfaces"
 ```
 
-## Task 4: Add Admin Diagnostics and Audit Placeholders to the Operator Dashboard
+## Task 4: Add Admin Diagnostics and Audit Placeholders to the Admin Dashboard
 
 **Files:**
 - Modify: `src/pages/admin/OperatorEventDashboardPage.tsx`
@@ -377,12 +384,12 @@ git commit -m "feat: normalize admin lifecycle action surfaces"
 - Modify: `src/pages/admin/OperatorEventAuditPage.tsx`
 - Create: `src/features/admin/components/OperatorDiagnosticsPanel.tsx`
 - Create: `src/features/admin/components/OperatorAuditPlaceholder.tsx`
-- Test: `e2e/host-admin-foundation.spec.ts`
+- Modify: `e2e/host-admin-foundation.spec.ts`
 
 - [ ] **Step 1: Write the failing admin navigation test**
 
 ```ts
-test('operator dashboard links to diagnostics and audit surfaces', async ({ browser }) => {
+test('admin dashboard links to diagnostics and audit surfaces', async ({ browser }) => {
   const ctx = await browser.newContext();
   await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
   const page = await ctx.newPage();
@@ -406,7 +413,7 @@ npx playwright test e2e/host-admin-foundation.spec.ts --project=chromium
 
 Expected: FAIL because `OperatorEventDashboardPage.tsx` does not yet expose links into the new internal routes.
 
-- [ ] **Step 3: Add operator dashboard links and internal placeholder components**
+- [ ] **Step 3: Add admin dashboard links and internal placeholder components**
 
 ```tsx
 // src/features/admin/components/OperatorDiagnosticsPanel.tsx
@@ -477,7 +484,7 @@ git commit -m "feat: add operator diagnostics and audit routes"
 - [ ] **Step 1: Add the final failing guardrail tests**
 
 ```ts
-test('non-admin users cannot open operator diagnostics', async ({ browser }) => {
+test('non-admin users cannot open admin diagnostics', async ({ browser }) => {
   const ctx = await browser.newContext();
   await authenticateAs(ctx, ENV.EMAILS.HOST1);
   const page = await ctx.newPage();
@@ -488,7 +495,7 @@ test('non-admin users cannot open operator diagnostics', async ({ browser }) => 
   await ctx.close();
 });
 
-test('host registrations summary does not claim operator powers', async ({ browser }) => {
+test('host registrations summary does not claim admin powers', async ({ browser }) => {
   const ctx = await browser.newContext();
   await authenticateAs(ctx, ENV.EMAILS.HOST1);
   const page = await ctx.newPage();

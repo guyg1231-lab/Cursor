@@ -23,6 +23,12 @@ Dev B's actual implementation plan is already written:
 
 This kickoff does not replace that plan — it wraps it with the context a new agent needs to start cleanly.
 
+Active planning update:
+
+- Dev A owns the non-admin product, including proposal/request creation for new event / experience / circle submissions.
+- Dev B owns the admin build that reviews and operates on those submissions downstream.
+- `admin` is the canonical role term in active planning; older `operator` file names are legacy code naming, not a separate role.
+
 ---
 
 ## Current state of `main` (after Dev A Pass-3 stack merges)
@@ -32,6 +38,7 @@ The Dev A stack lands the full participant surface per spec §10.1:
 - `/`, `/events`, `/events/:eventId`, `/events/:eventId/apply`, `/questionnaire`, `/dashboard`, `/gathering/:eventId`, `/auth`, `/sign-in`, `/auth/callback`.
 - All participant pages use the shared foundation primitives: `PageShell`, `Card`, `Button`, `Link`, `StatusBadge`, `RouteEmptyState`, `RouteErrorState`, `RouteNotFoundState`, `RouteUnavailableState`, `RouteLoadingState`, `RouteGatedState`, `RouteSuccessState`.
 - Application lifecycle rendering is unified via `src/features/applications/presentation.ts` (`resolveApplicationPanelContent`) and the `ApplicationStatusPanel` component.
+- `/events/:eventId/apply` is the canonical participant application route. Do not treat `/gathering/:eventId` as a second equal apply funnel.
 - E2E coverage for participant routes: `e2e/participant-foundation.spec.ts` + `e2e/slice-*.spec.ts`.
 - Reusable E2E helper for flipping registration state: `e2e/fixtures/registrations.ts` (`withFlippedRegistrationStatus`).
 
@@ -44,10 +51,10 @@ Dev B inherits a green Playwright suite on `chromium` (**47** tests in **5** fil
 Per `2026-04-18-developer-b-host-admin-product.md`:
 
 - `src/pages/host/*` — all host pages
-- `src/pages/admin/*` — all admin/operator pages
+- `src/pages/admin/*` — all admin pages
 - `src/features/host-events/*` — host contract layer
 - `src/features/admin/*` — admin contract layer
-- `e2e/host-admin-foundation.spec.ts` — Dev B's dedicated spec file
+- dedicated host/admin E2E coverage under a Dev B-owned spec file (historical references to `e2e/host-admin-foundation.spec.ts` were aspirational; that file is not present on the reviewed baseline)
 
 Nothing else is Dev B's to edit.
 
@@ -68,6 +75,7 @@ These are owned by Foundation or by Dev A. Changing them from the Dev B workstre
 
 - `src/pages/landing/*`, `src/pages/events/*`, `src/pages/apply/*`, `src/pages/questionnaire/*`, `src/pages/dashboard/*`, `src/pages/gathering/*`, `src/pages/auth/*`.
 - `src/features/applications/*` — lifecycle presentation + status helpers.
+- any participant proposal/request-creation surfaces added for the non-admin product
 - `src/features/events/components/EventSummaryCard.tsx`.
 - `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`.
 - `e2e/fixtures/registrations.ts` (shared helper — read-only from Dev B's perspective; extensions OK if additive and reviewed).
@@ -109,7 +117,7 @@ Do not re-implement status copy. If host-specific copy diverges from participant
 
 ### i18n
 
-All user-facing strings (participant, host, admin) are Hebrew. Admin-internal strings (e.g., diagnostics panels that only operators see) may be English where Hebrew would be awkward, but default to Hebrew. When in doubt: Hebrew.
+All user-facing strings (participant, host, admin) are Hebrew. Admin-internal strings (e.g., diagnostics panels that only admins see) may be English where Hebrew would be awkward, but default to Hebrew. When in doubt: Hebrew.
 
 ---
 
@@ -151,6 +159,7 @@ The Dev B plan has its own task-by-task structure; follow it as written. The onl
 2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at **47/47**. If it doesn't, do not start layering Dev B changes on top.
 3. **Open one stacked PR per Dev B task** (mirroring the Dev A cadence). Keep PRs small and reviewable.
 4. **Cut a docs-only PR** under `docs/superpowers/plans/` for each task you execute (the same pattern Dev A used across PR #7–#10).
+5. **Assume Dev A owns the user-side proposal flow.** Dev B should build the admin review side against the shared contracts, not absorb the creator-facing flow into admin scope.
 
 ---
 
@@ -161,6 +170,7 @@ These are the places the two workstreams touch:
 - **`ApplicationStatusPanel` / `presentation.ts`:** If Dev B needs host-viewer variants, extend rather than fork. Dev A is the owner; coordinate on PR review.
 - **`src/features/events/*`:** If Dev B surfaces host-owned event data that overlaps with what `EventSummaryCard` displays to participants, prefer separate host components over shared ones (different audiences, different permissions).
 - **Router manifest:** Any new host/admin route must be added to `src/app/router/routeManifest.ts`. That file is foundation-owned; add via a foundation ticket or coordinate with whoever currently owns the manifest.
+- **Participant proposal flow:** If Dev B needs to consume proposal/request data, depend on the shared contract Dev A freezes. Do not move the creator-facing request form into admin pages.
 
 ---
 
