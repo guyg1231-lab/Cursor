@@ -30,8 +30,8 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | Check | Command / source | Result (audit date) |
 |--------|------------------|----------------------|
 | Typecheck (real) | `npm run typecheck` (→ `tsc -b --noEmit`) | Exit `0` |
-| E2E (Chromium) | `npx playwright test --project=chromium` | **37** tests, **5** files — all passing |
-| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 37 tests in 5 files` |
+| E2E (Chromium) | `npx playwright test --project=chromium` | **38** tests, **5** files — all passing on `dev-a-dashboard-lifecycle-compact` |
+| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 38 tests in 5 files` |
 | Participant “event not found” duplication | `rg 'המפגש לא נמצא' src/` | Single shared component `src/components/participant/EventNotFound.tsx` + **out-of-scope** `TeamGatheringPage.tsx` (admin) |
 
 **Merged Pass-3 + follow-up (chronological, high level)**
@@ -194,6 +194,7 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 
 | Date | Change |
 |------|--------|
+| 2026-04-20 | Dashboard lifecycle compact branch adds one Playwright regression; branch verification baseline → **38** tests |
 | 2026-04-19 | Public-readiness closeout: FR matrix, `participant-spa-deploy.md`, `participant-data-contracts.md`, `VITE_SUPPORT_EMAIL`, narrow-viewport E2E; audit §2 → **37** tests |
 | 2026-04-19 | Public-readiness master plan + smoke checklist; F-10 legal stubs; audit §2 → **36** tests; D-4 recommendation corrected; foundation index F-1…F-10 |
 | 2026-04-21 | Initial audit + plan after Pass-3 stack + host copy follow-up on `main` |
