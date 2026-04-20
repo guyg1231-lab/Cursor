@@ -207,6 +207,66 @@ test.describe('participant foundation', () => {
     );
   });
 
+  test('apply: confirmed status shows reserved-place panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'confirmed', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
+          await expect(page.getByText('המקום שלך למפגש הזה כבר שמור.', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: no_show status shows completed-event panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'no_show', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המפגש כבר הסתיים', { exact: true })).toBeVisible();
+          await expect(page.getByText('סומן/ה כהיעדרות', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
   test('dashboard exposes participant next steps with a questionnaire handoff', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
@@ -376,6 +436,88 @@ test.describe('participant foundation', () => {
           await expect(page.getByText('חלון התגובה למקום הזמני נסגר', { exact: true })).toBeVisible();
           await expect(page.getByText('המקום הזמני כבר לא ממתין לתגובה.', { exact: true })).toBeVisible();
           await expect(page.getByText(/המועד שעבר:/)).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: awaiting_response confirm CTA transitions to reserved-place state', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const futureExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
+        status: 'awaiting_response',
+        expires_at: futureExpires,
+        offered_at: new Date().toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+
+          await expect(page.getByRole('button', { name: 'אישור המקום הזמני' })).toBeVisible();
+          await page.getByRole('button', { name: 'אישור המקום הזמני' }).click();
+
+          await expect(page.getByText('המקום הזמני אושר ונשמר עבורך.', { exact: true })).toBeVisible();
+          await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
+          await expect(page.getByRole('button', { name: 'אישור המקום הזמני' })).toHaveCount(0);
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('dashboard and apply remain consistent for awaiting_response lifecycle semantics', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const futureExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
+        status: 'awaiting_response',
+        expires_at: futureExpires,
+        offered_at: new Date().toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto('/dashboard');
+
+          const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+          await expect(appsCard.getByRole('link', { name: 'לתגובה על המקום הזמני' })).toBeVisible();
+          await appsCard.getByRole('link', { name: 'לתגובה על המקום הזמני' }).click();
+
+          await expect(page).toHaveURL(new RegExp(`/events/${ENV.EVENT_ID}/apply$`));
+          await expect(page.getByText('נשמר עבורך מקום זמני', { exact: true })).toBeVisible();
+          await expect(page.getByRole('button', { name: 'אישור המקום הזמני' })).toBeVisible();
+          await expect(page.getByText(/מועד אחרון לתגובה/)).toBeVisible();
         } finally {
           await ctx.close();
         }

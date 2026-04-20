@@ -30,8 +30,8 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 | Check | Command / source | Result (audit date) |
 |--------|------------------|----------------------|
 | Typecheck (real) | `npm run typecheck` (→ `tsc -b --noEmit`) | Exit `0` |
-| E2E (Chromium) | `npx playwright test --project=chromium` | **43** tests, **5** files — all passing after deterministic `/apply` matrix expansion |
-| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 43 tests in 5 files` |
+| E2E (Chromium) | `npx playwright test --project=chromium` | **47** tests, **5** files — all passing after `/apply` transition parity coverage |
+| E2E inventory | `npx playwright test --list \| tail -1` | `Total: 47 tests in 5 files` |
 | Participant “event not found” duplication | `rg 'המפגש לא נמצא' src/` | Single shared component `src/components/participant/EventNotFound.tsx` + **out-of-scope** `TeamGatheringPage.tsx` (admin) |
 
 **Merged Pass-3 + follow-up (chronological, high level)**
@@ -194,6 +194,7 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 
 | Date | Change |
 |------|--------|
+| 2026-04-20 | `/apply` transition parity slice adds four regressions (`confirmed`, `no_show`, confirm CTA transition, dashboard/apply awaiting parity); branch verification baseline → **47** tests |
 | 2026-04-20 | Deterministic `/apply` matrix slice adds five targeted participant regressions (`pending`, `waitlist`, `attended`, `approved`, expired `awaiting_response`); branch verification baseline → **43** tests |
 | 2026-04-20 | Dashboard lifecycle compact branch adds one Playwright regression; branch verification baseline → **38** tests |
 | 2026-04-19 | Public-readiness closeout: FR matrix, `participant-spa-deploy.md`, `participant-data-contracts.md`, `VITE_SUPPORT_EMAIL`, narrow-viewport E2E; audit §2 → **37** tests |
