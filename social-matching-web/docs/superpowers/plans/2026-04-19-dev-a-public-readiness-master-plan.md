@@ -18,7 +18,7 @@ Ship a **participant-trustworthy, deployable** experience on the path to a publi
 | Own (Dev A / this plan) | Do not own (Dev B or explicit handoff) |
 |-------------------------|----------------------------------------|
 | `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth,legal}/**`, participant `src/features/**`, `src/components/participant/**` | `src/pages/host/**`, `src/pages/admin/**`, `src/features/host-events/**`, `src/features/admin/**` |
-| `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared fixtures you maintain | `e2e/host-admin-foundation.spec.ts` (Dev B) |
+| `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared fixtures you maintain | dedicated Dev B host/admin E2E coverage |
 | Foundation **via tickets** for `src/app/router/**`, `src/components/shared/**`, `src/components/ui/**`, `src/lib/design-tokens.ts` | Ad-hoc edits to frozen paths without a ticket |
 
 **Verification gate (every substantive change):**
