@@ -35,7 +35,7 @@ The Dev A stack lands the full participant surface per spec §10.1:
 - E2E coverage for participant routes: `e2e/participant-foundation.spec.ts` + `e2e/slice-*.spec.ts`.
 - Reusable E2E helper for flipping registration state: `e2e/fixtures/registrations.ts` (`withFlippedRegistrationStatus`).
 
-Dev B inherits a green Playwright suite on `chromium` (**35** passing, 0 skipped — includes foundation-route coverage and SP-B/C/D hygiene). Verify with `npx playwright test --list`. Dev A / Foundation maintenance context: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+Dev B inherits a green Playwright suite on `chromium` (**47** tests in **5** files, all passing on the current baseline — includes foundation-route coverage, SP-B/C/D hygiene, and apply transition parity additions). Verify with `npx playwright test --list`. Dev A / Foundation maintenance context: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
 
 ---
 
@@ -148,7 +148,7 @@ Occasionally the full suite emits `ENOENT` on a trace artifact during cleanup. W
 The Dev B plan has its own task-by-task structure; follow it as written. The only kickoff-level recommendation is:
 
 1. **Rebase** the Dev B workstream onto `main` AFTER Dev A PRs #1 and #3–#10 (and this kickoff's PR) are merged. Do not start against a pre-Pass-3 base.
-2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at **35/35**. If it doesn't, do not start layering Dev B changes on top.
+2. **Run the suite green** before your first commit: `npx playwright test --project=chromium` should pass at **47/47**. If it doesn't, do not start layering Dev B changes on top.
 3. **Open one stacked PR per Dev B task** (mirroring the Dev A cadence). Keep PRs small and reviewable.
 4. **Cut a docs-only PR** under `docs/superpowers/plans/` for each task you execute (the same pattern Dev A used across PR #7–#10).
 

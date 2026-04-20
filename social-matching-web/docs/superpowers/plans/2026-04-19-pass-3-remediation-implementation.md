@@ -1,6 +1,6 @@
 # Pass-3 Remediation Implementation Plan
 
-> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items below use `- [x]` as a **completed historical log** (bulk-closed 2026-04-19 per audit D-4); treat as done unless replaying tasks intentionally. **Current verification:** `npx playwright test --list` → **35** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
+> **Execution status (2026-04-21):** SP-A through SP-C (plus SP-E docs and follow-ups) are **merged to `main`**. Checklist items below use `- [x]` as a **completed historical log** (bulk-closed 2026-04-19 per audit D-4); treat as done unless replaying tasks intentionally. **Current verification:** `npx playwright test --list` → **47** tests in **5** files; `npm run typecheck` runs **`tsc -b --noEmit`** (see root `package.json`). Post–Pass-3 handoff: `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -96,7 +96,7 @@ Target line 32:
 **Files:**
 - Modify: `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md:38,159`
 
-- [x] **Step 1–4 (merged):** Playwright inventory is **`Total: 30 tests in 5 files`** (`npx playwright test --list`). Dev B kickoff now documents **30 passing** and a **30/30** preflight gate (see `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md` and audit doc). The “Current / Replace with” blocks that previously taught the 25→26 migration are **superseded** — kept below only as archaeology.
+- [x] **Step 1–4 (merged):** Playwright inventory is now **`Total: 47 tests in 5 files`** (`npx playwright test --list`). Dev B kickoff documents the current baseline and preflight gate (**47/47**) in the active sections. Historical “Current / Replace with” blocks below are preserved as archaeology.
 
 ---
 
