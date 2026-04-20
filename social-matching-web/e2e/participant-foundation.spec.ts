@@ -301,6 +301,49 @@ test.describe('participant foundation', () => {
     );
   });
 
+  test('dashboard awaiting-response row shows summary, deadline line, and response CTA', async ({
+    browser,
+  }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const futureExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
+        status: 'awaiting_response',
+        expires_at: futureExpires,
+        offered_at: new Date().toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+
+          await page.goto('/dashboard');
+          const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
+          await expect(appsCard.getByText('מקום זמני ממתין לתגובה', { exact: true })).toBeVisible();
+          await expect(
+            appsCard.getByText('נשמר עבורך מקום זמני. כדי לשמור עליו צריך לאשר בזמן.', { exact: true }),
+          ).toBeVisible();
+          await expect(appsCard.getByText(/מועד אחרון לתגובה:/)).toBeVisible();
+          await expect(appsCard.getByRole('link', { name: 'לתגובה על המקום הזמני' })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
   test('unauthenticated apply preserves returnTo through sign-in', async ({ page }) => {
     await page.goto(`/events/${ENV.EVENT_ID}/apply`);
     await expect(page).toHaveURL(/\/(sign-in|auth)(\?|$)/);

@@ -34,6 +34,53 @@ export type ApplicationPanelContent = {
   footer?: string;
 };
 
+export type ApplicationLifecycleRowContent = {
+  summary: string;
+  deadlineLine?: string;
+};
+
+type ApplicationLifecycleContentInput = Pick<EventRegistrationRow, 'status' | 'expires_at'>;
+
+export function resolveApplicationLifecycleRowContent(
+  application: ApplicationLifecycleContentInput,
+): ApplicationLifecycleRowContent {
+  if (isAwaitingParticipantResponse(application.status)) {
+    if (isOfferExpired(application)) {
+      return {
+        summary: 'חלון התגובה למקום הזמני נסגר.',
+        deadlineLine: application.expires_at
+          ? `המועד שעבר: ${formatLifecycleDateTime(application.expires_at)}`
+          : 'המועד לתגובה כבר עבר.',
+      };
+    }
+
+    return {
+      summary: 'נשמר עבורך מקום זמני. כדי לשמור עליו צריך לאשר בזמן.',
+      deadlineLine: application.expires_at
+        ? `מועד אחרון לתגובה: ${formatLifecycleDateTime(application.expires_at)}`
+        : 'מועד אחרון לתגובה: לא צוין',
+    };
+  }
+
+  if (isConfirmedParticipation(application.status)) {
+    return { summary: 'המקום שלך למפגש הזה כבר שמור.' };
+  }
+
+  if (canReapplyToEvent(application.status)) {
+    return {
+      summary: `${formatApplicationStatusDetailed(application.status)} אפשר להגיש שוב אם המפגש עדיין פתוח.`,
+    };
+  }
+
+  if (application.status === 'pending') {
+    return { summary: 'ההגשה שלך נשמרה ונמצאת כרגע בבדיקה.' };
+  }
+
+  return {
+    summary: formatApplicationStatusDetailed(application.status),
+  };
+}
+
 export function resolveApplicationPanelContent(
   application: EventRegistrationRow,
 ): ApplicationPanelContent {
