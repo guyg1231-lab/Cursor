@@ -24,7 +24,7 @@ The event detail page must show whether event applications are currently open.
 ## 2. Participant Profile / Questionnaire
 
 ### FR-5
-The system must allow a user to complete a profile questionnaire before applying.
+The system must allow a user to complete a profile questionnaire.
 
 ### FR-6
 The questionnaire must collect trust and matching baseline information.
@@ -33,7 +33,7 @@ The questionnaire must collect trust and matching baseline information.
 The questionnaire must support draft save behavior.
 
 ### FR-8
-The system must be able to determine whether a user is ready to apply to an event.
+The system must be able to determine whether a user is ready under the currently active questionnaire rule.
 
 ---
 
@@ -55,15 +55,36 @@ The system must show the current event application state back to the user.
 The system must block apply when the event is closed for registration.
 
 ### FR-14
-The system must block apply when the user is not ready according to the questionnaire-readiness rule.
+The system must block apply when the user is not ready according to the active questionnaire-readiness rule.
+
+### FR-15
+The system must let the user revisit the same event-specific application state from the canonical apply route.
 
 ---
 
-## 4. Status Model
+## 4. Event / Experience / Circle Proposal Flow
 
-### FR-15
+### FR-16
+The system must allow a user to submit a new event / experience / circle proposal.
+
+### FR-17
+The system must treat that submission as a request for admin review, not as an instantly live public event.
+
+### FR-18
+The system must persist creator-visible request status.
+
+### FR-19
+The system must show the creator whether the proposal is pending review, approved, rejected, or active/live.
+
+---
+
+## 5. Status Model
+
+### FR-20
 The system must support at least the following application/registration statuses:
 - pending
+- awaiting_response
+- confirmed
 - approved
 - rejected
 - waitlist
@@ -71,86 +92,94 @@ The system must support at least the following application/registration statuses
 - attended
 - no_show
 
-### FR-16
+### FR-21
 The system must display those states clearly in participant-facing surfaces.
 
 ---
 
-## 5. Payment Flow
-
-### FR-17
-The system must enforce the rule that payment happens only after approval.
-
-### FR-18
-The system must support a post-approval payment stage for approved participants.
-
-### FR-19
-The system must support replacement logic after non-payment, even if implementation starts later.
+### FR-22
+The system must support a separate creator-facing request status model for proposed events / experiences / circles.
 
 ---
 
-## 6. Host and Co-Host
+## 6. Deferred Payment Rule
 
-### FR-20
+### FR-23
+The current MVP phase must not require payment implementation in order to complete the core non-admin flows.
+
+### FR-24
+If payment is reintroduced later, the system must enforce that it happens only after approval / confirmation.
+
+### FR-25
+Replacement logic after non-payment is a later-phase concern and is not required in the current build.
+
+---
+
+## 7. Host and Co-Host
+
+### FR-26
 The system must support assigning a host to an event.
 
-### FR-21
+### FR-27
 The system must support assigning a co-host to an event.
 
-### FR-22
+### FR-28
 The system must treat host / co-host as event-level capacities, not global identity roles.
 
 ---
 
-## 7. Admin Operations
+## 8. Admin Operations
 
-### FR-23
+### FR-29
 The system must allow admins to approve events.
 
-### FR-24
+### FR-30
 The system must allow admins to review event applicants.
 
-### FR-25
+### FR-31
 The system must allow admins to set participant decision states.
 
-### FR-26
+### FR-32
 The system must allow admins to use algorithmic recommendation data as decision support.
 
 ---
 
-## 8. Trust and Verification
+## 9. Trust and Verification
 
-### FR-27
+### FR-33
 The system must collect trust-relevant fields such as phone, email, social link, and birth date.
 
-### FR-28
+### FR-34
 The system must support internal trust review by admin.
 
-### FR-29
+### FR-35
 The system must keep social verification data internal and not expose it publicly to participants.
 
 ---
 
-## 9. Feedback and Attendance
+## 10. Feedback and Attendance
 
-### FR-30
+### FR-36
 The system must support attendance-related lifecycle states.
 
-### FR-31
+### FR-37
 The system must support post-event feedback collection.
 
-### FR-32
+### FR-38
 The system must support internal trust/reputation-lite updates after attendance and feedback.
 
 ---
 
-## 10. MVP Experience Rules
+## 11. MVP Experience Rules
 
-### FR-33
+### FR-39
 The system must preserve a clear, participant-friendly flow from discovery to apply.
 
-### FR-34
-The system must not require payment before approval.
+### FR-40
+The system must preserve a clear, participant-friendly flow from proposal creation to request-status tracking.
 
-### FR-35
+### FR-41
+The system must treat `event`, `experience`, and `circle` as the same MVP object unless a later spec explicitly splits them.
+
+### FR-42
 The system must not expose generic marketplace noise or admin language in participant-facing surfaces.

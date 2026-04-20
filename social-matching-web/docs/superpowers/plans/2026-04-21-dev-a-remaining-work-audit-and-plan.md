@@ -2,14 +2,14 @@
 
 **Created:** 2026-04-21  
 **Audience:** Developer A (participant surface), orchestrators, product  
-**Status:** **Dev A — maintenance mode** — Pass-3 remediation + doc/typecheck handoff complete on `main`. **Foundation wave 2 (F-1…F-10)** is **implemented and indexed as done** in `docs/foundation-tickets/README.md`. Remaining Dev A work is **optional quality**, **participant feature** backlog, and **lightweight regression** when shared code changes — not blocked on Foundation tickets.  
-**Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`, `docs/superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`
+**Status:** **Dev A — non-admin realignment mode** — Pass-3 remediation is complete on `main`, but Dev A still owns the next non-admin product pass: canonical apply semantics, creator-side proposal flow, lifecycle vocabulary cleanup, and payment deferral alignment. **Foundation wave 2 (F-1…F-10)** remains done; Dev B stays separate on the admin build.
+**Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`, `docs/superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`, `docs/superpowers/specs/2026-04-20-dev-a-non-admin-product-boundary-design.md`, `docs/superpowers/specs/2026-04-20-dev-a-non-admin-flows-design.md`, `docs/superpowers/specs/2026-04-20-dev-a-lifecycle-and-route-boundary-design.md`
 
 ---
 
 ## 1. Executive summary
 
-Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete and merged**, plus a small follow-up (**host capacity validation** no longer embeds the English brand in Hebrew prose). The participant surface is in a **merge-ready, E2E-green** state for Dev B to layer host/admin work.
+Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete and merged**, plus a small follow-up (**host capacity validation** no longer embeds the English brand in Hebrew prose). That closes the participant-foundation cleanup, but it does **not** finish Dev A scope. Dev A still owns the non-admin product realignment: a clean split between applying to existing events and proposing new ones, one canonical apply route, one coherent status vocabulary, and clear payment deferment.
 
 **What this document does**
 
@@ -20,8 +20,15 @@ Pass-3 remediation **SP-A → SP-E → SP-B → SP-D → SP-C** is **complete an
 **Hard boundary (unchanged)**
 
 - **Foundation-owned:** `src/app/router/**`, `src/components/shared/**`, `src/components/ui/**`, `src/lib/design-tokens.ts` — changes only via Foundation tickets or explicit Foundation PRs.  
-- **Dev B-owned:** `src/pages/host/**`, `src/pages/admin/**`, `src/features/host-events/**`, `src/features/admin/**`, `e2e/host-admin-foundation.spec.ts`.  
-- **Dev A-owned:** participant routes under `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth,legal}/**`, participant-related `src/features/**` (except Foundation-declared locks), `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared E2E fixtures Dev A introduced (`e2e/fixtures/registrations.ts`, etc.), `src/components/participant/**`.
+- **Dev B-owned:** `src/pages/host/**`, `src/pages/admin/**`, `src/features/host-events/**`, `src/features/admin/**`, dedicated Dev B host/admin E2E coverage.
+- **Dev A-owned:** participant routes under `src/pages/{landing,events,apply,questionnaire,dashboard,gathering,auth,legal}/**`, participant-related `src/features/**` (except Foundation-declared locks), creator-side proposal/request flow, `e2e/participant-foundation.spec.ts`, `e2e/slice-*.spec.ts`, shared E2E fixtures Dev A introduced (`e2e/fixtures/registrations.ts`, etc.), `src/components/participant/**`.
+
+**Active planning truth**
+
+- `admin` and `operator` are the same role; use `admin` in active planning.
+- `event`, `experience`, and `circle` are one MVP object.
+- User-created events / experiences / circles are proposals for admin review.
+- Payment is on hold and not part of the current build.
 
 ---
 
@@ -105,8 +112,12 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 | ~~**P0**~~ | ~~A-DOC-1~~ | ~~Patch **Dev B kickoff**: Playwright count **26 → 30**~~ | **Done** (`main` @ `3aab34f`) |
 | ~~**P0**~~ | ~~A-DOC-2~~ | ~~Kickoff note on SP-B/C/D + link to this audit~~ | **Done** (same commit) |
 | ~~**P1**~~ | ~~A-DOC-3~~ | ~~Normalize **Pass-3 spec + implementation plan** headers~~ | **Done** (2026-04-21): spec §1 + status; implementation plan banner + A.2/A.4/conventions; kickoff typecheck §1 |
+| **P0** | A-SCOPE-1 | Freeze non-admin scope docs: Dev A owns apply + proposal flow, Dev B owns admin build | Done in 2026-04-20 scope realignment specs |
+| **P0** | A-SCOPE-2 | Prepare follow-up implementation plan for canonical apply route, narrowed gathering route, proposal flow skeleton, and payment-copy cleanup | Active next step |
+| **P1** | A-FEAT-1 | Narrow `/gathering/:eventId` away from first-time intake and keep `/events/:eventId/apply` as the only canonical apply path | Required for product clarity |
+| **P1** | A-FEAT-2 | Add creator-side proposal/request flow for new event / experience / circle submissions | Required for full non-admin product coverage |
 | **P2** | A-TEST-1 | Split **apply readiness** test into **per-reason** tests *if* staging fixtures can guarantee each branch | Stronger guarantees; higher fixture cost |
-| **P2** | A-FEAT-1 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
+| **P2** | A-FEAT-3 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
 
 ### Bucket B — **Foundation follow-through** (was “blocked”; now **tracking only**)
 
@@ -128,7 +139,7 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 
 | Workstream | Examples |
 |------------|----------|
-| **Dev B** | Host/admin pages, `e2e/host-admin-foundation.spec.ts`, product plan `2026-04-18-developer-b-host-admin-product.md` |
+| **Dev B** | Host/admin pages, dedicated host/admin E2E coverage, product plan `2026-04-18-developer-b-host-admin-product.md` |
 | **Foundation** | Implementing F-1…F-9, router/guards/ui/shared refactors |
 | **Infra** | Broader CI/tsconfig changes beyond what Dev A owns (e.g. new check scripts) — coordinate with Foundation |
 
@@ -147,17 +158,27 @@ Completed in commit `3aab34f` (pushed to `main`):
 
 **Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — **satisfied**.
 
-### Phase 1 — Ongoing maintenance (post–Foundation wave 2)
+### Phase 1 — Non-admin realignment (current)
+
+1. Freeze the non-admin planning truth in active docs.
+2. Prepare and execute a Dev A-only implementation pass for:
+   - `/events/:eventId/apply` as the only canonical apply route
+   - `/gathering/:eventId` as a later-stage participant surface
+   - creator-side proposal/request creation
+   - payment removal from active participant flow copy
+3. Keep admin review/build work in Dev B-owned files only.
+
+### Phase 2 — Ongoing maintenance (post–realignment)
 
 1. On any PR touching **shared router/UI** (`RouteState`, `guards`, `AppHeader`, `StatusBadge`, `routeManifest`, `design-tokens`): run **full Chromium Playwright** + `npm run typecheck`.  
 2. **Participant features** and **Dev A refactors** continue under normal ownership rules; new cross-cutting changes still go through **Foundation tickets** when they hit frozen paths.
 
-### Phase 2 — Optional quality (only if capacity)
+### Phase 3 — Optional quality (only if capacity)
 
 1. `ApplicationLifecycleList` / `presentation.ts` alignment — spike in a branch; must not duplicate `ApplicationStatusPanel` logic awkwardly.  
 2. Per-reason `/apply` tests — only if fixture data supports deterministic branches.
 
-### Phase 3 — Close Dev A chapter (handoff)
+### Phase 4 — Close Dev A chapter (handoff)
 
 1. Confirm `main` green.  
 2. ~~Update **this** document’s **Status** header~~ — **done** (maintenance mode).  
@@ -205,3 +226,4 @@ Optional: run twice if touching timing-sensitive auth/callback paths.
 | 2026-04-21 | Status header → maintenance mode; Phase 0 follow-up noted merged on `main` |
 | 2026-04-19 | Foundation F-1…F-9 complete on `main`; audit §2 counts → **35** tests; §3.2 / Bucket B / Phase 1 updated for post-foundation maintenance |
 | 2026-04-19 | D-4: Pass-3 implementation plan checklists bulk `[x]`; C-SPEC-1 participant sweep (no changes); C-REL-1 tag `foundation-wave-2-complete`; near-term SPEC rollup |
+| 2026-04-20 | Dev A scope realigned around the non-admin product: apply existing, propose new, narrow `/gathering`, defer payment, keep Dev B separate on admin |
