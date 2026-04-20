@@ -1,7 +1,7 @@
 # Dev A Baseline and Dev B Collaboration Protocol
 
 > Status: active coordination note
-> Last verified: 2026-04-20 (local `main` at `a68f5a7`)
+> Last verified: 2026-04-20 (review baseline `536e49c`)
 
 ## 1) Current baseline (single source for start conditions)
 
@@ -41,14 +41,19 @@ Dev B must not start from old kickoff assumptions. Dev B starts from this checkl
    - `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`
    - `docs/superpowers/plans/2026-04-21-dev-a-remaining-work-audit-and-plan.md`
    - `docs/superpowers/specs/2026-04-18-near-term-buildout-foundation-design.md`
+   - `docs/superpowers/specs/2026-04-20-dev-a-non-admin-product-boundary-design.md`
+   - `docs/superpowers/specs/2026-04-20-dev-a-non-admin-flows-design.md`
+   - `docs/superpowers/specs/2026-04-20-dev-a-lifecycle-and-route-boundary-design.md`
    - `docs/superpowers/plans/2026-04-20-dev-a-baseline-and-dev-b-collab-protocol.md` (this file)
 4. Pick one queued Dev B task and open one branch (`dev-b/<task-name>`).
 5. Open one PR per task with explicit dependency notes.
 
 ## 4) Work split rules (to avoid collisions)
 
-- Dev A owns: participant-lifecycle polish, docs integrity, shared baseline updates.
-- Dev B owns: host/admin product depth per kickoff and near-term foundation spec.
+- Dev A owns: non-admin product scope, including participant lifecycle, canonical apply semantics, proposal/request creation, and shared non-admin vocabulary docs.
+- Dev B owns: admin build depth per kickoff and near-term foundation spec.
+- `admin` is the canonical role term in active planning; older `operator` references describe the same role.
+- `event`, `experience`, and `circle` are one MVP object unless a later spec explicitly splits them.
 - Shared files (`routeManifest`, shared components, top-level plans/specs) require explicit mention in PR description when touched.
 - If both need the same shared file, Dev A merges first, Dev B rebases and reapplies.
 
@@ -71,6 +76,8 @@ Keep these intentionally deferred until pillars are live and stable:
 - in-event experience layer
 - post-event feedback loop design depth
 - advanced matching automation beyond current manual/semi-manual process
+- questionnaire gating final policy
+- payment implementation for the current phase
 
 When revisiting deferred topics, attach:
 - trigger condition (what became true)

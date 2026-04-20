@@ -13,19 +13,28 @@
 ה-Apply עונה על:
 > למה האירוע הזה נכון עבורי?
 
+## 3. Canonical Route
+
+ה-route הקנוני ליצירה או צפייה ב-apply הוא:
+
+> `/events/:eventId/apply`
+
+`/gathering/:eventId` אינו אמור להיות מסלול apply מתחרה.
+הוא יכול לשמש בהמשך כמשטח מידע / תגובה / שלב מאוחר יותר בלייפסייקל.
+
 ---
 
-## 3. Preconditions
+## 4. Preconditions
 
 לפני Apply, המשתמש צריך:
 - להיות authenticated
-- להיות ready לפי questionnaire readiness rule
+- להיות ready לפי החוק הפעיל כרגע של questionnaire readiness
 - לא להיות כבר עם application קיימת לאותו event
 - שהאירוע יהיה פתוח להגשות
 
 ---
 
-## 4. Apply Questions
+## 5. Apply Questions
 
 ב-MVP ה-Apply כולל:
 
@@ -41,15 +50,8 @@
 ### AQ-4
 יש משהו שחשוב למארגן לדעת?
 
-### AQ-5
-אני מבין/ה שהתשלום יישלח רק אם אתקבל/י.
 
-### AQ-6
-אם אתקבל/י, אני מתחייב/ת לשלם בזמן כדי לשמור על המקום שלי.
-
----
-
-## 5. Apply UX Principles
+## 6. Apply UX Principles
 
 ה-Apply צריך להרגיש:
 - lightweight
@@ -60,9 +62,8 @@
 
 המשתמש לא אמור להרגיש שהוא "ממלא הכל מחדש".
 
----
 
-## 6. Persisted Outcome
+## 7. Persisted Outcome
 
 ה-Apply חייב לייצר persisted event-specific state.
 
@@ -73,12 +74,13 @@
 זהו MVP application-state contract,
 לא בהכרח המודל הסופי של הדומיין.
 
----
 
-## 7. Apply State Outcomes
+## 8. Apply State Outcomes
 
 לאחר submit, המשתמש יכול להיות ב:
 - pending
+- awaiting_response
+- confirmed
 - approved
 - rejected
 - waitlist
@@ -86,25 +88,28 @@
 - attended
 - no_show
 
----
 
-## 8. Duplicate Protection
+## 9. Duplicate Protection
 
 המערכת חייבת למנוע duplicate apply עבור:
 - אותו user
 - אותו event
 
----
 
-## 9. Payment Principle
+## 10. Payment Principle
 
-ה-Apply Flow חייב להבהיר:
+payment כרגע מושהה.
+
+לכן ב-phase הנוכחי:
+- ה-Apply Flow לא צריך לבקש או להבטיח תשלום
+- ה-Apply Flow לא צריך להיות תלוי ב-payment state
+
+אם payment יחזור בהמשך:
 - לא משלמים בשלב ההגשה
-- תשלום מגיע רק אחרי approval
+- תשלום מגיע רק אחרי approval / confirmation
 
----
 
-## 10. Apply Failure / Guard States
+## 11. Apply Failure / Guard States
 
 המערכת צריכה לטפל במצבים הבאים:
 - unauthenticated
@@ -114,17 +119,26 @@
 - event closed
 - submit error
 
----
 
-## 11. Relationship To Dashboard
+## 12. Relationship To Dashboard
 
 אחרי apply:
 - המשתמש צריך לראות state קיים במסכי המשתמש
 - ה-dashboard צריך לשקף את האפליקציה שנוצרה
 
+
+## 13. Relationship To Proposal Flow
+
+Apply לא מכסה יצירה של event / experience / circle חדש.
+
+זה flow נפרד:
+- המשתמש יוצר proposal
+- ה-proposal נכנס ל-admin review
+- ה-user רואה סטטוס request נפרד
+
 ---
 
-## 12. Future Expansion
+## 14. Future Expansion
 
 בהמשך אפשר להרחיב:
 - richer apply answers persistence

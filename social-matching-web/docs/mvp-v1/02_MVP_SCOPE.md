@@ -5,13 +5,20 @@
 מטרת ה-MVP היא להעמיד מערכת עובדת שמוכיחה את הליבה הבאה:
 
 - אירועים קטנים ניתנים לגילוי
-- משתמשים משלימים פרופיל ומגישים מועמדות
-- המערכת/האדמין בונים קבוצה מאושרת
-- תשלום נדרש רק אחרי אישור
+- משתמשים יכולים להגיש מועמדות לאירוע קיים
+- משתמשים יכולים להציע אירוע / חוויה / circle חדש לבדיקת admin
+- המערכת וה-admin בונים קבוצה מאושרת
 - מתבצע מפגש אמיתי
 - נאסף פידבק אחריו
+- תשלום אינו חלק מהפאזה הנוכחית והוא מושהה להמשך
 
-## 2. In Scope
+## 2. Core Domain Rule
+
+- `event`, `experience`, ו-`circle` הם אותו אובייקט MVP
+- ההבדל כרגע הוא בשפה ובמיתוג, לא במודל דומיין נפרד
+- אם משתמש יוצר חדש event / experience / circle, הוא יוצר **הצעה לבדיקת admin**, לא אירוע חי מיד
+
+## 3. In Scope
 
 ### Discovery
 - browse של אירועים פתוחים
@@ -23,11 +30,17 @@
 - trust fields
 - save / resume behavior
 
-### Event Apply
-- apply per event
+### Apply To Existing Event
+- apply route פר event
 - apply state persistence
 - duplicate apply prevention
-- questionnaire readiness gate
+- readiness gate לפי החוק הפעיל כרגע, עם אפשרות להחלטה מוצרית מחודשת בהמשך
+
+### Propose New Event / Experience / Circle
+- טופס הצעה מצד המשתמש
+- שמירת בקשה / proposal
+- סטטוס creator-facing לבקשה
+- העברה ל-admin review
 
 ### Curation / Matching
 - admin review
@@ -36,6 +49,8 @@
 
 ### Registration State
 - pending
+- awaiting_response
+- confirmed
 - approved
 - rejected
 - waitlist
@@ -43,9 +58,9 @@
 - attended / no-show later in lifecycle
 
 ### Payment
-- payment only after approval
-- payment request lifecycle exists conceptually in MVP
-- provider support can begin with minimal operational model
+- payment on hold
+- payment implementation is not in the current build
+- if payment returns later, it still happens only after approval / confirmation
 
 ### Communication
 - WhatsApp as initial group communication layer
@@ -55,11 +70,12 @@
 - attendance tracking
 - internal trust/reputation-lite updates
 
-## 3. Out Of Scope
+## 4. Out Of Scope
 
 - native mobile app
 - social feed
 - internal chat system
+- payment provider / checkout implementation in the current phase
 - subscription model
 - marketplace for businesses
 - public rich profiles
@@ -68,13 +84,13 @@
 - gamification
 - deep reputation engine
 
-## 4. Geographic Scope
+## 5. Geographic Scope
 
 בשלב הראשון:
 - עיר אחת
 - אירועים מקבילים מעטים
 
-## 5. Category Scope
+## 6. Category Scope
 
 מומלץ להתחיל ב-3–5 קטגוריות לכל היותר.
 
@@ -90,12 +106,12 @@
 - Walk
 - Salon
 
-## 6. Concurrency Scope
+## 7. Concurrency Scope
 
 ב-MVP:
 - עד 5 אירועים במקביל
 
-## 7. Group Size Scope
+## 8. Group Size Scope
 
 הגודל הרצוי:
 - 6–8 משתתפים
@@ -104,33 +120,36 @@
 - 5 משתתפים + host
 או לפי סוג האירוע
 
-## 8. Operating Assumptions
+## 9. Operating Assumptions
 
 - user אחד יכול להיות participant באירוע אחד ו-host באירוע אחר
 - approval נשאר אנושי ב-MVP
-- payment לא קורה לפני approval
+- `admin` הוא המונח הקנוני; `operator` הוא אותו תפקיד בתיעוד הישן
+- payment מושהה מהפאזה הנוכחית
 - trust layer הוא חלק מהליבה, לא תוספת
 
-## 9. MVP Success Metrics
+## 10. MVP Success Metrics
 
 ### Funnel metrics
 - browse → apply rate
+- browse → proposal-submit rate
 - profile completion rate
 - apply completion rate
 
 ### Decision metrics
 - approval rate
-- approval → payment rate
+- proposal review turnaround
+- invite / confirmation completion rate
 
 ### Real-world outcome metrics
 - attendance rate
 - feedback quality
 - repeat participation intent
 
-## 10. MVP Boundary Rule
+## 11. MVP Boundary Rule
 
 אם feature לא תורם ישירות ללופ הבא:
 
-> discover → apply → approve → pay → attend → feedback
+> discover → apply or propose → review → confirm group → attend → feedback
 
 הוא לא בליבת ה-MVP הראשונה.
