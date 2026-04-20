@@ -64,11 +64,9 @@ test.describe('participant foundation', () => {
     ).toBeVisible();
   });
 
-  // The alternation covers every blocked-reason copy the fixture user
-  // might legitimately hit (profile incomplete, saved seat, ended event,
-  // etc.). This test asserts the page surfaces *one* of them, not any
-  // specific one. Splitting into per-reason tests requires per-reason
-  // fixture setup — tracked as a followup.
+  // Keep this alternation for readiness branches we cannot deterministically
+  // force yet (questionnaire/profile completeness, event openness). Dedicated
+  // tests below cover deterministic registration-state branches.
   test('authenticated participant sees at least one blocking readiness message on /apply', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
@@ -85,6 +83,128 @@ test.describe('participant foundation', () => {
     } finally {
       await ctx.close();
     }
+  });
+
+  test('apply: pending registration shows the submitted-state panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'pending', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('ההגשה שלך נשלחה', { exact: true })).toBeVisible();
+          await expect(page.getByText('ההגשה שלך נשמרה ונמצאת כרגע בבדיקה.', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: waitlist status shows waitlist panel copy', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'waitlist', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('ההגשה ברשימת המתנה', { exact: true })).toBeVisible();
+          await expect(
+            page.getByText('כרגע אין לך מקום שמור, אבל ההרשמה שלך עדיין נמצאת ברשימת ההמתנה.', { exact: true }),
+          ).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: attended status shows completed-event panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'attended', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המפגש כבר הסתיים', { exact: true })).toBeVisible();
+          await expect(page.getByText('השתתפת במפגש', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('apply: approved status shows reserved-place panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      { status: 'approved', expires_at: null, offered_at: null },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
+          await expect(page.getByText('המקום שלך למפגש הזה כבר שמור.', { exact: true })).toBeVisible();
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
   });
 
   test('dashboard exposes participant next steps with a questionnaire handoff', async ({ browser }) => {
@@ -221,6 +341,43 @@ test.describe('participant foundation', () => {
           } catch {
             // Ignore browser context close failures during teardown.
           }
+        }
+      },
+    );
+  });
+
+  test('apply: expired awaiting_response shows expired-offer panel', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const pastExpires = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
+        status: 'awaiting_response',
+        expires_at: pastExpires,
+        offered_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByText('חלון התגובה למקום הזמני נסגר', { exact: true })).toBeVisible();
+          await expect(page.getByText('המקום הזמני כבר לא ממתין לתגובה.', { exact: true })).toBeVisible();
+          await expect(page.getByText(/המועד שעבר:/)).toBeVisible();
+        } finally {
+          await ctx.close();
         }
       },
     );
