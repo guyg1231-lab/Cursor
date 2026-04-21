@@ -38,7 +38,7 @@ See [`.env.production.example`](../../.env.production.example) for shape. **Stag
 
 ### One-shot sync (CLI + APIs)
 
-Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`**, add **`VERCEL_TOKEN`** and **`SUPABASE_ACCESS_TOKEN`**. If you already ran **`vercel link`** in `social-matching-web/`, **Project ID and team** are read from **`.vercel/project.json`** (gitignored) — you do not need to duplicate `VERCEL_PROJECT_ID` unless you want to override.
+Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`** only if you need overrides. The sync script also tries **Vercel CLI** auth (`auth.json` on macOS/Linux) and **`~/.supabase/access-token`** when vars are unset. **`vercel link`** still supplies **`.vercel/project.json`** for project/team ids.
 
 Then from `social-matching-web/`:
 

@@ -7,9 +7,11 @@
  * keep tokens in one file and run `npm run ops:sync-vercel-vite-env` without exporting vars.
  * Shell env still wins if set.
  *
- * Requires (in process.env or .env.ops.local):
- *   VERCEL_TOKEN           — https://vercel.com/account/tokens
- *   SUPABASE_ACCESS_TOKEN  — Supabase account PAT (reads API keys)
+ * Requires (resolved in order):
+ *   VERCEL_TOKEN — `process.env` / `.env.ops.local`, else Vercel CLI `auth.json` (macOS:
+ *   `~/Library/Application Support/com.vercel.cli/auth.json`, Linux: `~/.local/share/com.vercel.cli/auth.json`).
+ *   SUPABASE_ACCESS_TOKEN — `process.env` / `.env.ops.local`, else plain file `~/.supabase/access-token`
+ *   if present (CLI fallback; Keychain-only logins still need the env var).
  *
  * Optional (auto-filled from `vercel link` → `.vercel/project.json` if present):
  *   VERCEL_PROJECT_ID      — overrides linked `projectId`
@@ -23,11 +25,56 @@
  */
 import { config as loadEnv } from 'dotenv';
 import { existsSync, readFileSync } from 'node:fs';
+import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 loadEnv({ path: join(root, '.env.ops.local') });
+
+function defaultVercelAuthJsonPaths() {
+  const h = homedir();
+  if (platform() === 'darwin') {
+    return [
+      join(h, 'Library', 'Application Support', 'com.vercel.cli', 'auth.json'),
+      join(h, '.config', 'vercel', 'auth.json'),
+    ];
+  }
+  if (platform() === 'win32') {
+    const appData = process.env.APPDATA || join(h, 'AppData', 'Roaming');
+    return [join(appData, 'xdg.data', 'com.vercel.cli', 'auth.json')];
+  }
+  return [
+    join(h, '.local', 'share', 'com.vercel.cli', 'auth.json'),
+    join(h, '.config', 'vercel', 'auth.json'),
+  ];
+}
+
+function resolveVercelTokenFromCli() {
+  for (const p of defaultVercelAuthJsonPaths()) {
+    if (!existsSync(p)) continue;
+    try {
+      const data = JSON.parse(readFileSync(p, 'utf8'));
+      const t = typeof data.token === 'string' ? data.token.trim() : '';
+      if (t) return t;
+    } catch {
+      /* ignore */
+    }
+  }
+  return '';
+}
+
+function resolveSupabaseAccessToken() {
+  const fromEnv = (process.env.SUPABASE_ACCESS_TOKEN || '').trim();
+  if (fromEnv) return fromEnv;
+  const p = join(homedir(), '.supabase', 'access-token');
+  if (!existsSync(p)) return '';
+  try {
+    return readFileSync(p, 'utf8').trim();
+  } catch {
+    return '';
+  }
+}
 
 function loadVercelLinkedProject() {
   const path = join(root, '.vercel', 'project.json');
@@ -47,13 +94,13 @@ function loadVercelLinkedProject() {
 
 const linked = loadVercelLinkedProject();
 const ref = process.env.SUPABASE_PROJECT_REF || 'nshgmuqlivuhlimwdwhe';
-const vercelToken = (process.env.VERCEL_TOKEN || '').trim();
+const vercelToken = (process.env.VERCEL_TOKEN || '').trim() || resolveVercelTokenFromCli();
 const projectId = (process.env.VERCEL_PROJECT_ID || linked.projectId || '').trim();
 const teamIdRaw = (process.env.VERCEL_TEAM_ID || '').trim();
 const teamId =
   teamIdRaw
   || (linked.orgId && linked.orgId.startsWith('team_') ? linked.orgId : '');
-const supabasePat = (process.env.SUPABASE_ACCESS_TOKEN || '').trim();
+const supabasePat = resolveSupabaseAccessToken();
 const dryRun = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
 
 const targets = ['production', 'preview', 'development'];
@@ -113,7 +160,10 @@ async function main() {
   const viteProjectId = ref;
 
   if (!supabasePat) {
-    console.error('Missing SUPABASE_ACCESS_TOKEN (Supabase PAT with project read).');
+    console.error(
+      'Missing Supabase access token. Set SUPABASE_ACCESS_TOKEN in .env.ops.local, export it, '
+        + 'or run `supabase login` so ~/.supabase/access-token exists (Keychain-only logins need the env var).',
+    );
     process.exit(2);
   }
 
@@ -129,7 +179,8 @@ async function main() {
 
   if (!vercelToken) {
     console.error(
-      'Missing VERCEL_TOKEN. Create a token at https://vercel.com/account/tokens and add VERCEL_TOKEN to .env.ops.local (or export in shell).',
+      'Missing Vercel token. Log in with `vercel login` (stores auth.json), set VERCEL_TOKEN in .env.ops.local, '
+        + 'or create a token at https://vercel.com/account/tokens',
     );
     console.log('Resolved from vercel link:', { projectId, teamId: teamId || '(none)' });
     console.log(`Would set VITE_SUPABASE_URL=${viteUrl}; VITE_SUPABASE_PUBLISHABLE_KEY=${masked}`);
