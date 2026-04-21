@@ -38,7 +38,7 @@ See [`.env.production.example`](../../.env.production.example) for shape. **Stag
 
 ### One-shot sync (CLI + APIs)
 
-Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`** only if you need overrides. The sync script also tries **Vercel CLI** auth (`auth.json` on macOS/Linux) and **`~/.supabase/access-token`** when vars are unset. **`vercel link`** still supplies **`.vercel/project.json`** for project/team ids.
+Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`** only if you need overrides. The sync script also tries **Vercel CLI** auth (`auth.json` on macOS/Linux), then **`supabase projects api-keys -o json`** when `supabase` is on `PATH` and logged in (works with macOS Keychain even without `~/.supabase/access-token`), then **`SUPABASE_ACCESS_TOKEN`** / **`~/.supabase/access-token`**, and matching **`VITE_*` / `PRODUCTION_*` / `STAGING_*`** in `.env.production.local` / `.env.staging.local` when the ref matches. **`vercel link`** still supplies **`.vercel/project.json`** for project/team ids.
 
 Then from `social-matching-web/`:
 
@@ -58,12 +58,12 @@ export SUPABASE_ACCESS_TOKEN=…  # same PAT style as prebuilt-prod-deploy
 npm run ops:sync-vercel-vite-env
 ```
 
-This upserts `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY` (anon from Management API) for **production**, **preview**, and **development** targets. Then **redeploy** so a new build inlines them.
+This upserts `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY` (anon / publishable from Management API, **Supabase CLI**, or matching local env) for **production**, **preview**, and **development** targets. Then **redeploy** so a new build inlines them.
 
-Preview with `DRY_RUN=1` (still needs `SUPABASE_ACCESS_TOKEN` to resolve the key for display):
+Preview with `DRY_RUN=1` (resolves the key the same way as a real run — PAT, CLI, or local env):
 
 ```bash
-DRY_RUN=1 SUPABASE_ACCESS_TOKEN=… npm run ops:sync-vercel-vite-env
+DRY_RUN=1 npm run ops:sync-vercel-vite-env
 ```
 
 **Concrete refs in this repo (non-secret):** production frontend is shaped around project ref `nshgmuqlivuhlimwdwhe`; local/staging examples use `huzcvjyyyuudchnrosvx`. If Production hosting still bakes in the staging host, you will see intermittent auth issues and misleading smoke results — fix Vercel **Production** `VITE_*` values, then trigger a **new production deploy** (env changes do not rewrite an already-built `dist/`).
