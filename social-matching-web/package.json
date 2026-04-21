@@ -19,6 +19,7 @@
     "e2e:install": "playwright install chromium",
     "ops:sync-vercel-vite-env": "node scripts/ops/sync-vercel-vite-supabase-env.mjs",
     "ops:patch-supabase-auth-email-templates": "node scripts/ops/patch-supabase-auth-email-templates.mjs",
+    "ops:grant-admin-by-email": "node scripts/ops/grant-admin-by-email.mjs",
     "ops:verify-deploy-supabase": "node scripts/ops/verify-deployed-supabase-project.mjs --url \"${VERIFY_DEPLOY_URL:-https://social-matching-web.vercel.app}\" --expect-ref \"${VERIFY_EXPECT_SUPABASE_REF:-nshgmuqlivuhlimwdwhe}\"",
     "ops:prebuilt-prod-deploy": "node scripts/ops/prebuilt-prod-deploy.mjs",
     "ops:production-browser-smoke": "node scripts/ops/production-browser-smoke.mjs"

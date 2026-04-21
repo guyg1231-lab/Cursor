@@ -15,24 +15,24 @@ export function OperatorEventsListPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
     async function load() {
       setLoading(true);
       setError(null);
       try {
         const ev = await listOperatorEvents();
-        if (!active) return;
+        if (stale) return;
         setEvents(ev);
       } catch {
-        if (!active) return;
+        if (stale) return;
         setError('Failed to load events.');
       } finally {
-        if (active) setLoading(false);
+        if (!stale) setLoading(false);
       }
     }
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, []);
 

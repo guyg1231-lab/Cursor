@@ -29,24 +29,24 @@ export function AdminEventRequestsPage() {
   const [requestActionId, setRequestActionId] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
     async function load() {
       setLoading(true);
       setSubmittedError(null);
       try {
         const req = await listAdminSubmittedEventRequests();
-        if (!active) return;
+        if (stale) return;
         setSubmittedRequests(req);
       } catch {
-        if (!active) return;
+        if (stale) return;
         setSubmittedError('Failed to load submitted requests.');
       } finally {
-        if (active) setLoading(false);
+        if (!stale) setLoading(false);
       }
     }
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, []);
 

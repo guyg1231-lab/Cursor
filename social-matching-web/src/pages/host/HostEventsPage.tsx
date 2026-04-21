@@ -154,7 +154,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
   }
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
 
     async function load() {
       if (!user) return;
@@ -169,23 +169,24 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
           listHostOverviewEvents(user.id),
         ]);
 
-        if (!active) return;
+        if (stale) return;
         setIsReady(readyState.ready);
         setEvents(nextRequests);
         setActiveEditorId((current) => current || (defaultToNewDraft ? 'new' : pickInitialEditorId(nextRequests)));
       } catch {
-        if (!active) return;
+        if (stale) return;
         setLoadError('לא הצלחנו לטעון כרגע את אזור בקשות האירועים.');
       } finally {
-        if (!active) return;
-        setIsLoading(false);
-        setIsEligibilityLoading(false);
+        if (!stale) {
+          setIsLoading(false);
+          setIsEligibilityLoading(false);
+        }
       }
     }
 
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, [defaultToNewDraft, user]);
 

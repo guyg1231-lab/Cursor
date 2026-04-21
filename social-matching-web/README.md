@@ -62,6 +62,8 @@ npm run build
 npm run preview
 ```
 
+**Vercel:** add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (or `VITE_SUPABASE_ANON_KEY`) under Project → Settings → Environment Variables for **Production** and **Preview** — Vite inlines them at build time, so a wrong or missing value requires a **new deployment** after you fix env. Optional check: `npm run ops:verify-deploy-supabase` (see `package.json` script for args).
+
 To build + preview against **staging** env files only:
 
 ```bash

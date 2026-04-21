@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getQuestionnaireReadyState } from '@/features/applications/api';
 import { ApplicationLifecycleList } from '@/features/applications/components/ApplicationLifecycleList';
 import { listDashboardApplications } from '@/features/events/query';
+import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 import { ProfileReadinessCard } from '@/features/profile/components/ProfileReadinessCard';
 import { QuestionnaireReadinessPanel } from '@/features/profile/components/QuestionnaireReadinessPanel';
 
@@ -23,11 +24,14 @@ export function DashboardPage() {
   const [readinessLoading, setReadinessLoading] = useState(true);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
 
     async function load() {
+      if (authLoading) return;
       if (!user) {
-        setReadinessLoading(true);
+        setReadinessLoading(false);
+        setIsLoading(false);
+        setApplications([]);
         return;
       }
       setIsLoading(true);
@@ -35,25 +39,35 @@ export function DashboardPage() {
       setApplicationsLoadError(false);
 
       try {
-        const [appsSettled, readySettled] = await Promise.allSettled([
-          listDashboardApplications(user.id),
-          getQuestionnaireReadyState(user.id),
-        ]);
-        if (!active) return;
+        const sessionOk = await waitForSupabaseSessionUser(user.id);
+        if (stale) return;
 
-        if (appsSettled.status === 'fulfilled') {
-          setApplications(appsSettled.value ?? []);
-        } else {
+        if (!sessionOk) {
+          console.warn('[DashboardPage] Supabase session not synced after auth');
+          setApplications([]);
           setApplicationsLoadError(true);
-        }
-
-        if (readySettled.status === 'fulfilled') {
-          setProfileReady(readySettled.value.ready);
-        } else {
           setProfileReady(false);
+        } else {
+          const [appsSettled, readySettled] = await Promise.allSettled([
+            listDashboardApplications(user.id),
+            getQuestionnaireReadyState(user.id),
+          ]);
+          if (stale) return;
+
+          if (appsSettled.status === 'fulfilled') {
+            setApplications(appsSettled.value ?? []);
+          } else {
+            setApplicationsLoadError(true);
+          }
+
+          if (readySettled.status === 'fulfilled') {
+            setProfileReady(readySettled.value.ready);
+          } else {
+            setProfileReady(false);
+          }
         }
       } finally {
-        if (active) {
+        if (!stale) {
           setIsLoading(false);
           setReadinessLoading(false);
         }
@@ -62,9 +76,9 @@ export function DashboardPage() {
 
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
-  }, [user]);
+  }, [authLoading, user]);
 
   return (
     <PageShell

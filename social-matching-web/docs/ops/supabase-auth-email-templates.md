@@ -14,7 +14,28 @@
 npm run ops:patch-supabase-auth-email-templates
 ```
 
-מעדכן נושא + גוף בעברית ל־**Confirm signup** ול־**Magic link** עם `{{ .Token }}` בשני הפרויקטים (סטייג’ינג + פרודקשן) לפי ברירת המחדל של הריפו.
+מעדכן נושא + גוף בעברית ל־**Confirm signup** ול־**Magic link** עם `{{ .Token }}`, ומגדיר **`mailer_otp_length: 6`** (כדי שלא ייווצר קוד ארוך מהמסך).
+
+### Gmail / `circlesplatform@gmail.com` כשולח Auth
+
+אם יש **Gmail App Password** (לא סיסמת הכניסה הרגילה) עבור `circlesplatform@gmail.com`, אפשר לשמור אותו ב־`.env.staging.local` / `.env.ops.local` כ־`GMAIL_APP_PASSWORD` (או `SUPABASE_AUTH_SMTP_PASS`) ואז:
+
+```bash
+APPLY_SUPABASE_SMTP=1 npm run ops:patch-supabase-auth-email-templates
+```
+
+ברירות מחדל: `smtp.gmail.com`, פורט `587`, משתמש `circlesplatform@gmail.com`, שם תצוגה `Circles`. ניתן לעקוף עם `SUPABASE_AUTH_SMTP_*` (ראו כותרת `scripts/ops/patch-supabase-auth-email-templates.mjs`).
+
+### להפוך משתמש לאדמין
+
+הסקריפט מחפש `profiles` לפי המייל; אם אין עדיין משתמש ב־Auth, הוא יוצר משתמש מאומר (`email_confirm: true`) דרך Admin API והטריגר `handle_new_auth_user` יוצר `profiles`, ואז מוסיף `admin` ב־`user_roles`.
+
+```bash
+npm run ops:grant-admin-by-email -- staging circlesplatform@gmail.com
+npm run ops:grant-admin-by-email -- production circlesplatform@gmail.com
+```
+
+לפרודקשן נדרשות במחשב המקומי משתני `.env.production.local` (למשל `PRODUCTION_SUPABASE_URL` + `PRODUCTION_SUPABASE_SERVICE_ROLE_KEY`, או `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` של הפרויקט בפרודקשן).
 
 ## הפתרון (חובה)
 

@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 /**
- * Patch hosted Supabase Auth email templates (Management API) for OTP-friendly Hebrew copy.
+ * Patch hosted Supabase Auth: Hebrew OTP-first email templates, OTP length, optional Gmail SMTP.
  *
  * Token resolution (first hit):
  *   SUPABASE_ACCESS_TOKEN, `.env.ops.local`, `~/.supabase/access-token`,
- *   or if USE_CURSOR_MCP_SUPABASE_TOKEN=1 — token from `~/.cursor/mcp.json` entry `mcpServers.supabase`
- *   (local dev only; prefer env / ops file; rotate tokens if this file is ever leaked).
+ *   or if USE_CURSOR_MCP_SUPABASE_TOKEN=1 — token from `~/.cursor/mcp.json` entry `mcpServers.supabase`.
  *
- * Targets default to staging + production refs for this repo; override with SUPABASE_EMAIL_PATCH_REFS="ref1,ref2".
+ * Optional Gmail SMTP (Circles official sender):
+ *   APPLY_SUPABASE_SMTP=1
+ *   SUPABASE_AUTH_SMTP_PASS or GMAIL_APP_PASSWORD (Gmail App Password for the mailbox)
+ *   SUPABASE_AUTH_SMTP_USER or GMAIL_USER (default circlesplatform@gmail.com)
+ *   SUPABASE_AUTH_SMTP_HOST (default smtp.gmail.com), SUPABASE_AUTH_SMTP_PORT (default 587)
+ *   SUPABASE_AUTH_SMTP_SENDER_NAME (default Circles), SUPABASE_AUTH_SMTP_ADMIN_EMAIL (defaults to SMTP user)
+ *
+ * Targets default to staging + production refs; override with SUPABASE_EMAIL_PATCH_REFS="ref1,ref2".
  *
  *   DRY_RUN=1              — log payload keys only, no PATCH
  *
@@ -67,17 +73,17 @@ const refs = (process.env.SUPABASE_EMAIL_PATCH_REFS || defaultRefs)
   .map((r) => r.trim())
   .filter(Boolean);
 
-/** OTP-first bodies: include {{ .Token }} so mail scanners do not burn the link. */
+/** OTP-first bodies: include {{ .Token }}; do not claim digit count (server uses mailer_otp_length). */
 function buildAuthMailerPatch() {
-  const confirmationSubject = 'אישור ההרשמה — קוד כניסה ל־Circles';
+  const confirmationSubject = 'אישור ההרשמה — Circles';
   const magicSubject = 'קוד כניסה ל־Circles';
 
   const confirmationHtml = `
 <h2>ברוכים הבאים ל־Circles</h2>
-<p>זהו קוד האימות בן 6 הספרות (הזינו אותו באתר):</p>
+<p>זהו הקוד לאימות — הזינו אותו במסך ההתחברות:</p>
 <p style="font-size:22px;font-weight:700;letter-spacing:0.25em">{{ .Token }}</p>
-<p>אם נוח לכם בקישור, אפשר גם כאן (חלק מספקי דוא"ל שוברים קישורים — במקרה כזה השתמשו בקוד למעלה):</p>
-<p><a href="{{ .ConfirmationURL }}">אימות במקלדת אחת</a></p>
+<p>אפשר גם לאמת דרך הקישור (אם ספק הדוא"ל חותך קישורים, השתמשו בקוד למעלה):</p>
+<p><a href="{{ .ConfirmationURL }}">המשך לאימות</a></p>
 `.trim();
 
   const magicHtml = `
@@ -96,8 +102,39 @@ function buildAuthMailerPatch() {
   };
 }
 
+function buildSmtpPatch() {
+  const want = process.env.APPLY_SUPABASE_SMTP === '1' || process.env.APPLY_SUPABASE_SMTP === 'true';
+  if (!want) return {};
+  const pass = (process.env.SUPABASE_AUTH_SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '').trim();
+  if (!pass) {
+    throw new Error(
+      'APPLY_SUPABASE_SMTP=1 requires SUPABASE_AUTH_SMTP_PASS or GMAIL_APP_PASSWORD (Gmail App Password).',
+    );
+  }
+  const user = (process.env.SUPABASE_AUTH_SMTP_USER || process.env.GMAIL_USER || 'circlesplatform@gmail.com').trim();
+  const admin = (process.env.SUPABASE_AUTH_SMTP_ADMIN_EMAIL || user).trim();
+  const sender = (process.env.SUPABASE_AUTH_SMTP_SENDER_NAME || 'Circles').trim();
+  return {
+    smtp_host: (process.env.SUPABASE_AUTH_SMTP_HOST || 'smtp.gmail.com').trim(),
+    smtp_port: String(process.env.SUPABASE_AUTH_SMTP_PORT || '587').trim(),
+    smtp_user: user,
+    smtp_pass: pass,
+    smtp_admin_email: admin,
+    smtp_sender_name: sender,
+  };
+}
+
+function buildBody() {
+  return {
+    ...buildAuthMailerPatch(),
+    /** Keeps OTP numeric length consistent with the login UI (avoids accidental 8-digit config). */
+    mailer_otp_length: 6,
+    ...buildSmtpPatch(),
+  };
+}
+
 async function patchRef(ref) {
-  const body = buildAuthMailerPatch();
+  const body = buildBody();
   const url = `https://api.supabase.com/v1/projects/${encodeURIComponent(ref)}/config/auth`;
   if (dryRun) {
     console.log(`[DRY_RUN] Would PATCH ${ref} keys:`, Object.keys(body));
@@ -131,12 +168,19 @@ async function main() {
     process.exit(2);
   }
 
-  console.log('Patching Auth email templates for refs:', refs.join(', '));
+  const smtpKeys = Object.keys(buildSmtpPatch());
+  console.log('Patching Auth config for refs:', refs.join(', '));
+  if (smtpKeys.length) {
+    console.log('Including SMTP fields:', smtpKeys.join(', '));
+  } else {
+    console.log('SMTP: skipped (set APPLY_SUPABASE_SMTP=1 + app password to enable Gmail sender).');
+  }
+
   for (const ref of refs) {
     await patchRef(ref);
   }
   if (!dryRun) {
-    console.log('\nDone. Send a test OTP; SMTP "From" still uses Supabase until you configure custom SMTP in Dashboard.');
+    console.log('\nDone. OTP length set to 6; templates updated. Send a test OTP to verify.');
   }
 }
 

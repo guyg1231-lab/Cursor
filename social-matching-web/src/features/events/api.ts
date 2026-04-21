@@ -78,6 +78,7 @@ async function fetchEventSocialSignals(eventIds: string[]) {
   });
 
   if (error || !data) return new Map<string, { attendee_count: number }>();
+  if (!Array.isArray(data)) return new Map<string, { attendee_count: number }>();
 
   return new Map(
     data.map((row) => [
@@ -90,12 +91,20 @@ async function fetchEventSocialSignals(eventIds: string[]) {
 }
 
 async function withSocialSignals(events: EventRow[]): Promise<VisibleEvent[]> {
-  const signals = await fetchEventSocialSignals(events.map((event) => event.id));
-  return events.map((event) => ({
-    ...event,
-    is_registration_open: isRegistrationOpen(event),
-    social_signal: signals.get(event.id),
-  }));
+  try {
+    const signals = await fetchEventSocialSignals(events.map((event) => event.id));
+    return events.map((event) => ({
+      ...event,
+      is_registration_open: isRegistrationOpen(event),
+      social_signal: signals.get(event.id),
+    }));
+  } catch (e) {
+    console.error('[events/api] withSocialSignals failed', e);
+    return events.map((event) => ({
+      ...event,
+      is_registration_open: isRegistrationOpen(event),
+    }));
+  }
 }
 
 function isEventRow(value: unknown): value is EventRow {

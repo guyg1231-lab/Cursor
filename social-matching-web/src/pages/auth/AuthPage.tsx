@@ -228,8 +228,8 @@ export function AuthPage() {
     event?.preventDefault();
 
     const code = otpCode.trim().replace(/\s/g, '');
-    if (code.length !== 6) {
-      setSubmitError('צריך להזין קוד בן 6 ספרות.');
+    if (code.length < 6 || code.length > 8) {
+      setSubmitError('צריך להזין את הקוד מהמייל (בדרך כלל 6 ספרות).');
       return;
     }
 
@@ -296,7 +296,7 @@ export function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
             <p>
-              בלי סיסמה קבועה: נשלח אליכם מייל עם קוד בן 6 ספרות (לא קישור). מזינים את הקוד כאן וממשיכים
+              בלי סיסמה קבועה: נשלח אליכם מייל עם קוד קצר לזיהוי (לא קישור בלבד). מזינים את הקוד כאן וממשיכים
               ישר ליעד ששמרנו עבורכם.
             </p>
 
@@ -312,14 +312,8 @@ export function AuthPage() {
                   <p>
                     שלחנו קוד אימות אל <strong className="text-foreground">{submittedEmail}</strong>.
                   </p>
-                  <p>מזינים כאן את 6 הספרות מהמייל (שורה אחת, בלי רווחים), ואז לוחצים על האימות.</p>
+                  <p>מזינים כאן את הקוד מהמייל (שורה אחת, בלי רווחים), ואז לוחצים על האימות.</p>
                   <p>תוקף הקוד: {formatCountdown(remainingSeconds)}</p>
-                  <p className="text-xs text-muted-foreground leading-snug">
-                    המייל מגיע מ־Supabase ולעיתים מופיע באנגלית (&quot;Confirm your signup&quot; וכו׳) או מתבנית &quot;אשר הרשמה&quot;
-                    — הקוד עדיין בגוף המייל; כדאי לבדוק גם בתיקיית ספאם. למותג בעברית ושולח מותאם: בפרויקט Supabase →
-                    Authentication → Email Templates (כולל Confirm signup + Magic link) ו־SMTP; פירוט ב־
-                    <code className="rounded bg-muted px-1">docs/ops/supabase-auth-email-templates.md</code>.
-                  </p>
                 </div>
 
                 <form className="space-y-4" onSubmit={handleVerifyOtp}>
@@ -332,10 +326,10 @@ export function AuthPage() {
                       type="text"
                       inputMode="numeric"
                       autoComplete="one-time-code"
-                      maxLength={6}
+                      maxLength={8}
                       value={otpCode}
                       onChange={(e) => {
-                        const nextValue = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        const nextValue = e.target.value.replace(/\D/g, '').slice(0, 8);
                         setOtpCode(nextValue);
                       }}
                       className="w-full rounded-full border border-input bg-background px-4 py-3 text-center text-lg tracking-[0.35em] outline-none"
@@ -352,7 +346,11 @@ export function AuthPage() {
                   {submitError ? <p className="text-sm text-destructive">{submitError}</p> : null}
 
                   <div className="flex flex-wrap gap-3">
-                    <Button type="submit" variant="primary" disabled={loadingPhase !== null || otpCode.length !== 6 || isOtpExpired}>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={loadingPhase !== null || otpCode.length < 6 || isOtpExpired}
+                    >
                       {loadingPhase === 'verifying' ? 'מאמתים...' : 'לאמת קוד ולהמשיך'}
                     </Button>
                     <Button type="button" variant="outline" disabled={loadingPhase !== null} onClick={handleResend}>
@@ -382,7 +380,7 @@ export function AuthPage() {
                     aria-describedby="auth-email-hint"
                   />
                   <p id="auth-email-hint" className="text-xs text-muted-foreground">
-                    כתובת שאליה יגיע קוד בן 6 ספרות בלבד (לא קישור).
+                    כתובת שאליה יגיע קוד קצר לאימות (לא קישור בלבד).
                   </p>
                 </div>
 
@@ -399,7 +397,7 @@ export function AuthPage() {
             <CardTitle className="text-xl">איך זה עובד?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-            <p>1. מזינים אימייל ומקבלים במייל קוד בן 6 ספרות.</p>
+            <p>1. מזינים אימייל ומקבלים במייל קוד לאימות.</p>
             <p>2. מזינים את הקוד כאן — לא לוחצים על קישור במייל (אין צורך).</p>
             <p>3. אחרי האימות חוזרים ליעד ששמרנו (הגשה, דשבורד וכו׳).</p>
             <Button asChild variant="outline">

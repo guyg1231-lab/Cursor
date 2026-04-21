@@ -110,8 +110,8 @@ export async function getQuestionnaireReadyState(userId: string): Promise<{
   profile: Pick<ProfileRow, 'funnel_status'> | null;
 }> {
   const [{ data: response, error: responseError }, { data: profile, error: profileError }] = await Promise.all([
-    supabase.from('matching_responses').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from('profiles').select('funnel_status').eq('id', userId).maybeSingle(),
+    supabase.from('matching_responses').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('profiles').select('funnel_status').eq('id', userId).limit(1).maybeSingle(),
   ]);
 
   if (responseError) throw responseError;
@@ -133,6 +133,8 @@ export async function getExistingApplication(eventId: string, userId: string): P
     .select('*')
     .eq('event_id', eventId)
     .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error) throw error;

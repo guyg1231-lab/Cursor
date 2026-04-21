@@ -8,6 +8,7 @@ import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { EventNotFound } from '@/components/participant/EventNotFound';
 import { safeLocalStorage } from '@/lib/safeStorage';
+import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -170,7 +171,7 @@ export function ApplyPage() {
   }, [existingApplication, hasLocalDraft]);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
 
     async function load() {
       if (authLoading) return;
@@ -185,12 +186,11 @@ export function ApplyPage() {
 
       try {
         const visibleEvent = await getVisibleEventById(eventId);
-        if (!active) return;
+        if (stale) return;
 
         if (!visibleEvent) {
           setEvent(null);
           setExistingApplication(null);
-          setPageLoading(false);
           return;
         }
 
@@ -200,30 +200,44 @@ export function ApplyPage() {
           setQuestionnaireReady(false);
           setQuestionnaireResponse(null);
           setExistingApplication(null);
-          setPageLoading(false);
           return;
         }
 
-        const [readyState, existing] = await Promise.all([
-          getQuestionnaireReadyState(user.id),
-          getExistingApplication(visibleEvent.id, user.id),
-        ]);
+        const sessionReady = await waitForSupabaseSessionUser(user.id);
+        if (stale) return;
 
-        if (!active) return;
-        setQuestionnaireReady(readyState.ready);
-        setQuestionnaireResponse(readyState.response);
-        setExistingApplication(existing);
-      } catch {
-        if (!active) return;
-        setError('לא הצלחנו לטעון את פרטי ההגשה כרגע.');
+        if (!sessionReady) {
+          console.warn('[ApplyPage] Supabase session not synced after auth; skipping protected loads');
+          setQuestionnaireReady(false);
+          setQuestionnaireResponse(null);
+          setExistingApplication(null);
+        } else {
+          const [readyState, existing] = await Promise.all([
+            getQuestionnaireReadyState(user.id),
+            getExistingApplication(visibleEvent.id, user.id),
+          ]);
+
+          if (stale) return;
+          setQuestionnaireReady(readyState.ready);
+          setQuestionnaireResponse(readyState.response);
+          setExistingApplication(existing);
+        }
+      } catch (e) {
+        if (stale) return;
+        console.error('[ApplyPage] load failed', e);
+        setError(
+          import.meta.env.DEV && e instanceof Error && e.message
+            ? `לא הצלחנו לטעון את פרטי ההגשה כרגע. (${e.message})`
+            : 'לא הצלחנו לטעון את פרטי ההגשה כרגע.',
+        );
       } finally {
-        if (active) setPageLoading(false);
+        if (!stale) setPageLoading(false);
       }
     }
 
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, [authLoading, eventId, user]);
 

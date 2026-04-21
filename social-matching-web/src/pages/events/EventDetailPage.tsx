@@ -23,19 +23,21 @@ import {
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { EventNotFound } from '@/components/participant/EventNotFound';
+import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [event, setEvent] = useState<VisibleEvent | null>(null);
   const [application, setApplication] = useState<EventRegistrationRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
 
     async function load() {
+      if (authLoading) return;
       if (!eventId) {
         setError('לא נמצא מזהה מפגש.');
         setIsLoading(false);
@@ -47,37 +49,44 @@ export function EventDetailPage() {
 
       try {
         const visibleEvent = await getVisibleEventById(eventId);
-        if (!active) return;
+        if (stale) return;
 
         if (!visibleEvent) {
           setEvent(null);
           setApplication(null);
-          setIsLoading(false);
           return;
         }
 
         setEvent(visibleEvent);
 
         if (user) {
-          const existing = await getExistingApplication(visibleEvent.id, user.id);
-          if (!active) return;
-          setApplication(existing);
-        } else if (active) {
+          const sessionReady = await waitForSupabaseSessionUser(user.id);
+          if (stale) return;
+          if (!sessionReady) {
+            console.warn('[EventDetailPage] Supabase session not synced; showing event without registration row');
+            setApplication(null);
+          } else {
+            const existing = await getExistingApplication(visibleEvent.id, user.id);
+            if (stale) return;
+            setApplication(existing);
+          }
+        } else {
           setApplication(null);
         }
-      } catch {
-        if (!active) return;
+      } catch (e) {
+        if (stale) return;
+        console.error('[EventDetailPage] load failed', e);
         setError('לא הצלחנו לטעון את פרטי המפגש כרגע.');
       } finally {
-        if (active) setIsLoading(false);
+        if (!stale) setIsLoading(false);
       }
     }
 
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
-  }, [eventId, user]);
+  }, [authLoading, eventId, user]);
 
   if (isLoading) {
     return (

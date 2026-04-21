@@ -11,9 +11,8 @@ import { buildAuthPath } from '@/lib/authReturnTo';
 import { getVisibleEventById } from '@/features/events/api';
 import { formatEventDate } from '@/features/events/formatters';
 import type { VisibleEvent } from '@/features/events/types';
-import {
-  getExistingApplication,
-} from '@/features/applications/api';
+import { getExistingApplication } from '@/features/applications/api';
+import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   formatApplicationStatusShort,
@@ -31,7 +30,7 @@ export function GatheringPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
 
     async function load() {
       if (authLoading) return;
@@ -46,28 +45,36 @@ export function GatheringPage() {
 
       try {
         const visibleEvent = await getVisibleEventById(eventId);
-        if (!active) return;
+        if (stale) return;
 
         setEvent(visibleEvent);
 
         if (visibleEvent && user) {
-          const existing = await getExistingApplication(visibleEvent.id, user.id);
-          if (!active) return;
-          setRegistration(existing);
-        } else if (active) {
+          const sessionReady = await waitForSupabaseSessionUser(user.id);
+          if (stale) return;
+          if (!sessionReady) {
+            console.warn('[GatheringPage] Supabase session not synced; skipping registration load');
+            setRegistration(null);
+          } else {
+            const existing = await getExistingApplication(visibleEvent.id, user.id);
+            if (stale) return;
+            setRegistration(existing);
+          }
+        } else {
           setRegistration(null);
         }
-      } catch {
-        if (!active) return;
+      } catch (e) {
+        if (stale) return;
+        console.error('[GatheringPage] load failed', e);
         setLoadError('לא הצלחנו לטעון את המפגש כרגע.');
       } finally {
-        if (active) setPageLoading(false);
+        if (!stale) setPageLoading(false);
       }
     }
 
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, [authLoading, eventId, user]);
 

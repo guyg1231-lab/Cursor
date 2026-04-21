@@ -20,24 +20,24 @@ export function EventsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let stale = false;
     async function load() {
       setIsLoading(true);
       setError(null);
       try {
         const visibleEvents = await listVisibleEvents();
-        if (!active) return;
+        if (stale) return;
         setEvents(visibleEvents);
       } catch {
-        if (!active) return;
+        if (stale) return;
         setError('לא הצלחנו לטעון את המפגשים כרגע. אפשר לנסות שוב בעוד רגע.');
       } finally {
-        if (active) setIsLoading(false);
+        if (!stale) setIsLoading(false);
       }
     }
     void load();
     return () => {
-      active = false;
+      stale = true;
     };
   }, []);
 
