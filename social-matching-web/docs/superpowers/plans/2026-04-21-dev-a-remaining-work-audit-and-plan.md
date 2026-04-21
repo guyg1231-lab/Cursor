@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-21  
 **Audience:** Developer A (participant surface), orchestrators, product  
-**Status:** **Dev A — non-admin realignment mode** — Pass-3 remediation is complete on `main`, but Dev A still owns the next non-admin product pass: canonical apply semantics, creator-side proposal flow, lifecycle vocabulary cleanup, and payment deferral alignment. **Foundation wave 2 (F-1…F-10)** remains done; Dev B stays separate on the admin build.
+**Status:** **Historical audit snapshot; follow-up planning required for any new Dev A scope** — Pass-3 remediation, non-admin realignment, and the later Phase B consolidation are merged on `main`. This file remains useful for rationale and ownership boundaries, but several “active next step” items below are now complete.
 **Related:** `docs/superpowers/specs/2026-04-19-pass-3-remediation-design.md`, `docs/superpowers/plans/2026-04-19-pass-3-remediation-implementation.md`, `docs/superpowers/plans/2026-04-20-developer-b-kickoff.md`, `docs/superpowers/plans/2026-04-19-dev-a-public-readiness-master-plan.md`, `docs/superpowers/specs/2026-04-20-dev-a-non-admin-product-boundary-design.md`, `docs/superpowers/specs/2026-04-20-dev-a-non-admin-flows-design.md`, `docs/superpowers/specs/2026-04-20-dev-a-lifecycle-and-route-boundary-design.md`
 
 ---
@@ -113,9 +113,9 @@ Admin pages still contain English loading / action strings (e.g. `Loading…`, `
 | ~~**P0**~~ | ~~A-DOC-2~~ | ~~Kickoff note on SP-B/C/D + link to this audit~~ | **Done** (same commit) |
 | ~~**P1**~~ | ~~A-DOC-3~~ | ~~Normalize **Pass-3 spec + implementation plan** headers~~ | **Done** (2026-04-21): spec §1 + status; implementation plan banner + A.2/A.4/conventions; kickoff typecheck §1 |
 | **P0** | A-SCOPE-1 | Freeze non-admin scope docs: Dev A owns apply + proposal flow, Dev B owns admin build | Done in 2026-04-20 scope realignment specs |
-| **P0** | A-SCOPE-2 | Prepare follow-up implementation plan for canonical apply route, narrowed gathering route, proposal flow skeleton, and payment-copy cleanup | Active next step |
-| **P1** | A-FEAT-1 | Narrow `/gathering/:eventId` away from first-time intake and keep `/events/:eventId/apply` as the only canonical apply path | Required for product clarity |
-| **P1** | A-FEAT-2 | Add creator-side proposal/request flow for new event / experience / circle submissions | Required for full non-admin product coverage |
+| ~~**P0**~~ | ~~A-SCOPE-2~~ | ~~Prepare follow-up implementation plan for canonical apply route, narrowed gathering route, proposal flow skeleton, and payment-copy cleanup~~ | **Done** — superseded by the merged Phase B consolidation plan + implementation on `main` |
+| ~~**P1**~~ | ~~A-FEAT-1~~ | ~~Narrow `/gathering/:eventId` away from first-time intake and keep `/events/:eventId/apply` as the only canonical apply path~~ | **Done** on `main` |
+| ~~**P1**~~ | ~~A-FEAT-2~~ | ~~Add creator-side proposal/request flow for new event / experience / circle submissions~~ | **Done** on `main` |
 | **P2** | A-TEST-1 | Split **apply readiness** test into **per-reason** tests *if* staging fixtures can guarantee each branch | Stronger guarantees; higher fixture cost |
 | **P2** | A-FEAT-3 | **Deeper unify** `ApplicationLifecycleList` with `presentation.ts` / `ApplicationStatusPanel` patterns *without* touching Foundation files | Code quality; requires design of `viewer` / row API per kickoff guidance |
 
@@ -158,7 +158,7 @@ Completed in commit `3aab34f` (pushed to `main`):
 
 **Exit criteria:** Dev B kickoff numbers match `npx playwright test --list`; typecheck script matches docs — **satisfied**.
 
-### Phase 1 — Non-admin realignment (current)
+### Phase 1 — Non-admin realignment (done on `main`)
 
 1. Freeze the non-admin planning truth in active docs.
 2. Prepare and execute a Dev A-only implementation pass for:
@@ -168,7 +168,7 @@ Completed in commit `3aab34f` (pushed to `main`):
    - payment removal from active participant flow copy
 3. Keep admin review/build work in Dev B-owned files only.
 
-### Phase 2 — Ongoing maintenance (post–realignment)
+### Phase 2 — Ongoing maintenance (current)
 
 1. On any PR touching **shared router/UI** (`RouteState`, `guards`, `AppHeader`, `StatusBadge`, `routeManifest`, `design-tokens`): run **full Chromium Playwright** + `npm run typecheck`.  
 2. **Participant features** and **Dev A refactors** continue under normal ownership rules; new cross-cutting changes still go through **Foundation tickets** when they hit frozen paths.
@@ -178,7 +178,7 @@ Completed in commit `3aab34f` (pushed to `main`):
 1. `ApplicationLifecycleList` / `presentation.ts` alignment — spike in a branch; must not duplicate `ApplicationStatusPanel` logic awkwardly.  
 2. Per-reason `/apply` tests — only if fixture data supports deterministic branches.
 
-### Phase 4 — Close Dev A chapter (handoff)
+### Phase 4 — Close Dev A chapter (historical closeout)
 
 1. Confirm `main` green.  
 2. ~~Update **this** document’s **Status** header~~ — **done** (maintenance mode).  

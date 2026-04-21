@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-21  
 **Owner:** Dev A  
-**Status:** Proposed  
+**Status:** Merged to `main` (historical design checkpoint)  
 **Scope:** Consolidation pass after non-admin scope realignment implementation on `dev-a/circles-core-domain-v0`
 
 ---
@@ -16,7 +16,7 @@ Dev A implementation already moved participant intake toward a canonical applica
 - Participant-facing payment prompts were removed while API-level defaults remain as a temporary compatibility bridge.
 - A non-admin proposal entry route now exists at `/events/propose`.
 
-The branch is functionally aligned but not yet operationally finalized. The current state still needs one focused consolidation phase to reduce drift risk before adding additional features.
+This design described the final hardening pass that was later implemented on `dev-a/circles-core-domain-v0` and merged to `main`. It remains useful as the rationale for the current `/apply`, `/gathering`, proposal, and auth-return behavior, not as an active backlog item.
 
 ---
 
@@ -151,6 +151,6 @@ Phase B is complete when all of the following are true:
 
 ---
 
-## 10. Recommended Next Step After Approval
+## 10. Historical Next Step
 
-Once this spec is approved, create a task-level implementation plan for Phase B and execute in small verification-first slices.
+The implementation plan created from this design was executed and merged. Any future Dev A participant work should start from the merged behavior on `main`, not by reopening this Phase B design as if it were still pending.

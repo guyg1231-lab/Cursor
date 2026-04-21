@@ -1,5 +1,7 @@
 # Dev A Phase B Consolidation Implementation Plan
 
+> **Implementation status (merged to `main`):** The behavior in this plan was implemented on `dev-a/circles-core-domain-v0` and later merged via PR #27. The unchecked steps below preserve the original TDD/verification sequence for replay or audit; they are not an active backlog on `main`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Stabilize and finalize the already-implemented non-admin realignment by locking route boundaries, tightening participant/proposal behavior, and closing high-value regression gaps before new feature work.
@@ -283,4 +285,3 @@ git commit -m "test(dev-a): stabilize canonical apply fixture selectors"
 - [ ] Verify `git status --short` is clean except for intentionally deferred unrelated work.
 - [ ] Summarize behavior deltas against `docs/superpowers/specs/2026-04-21-dev-a-phase-b-consolidation-design.md`.
 - [ ] Prepare PR or merge strategy only after all verification commands pass.
-
