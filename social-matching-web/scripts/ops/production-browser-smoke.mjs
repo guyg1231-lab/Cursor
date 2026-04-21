@@ -31,23 +31,47 @@ try {
   await page.getByText('טוענים…', { exact: true }).waitFor({ state: 'hidden', timeout: 25_000 }).catch(() => {
     fail('events: loading copy did not disappear within 25s');
   });
-  const eventLink = page.locator('a[href^="/events/"]:not([href="/events/propose"])').first();
-  const count = await eventLink.count();
-  if (count < 1) {
+  const hrefs = await page.evaluate(() => {
+    const out = [];
+    for (const a of document.querySelectorAll('a[href^="/events/"]')) {
+      const h = a.getAttribute('href');
+      if (!h || h === '/events/propose' || h.includes('/apply')) continue;
+      const m = h.match(/^\/events\/([^/]+)$/);
+      if (m) out.push(h);
+    }
+    return [...new Set(out)];
+  });
+
+  if (hrefs.length < 1) {
     console.log('events: no /events/:id links found (empty discovery is OK if copy renders)');
   } else {
-    await eventLink.click();
-    await page.waitForURL(/\/events\/[^/]+$/, { timeout: 20_000 });
-    const applyHref = page.locator(`a[href^="/events/"][href$="/apply"]`).first();
-    if ((await applyHref.count()) > 0) {
-      await applyHref.waitFor({ state: 'visible', timeout: 20_000 });
-      console.log('events → detail → apply link: OK', page.url());
-    } else {
+    let applyFound = false;
+    for (const href of hrefs) {
+      await page.goto(href, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+      await page.getByRole('link', { name: 'חזרה לכל המפגשים' }).waitFor({ state: 'visible', timeout: 25_000 });
+      const applyHref = page.locator(`a[href^="/events/"][href$="/apply"]`).first();
+      if ((await applyHref.count()) > 0) {
+        await applyHref.waitFor({ state: 'visible', timeout: 15_000 });
+        console.log('events → detail → apply link: OK', page.url());
+        applyFound = true;
+        break;
+      }
+    }
+    if (!applyFound) {
       console.log(
-        'events → detail: OK (registration may be closed — no /apply link on this event)',
-        page.url(),
+        `events → detail: checked ${hrefs.length} event(s); none show /apply (registration closed site-wide or RLS empty)`,
       );
     }
+  }
+
+  await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  await page.waitForURL(/\/auth(\?|$)/, { timeout: 25_000 });
+  {
+    const u = new URL(page.url());
+    if (!u.searchParams.get('returnTo')?.includes('/dashboard')) {
+      fail(`dashboard guard: expected /auth?returnTo=.../dashboard..., got: ${page.url()}`);
+    }
+    console.log('dashboard signed-out redirect: OK');
   }
 
   await page.goto('/auth', { waitUntil: 'domcontentloaded', timeout: 30_000 });
