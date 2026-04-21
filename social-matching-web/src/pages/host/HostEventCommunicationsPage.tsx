@@ -22,9 +22,9 @@ export function HostEventCommunicationsPage() {
       />
 
       <PlaceholderPanel
-        title="Host event communications"
+        title="Host communications"
         contractState="stubbed"
-        body="This route is reserved for host-only participant messaging and outbound comms history."
+        body="המסך הזה שומר מקום לעדכונים עתידיים מהמארח/ת בלי לרמוז שיש כרגע מערכת הודעות פעילה."
       />
     </PageShell>
   );

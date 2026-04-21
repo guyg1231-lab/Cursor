@@ -14,6 +14,15 @@ export function HostEventWorkspacePage() {
         <Button asChild variant="outline" size="sm">
           <Link to="/host/events">Back to host events</Link>
         </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/host/events/${eventId ?? ''}/registrations`}>לתמונת ההרשמות</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/host/events/${eventId ?? ''}/communications`}>לתקשורת</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/host/events/${eventId ?? ''}/follow-up`}>למעקב אחרי האירוע</Link>
+        </Button>
       </PageActionBar>
 
       <SectionHeader

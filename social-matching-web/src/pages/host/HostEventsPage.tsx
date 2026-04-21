@@ -418,6 +418,9 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           >
                             פתיחת הקישור
                           </Button>
+                          <Button asChild type="button" variant="outline">
+                            <Link to={`/host/events/${event.id}`}>לניהול האירוע</Link>
+                          </Button>
                         </div>
                       </div>
                     ) : null}

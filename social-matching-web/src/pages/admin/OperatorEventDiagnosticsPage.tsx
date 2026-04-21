@@ -24,7 +24,7 @@ export function OperatorEventDiagnosticsPage() {
       <PlaceholderPanel
         title="Operator diagnostics"
         contractState="stubbed"
-        body="This route is reserved for internal logs, state checks, and operator-only diagnostics."
+        body="המסלול הזה שמור ליומני מערכת פנימיים, בדיקות מצב, ודיאגנוסטיקה לצוות התפעול בלבד."
       />
     </PageShell>
   );

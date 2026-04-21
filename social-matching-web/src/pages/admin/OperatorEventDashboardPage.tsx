@@ -222,6 +222,12 @@ export function OperatorEventDashboardPage() {
         <Button asChild variant="outline" size="sm">
           <Link to="/admin/events">← All events</Link>
         </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/admin/events/${eventId}/diagnostics`}>Diagnostics</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to={`/admin/events/${eventId}/audit`}>Audit</Link>
+        </Button>
       </div>
 
       {loading ? (
@@ -256,72 +262,87 @@ export function OperatorEventDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className={tokens.card.surface}>
-            <CardHeader>
-              <CardTitle className="text-lg">Orchestrated selection (RPC)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>
-                Paste registration UUIDs below (commas, spaces, or newlines). IDs are shown on each participant row —
-                use Copy.
+          <section
+            data-testid="admin-event-lifecycle-actions"
+            aria-labelledby="admin-event-lifecycle-actions-heading"
+            className="space-y-4"
+          >
+            <div className="space-y-1">
+              <h2 id="admin-event-lifecycle-actions-heading" className="text-lg font-semibold text-foreground">
+                פעולות מחזור חיים
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                בחירה מתואמת, תפוגת הצעות ומילוי מחדש — לצד שאר הבקרות למעלה.
               </p>
-              <div className="flex flex-wrap gap-2">
+            </div>
+
+            <Card className={tokens.card.surface}>
+              <CardHeader>
+                <CardTitle className="text-lg">Orchestrated selection (RPC)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  Paste registration UUIDs below (commas, spaces, or newlines). IDs are shown on each participant row —
+                  use Copy.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void copyText(pendingAndWaitlistIds.join(', '))}
+                    disabled={pendingAndWaitlistIds.length === 0}
+                  >
+                    Copy all pending + waitlist IDs
+                  </Button>
+                </div>
+                <label className="block space-y-1">
+                  <span className="text-foreground">Selected registration IDs</span>
+                  <textarea
+                    className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
+                    value={selectedRaw}
+                    onChange={(e) => setSelectedRaw(e.target.value)}
+                    placeholder="uuid, uuid, …"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-foreground">Waitlist registration IDs</span>
+                  <textarea
+                    className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
+                    value={waitlistRaw}
+                    onChange={(e) => setWaitlistRaw(e.target.value)}
+                    placeholder="uuid, uuid, …"
+                  />
+                </label>
                 <Button
                   type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void copyText(pendingAndWaitlistIds.join(', '))}
-                  disabled={pendingAndWaitlistIds.length === 0}
+                  variant="default"
+                  disabled={isSavingSelection}
+                  onClick={() => void handleSelectionSave()}
                 >
-                  Copy all pending + waitlist IDs
+                  {isSavingSelection ? 'Saving…' : 'Save selection (record_event_selection_output)'}
                 </Button>
-              </div>
-              <label className="block space-y-1">
-                <span className="text-foreground">Selected registration IDs</span>
-                <textarea
-                  className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
-                  value={selectedRaw}
-                  onChange={(e) => setSelectedRaw(e.target.value)}
-                  placeholder="uuid, uuid, …"
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-foreground">Waitlist registration IDs</span>
-                <textarea
-                  className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
-                  value={waitlistRaw}
-                  onChange={(e) => setWaitlistRaw(e.target.value)}
-                  placeholder="uuid, uuid, …"
-                />
-              </label>
-              <Button
-                type="button"
-                variant="default"
-                disabled={isSavingSelection}
-                onClick={() => void handleSelectionSave()}
-              >
-                {isSavingSelection ? 'Saving…' : 'Save selection (record_event_selection_output)'}
-              </Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card className={tokens.card.surface}>
-            <CardHeader>
-              <CardTitle className="text-lg">Expiry / refill</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isCleaningExpired || expiredOfferCount === 0}
-                onClick={() => void handleExpire()}
-              >
-                {isCleaningExpired
-                  ? 'Running…'
-                  : `Run expire_offers_and_prepare_refill${expiredOfferCount > 0 ? ` (${expiredOfferCount})` : ''}`}
-              </Button>
-            </CardContent>
-          </Card>
+            <Card className={tokens.card.surface}>
+              <CardHeader>
+                <CardTitle className="text-lg">Expiry / refill</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isCleaningExpired || expiredOfferCount === 0}
+                  onClick={() => void handleExpire()}
+                >
+                  {isCleaningExpired
+                    ? 'Running…'
+                    : `Run expire_offers_and_prepare_refill${expiredOfferCount > 0 ? ` (${expiredOfferCount})` : ''}`}
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
 
           {actionMessage ? <p className="text-sm text-primary">{actionMessage}</p> : null}
           {actionError ? <p className="text-sm text-destructive">{actionError}</p> : null}

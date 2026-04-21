@@ -22,9 +22,9 @@ export function HostEventRegistrationsPage() {
       />
 
       <PlaceholderPanel
-        title="Host event registrations"
+        title="Host registrations summary"
         contractState="stubbed"
-        body="This route is reserved for host-only registration summaries and response status breakdowns."
+        body="אין כאן שמות משתתפים או שליטה בבחירה. המסך הזה שמור לסיכום ספירות ומצב כללי בלבד."
       />
     </PageShell>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { tokens } from '@/lib/design-tokens';
 import {
@@ -90,9 +90,12 @@ export function AdminEventRequestsPage() {
       title="Host event requests"
       subtitle="Approve a submitted request to publish the gathering, or reject it."
     >
-      <Card className={tokens.card.surface}>
+      <Card data-testid="admin-event-requests-review-queue" className={tokens.card.surface}>
         <CardHeader>
           <CardTitle className="text-xl">Submitted for review</CardTitle>
+          <CardDescription data-testid="admin-event-requests-queue-description" className="text-sm text-muted-foreground">
+            תור הבדיקה: מוצגות כאן בקשות בסטטוס &quot;נשלח לאישור&quot;; אישור מפרסם, דחייה סוגרת את הבקשה.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           {loading ? (
