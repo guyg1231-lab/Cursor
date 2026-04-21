@@ -45,6 +45,10 @@ npm run ops:verify-deploy-supabase
 VERIFY_DEPLOY_URL=https://your-prod-host.example VERIFY_EXPECT_SUPABASE_REF=nshgmuqlivuhlimwdwhe npm run ops:verify-deploy-supabase
 ```
 
+**Vercel CLI gotcha:** if `vercel deploy --prod` fails immediately with *Git author … must have access to the team*, the team blocks CLI builds when commit metadata points at a non-member. A working path is **prebuilt**: set Production `VITE_*` in the dashboard (so Git-based deploys stay healthy), then locally run `node scripts/ops/prebuilt-prod-deploy.mjs` with `SUPABASE_ACCESS_TOKEN` set (see script header) so `npm run build` inlines the correct Supabase host, then `vercel build` + `vercel deploy --prebuilt --prod`.
+
+**Supabase Management API:** `PATCH /v1/projects/{ref}/config/auth` expects `uri_allow_list` as a **comma-separated** list of redirect URLs (not newline-separated).
+
 Service role keys and DB URLs belong to **Edge/cron/ops**, not the Vite bundle.
 
 ## 3. Supabase Auth URLs
