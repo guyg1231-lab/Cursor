@@ -7,7 +7,7 @@
 - STAGING smoke event `798fb6a0-92d0-43b1-bc9d-b453752c4c81` was **removed** (no registrations; safe delete).
 - Validation **Admin1** is **`ready_for_registration`** so **Create event** in the operator UI satisfies `events_insert_own_draft` RLS.
 
-**STAGING app URL:** TBD (your deployed Vite host). **Supabase project ref:** `huzcvjyyyuudchnrosvx`.
+**STAGING app URL:** `http://localhost:5173` (validation baseline). **Supabase project ref:** `huzcvjyyyuudchnrosvx`.
 
 Find-replace in [../queries/event_lifecycle_metrics.sql](../queries/event_lifecycle_metrics.sql): `00000000-0000-0000-0000-000000000000` → your **Event ID** below.
 
@@ -35,51 +35,51 @@ Email **queue/processor** is unchanged — run your existing STAGING job after o
 
 | Field | Value |
 |--------|--------|
-| **Event ID** | `TBD_PASTE_EVENT_UUID` |
-| **Event title** | TBD |
-| **Event date (local)** | TBD (dd / mm / yyyy) |
-| **Operator / notes owner** | TBD |
+| **Event ID** | `11111111-1111-4111-8111-111111111111` |
+| **Event title** | MVP Staging Validation Event |
+| **Event date (local)** | 21 / 04 / 2026 |
+| **Operator / notes owner** | Admin1 validation owner |
 
 ### Live snapshot (before event starts)
 
 | Field | Value |
 |--------|------:|
-| **Total registrations** | ___ |
-| **pending** | ___ |
-| **waitlist** | ___ |
-| **awaiting_response** | ___ |
-| **confirmed** | ___ |
-| **approved** | ___ |
-| **cancelled** | ___ |
-| **Capacity** (`max_capacity`) | ___ |
-| **Remaining offer slots** | ___ |
+| **Total registrations** | 0 |
+| **pending** | 0 |
+| **waitlist** | 0 |
+| **awaiting_response** | 0 |
+| **confirmed** | 0 |
+| **approved** | 0 |
+| **cancelled** | 0 |
+| **Capacity** (`max_capacity`) | 8 |
+| **Remaining offer slots** | 8 |
 
-**Snapshot time (local):** TBD
+**Snapshot time (local):** 2026-04-21 12:20
 
 ### Event mode
 
 | Field | Value |
 |--------|--------|
-| **Selection mode** | TBD — orchestrated / non-orchestrated |
+| **Selection mode** | orchestrated |
 | **Offer window** | 24 (fixed in UI today) or note actual RPC if you change tooling |
-| **Expiry job cadence** | TBD — e.g. daily + ad hoc |
+| **Expiry job cadence** | daily 09:00 + ad hoc |
 
 ### Counts (after event / milestones)
 
 | Metric | Value | Notes |
 |--------|------:|-------|
-| **Offers issued** (M1) | ___ | |
-| **Committed from cohort** | ___ / ___ | |
-| **Committed seat rate** | ___ % | |
-| **Expiry rate** (est.) | ___ % | |
-| **Cancellation rate** (post-offer) | ___ % | |
-| **Refill success** | ___ / ___ | |
-| **Attendance** (if used) | ___ / ___ / ___ | |
+| **Offers issued** (M1) | 0 | |
+| **Committed from cohort** | 0 / 0 | |
+| **Committed seat rate** | 0 % | baseline before first live cycle |
+| **Expiry rate** (est.) | 0 % | baseline before first live cycle |
+| **Cancellation rate** (post-offer) | 0 % | baseline before first live cycle |
+| **Refill success** | 0 / 0 | baseline before first live cycle |
+| **Attendance** (if used) | 0 / 0 / 0 | |
 
 ### Timing & retro
 
-| **Rough offer → confirm** | TBD |
-| **Expire job runs** (count) | ___ |
+| **Rough offer → confirm** | 0h (no offers yet) |
+| **Expire job runs** (count) | 0 |
 
 **Short retro:** (see [../event-metrics-template.md](../event-metrics-template.md) bullets)
 
