@@ -3,7 +3,11 @@
  * Push Vite/Supabase browser env vars to a Vercel project so every build
  * (Production + Preview + Development) inlines the correct `import.meta.env`.
  *
- * Requires:
+ * Loads `social-matching-web/.env.ops.local` first (gitignored via `.env.*.local`) so you can
+ * keep tokens in one file and run `npm run ops:sync-vercel-vite-env` without exporting vars.
+ * Shell env still wins if set.
+ *
+ * Requires (in process.env or .env.ops.local):
  *   VERCEL_TOKEN           — https://vercel.com/account/tokens
  *   VERCEL_PROJECT_ID      — Project → Settings → General → Project ID (prj_… or slug)
  *   SUPABASE_ACCESS_TOKEN  — Supabase account PAT (reads API keys)
@@ -14,9 +18,16 @@
  *   DRY_RUN=1              — print actions only, no network writes to Vercel
  *
  * Usage:
- *   DRY_RUN=1 node scripts/ops/sync-vercel-vite-supabase-env.mjs
- *   VERCEL_TOKEN=… VERCEL_PROJECT_ID=… SUPABASE_ACCESS_TOKEN=… node scripts/ops/sync-vercel-vite-supabase-env.mjs
+ *   cp .env.ops.local.example .env.ops.local   # fill in, never commit
+ *   npm run ops:sync-vercel-vite-env
  */
+import { config as loadEnv } from 'dotenv';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+loadEnv({ path: join(root, '.env.ops.local') });
+
 const ref = process.env.SUPABASE_PROJECT_REF || 'nshgmuqlivuhlimwdwhe';
 const vercelToken = process.env.VERCEL_TOKEN || '';
 const projectId = process.env.VERCEL_PROJECT_ID || '';

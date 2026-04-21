@@ -38,7 +38,13 @@ See [`.env.production.example`](../../.env.production.example) for shape. **Stag
 
 ### One-shot sync (CLI + APIs)
 
-If you have a **Vercel token**, the **Vercel project id** (`prj_…` from Project → Settings → General), and a **Supabase account PAT** with access to the production project:
+Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`**, fill in tokens (file is gitignored), then from `social-matching-web/`:
+
+```bash
+npm run ops:sync-vercel-vite-env
+```
+
+Alternatively export the same variables in the shell:
 
 ```bash
 cd social-matching-web
