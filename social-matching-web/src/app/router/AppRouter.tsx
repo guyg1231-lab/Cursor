@@ -16,7 +16,7 @@ import { TeamGatheringPage } from '@/pages/admin/TeamGatheringPage';
 import { AuthPage } from '@/pages/auth/AuthPage';
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage';
 import { GatheringPage } from '@/pages/gathering/GatheringPage';
-import { HostEventsPage } from '@/pages/host/HostEventsPage';
+import { EventProposalPage, HostEventsPage } from '@/pages/host/HostEventsPage';
 import { HostEventWorkspacePage } from '@/pages/host/HostEventWorkspacePage';
 import { HostEventRegistrationsPage } from '@/pages/host/HostEventRegistrationsPage';
 import { HostEventCommunicationsPage } from '@/pages/host/HostEventCommunicationsPage';
@@ -36,6 +36,14 @@ export function AppRouter() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/gathering/:eventId" element={<GatheringPage />} />
       <Route path="/events" element={<EventsPage />} />
+      <Route
+        path="/events/propose"
+        element={
+          <ProtectedRoute>
+            <EventProposalPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/events/:eventId" element={<EventDetailPage />} />
       <Route
         path="/events/:eventId/apply"

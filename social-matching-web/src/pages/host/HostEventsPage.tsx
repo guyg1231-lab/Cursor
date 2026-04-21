@@ -100,6 +100,14 @@ const fieldClassName =
   'w-full rounded-3xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/15';
 
 export function HostEventsPage() {
+  return <HostEventsPageContent defaultToNewDraft={false} />;
+}
+
+export function EventProposalPage() {
+  return <HostEventsPageContent defaultToNewDraft />;
+}
+
+function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boolean }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [events, setEvents] = useState<HostOverviewEvent[]>([]);
@@ -163,7 +171,7 @@ export function HostEventsPage() {
         if (!active) return;
         setIsReady(readyState.ready);
         setEvents(nextRequests);
-        setActiveEditorId((current) => current || pickInitialEditorId(nextRequests));
+        setActiveEditorId((current) => current || (defaultToNewDraft ? 'new' : pickInitialEditorId(nextRequests)));
       } catch {
         if (!active) return;
         setLoadError('לא הצלחנו לטעון כרגע את אזור בקשות האירועים.');
@@ -178,7 +186,7 @@ export function HostEventsPage() {
     return () => {
       active = false;
     };
-  }, [user]);
+  }, [defaultToNewDraft, user]);
 
   useEffect(() => {
     if (!activeEditorId) return;

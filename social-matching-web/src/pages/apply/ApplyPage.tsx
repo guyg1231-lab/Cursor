@@ -15,6 +15,7 @@ import {
   ApplicationSubmitError,
   confirmRegistrationResponse,
   createApplication,
+  declineRegistrationResponse,
   getExistingApplication,
   getQuestionnaireReadyState,
   parsePersistedApplicationAnswers,
@@ -99,8 +100,6 @@ function SubmittedAnswersSummary({
         </div>
 
         <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm text-muted-foreground space-y-1">
-          <p>אישור תשלום לאחר קבלה: {answers.understand_payment ? 'אושר' : 'לא אושר'}</p>
-          <p>התחייבות להגיע בזמן: {answers.commit_on_time ? 'אושרה' : 'לא אושרה'}</p>
           <p>נשמר בתאריך: {new Date(answers.submitted_at).toLocaleString('he-IL')}</p>
         </div>
       </CardContent>
@@ -125,13 +124,12 @@ export function ApplyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [isConfirmingSpot, setIsConfirmingSpot] = useState(false);
+  const [isDecliningSpot, setIsDecliningSpot] = useState(false);
 
   const [whyThisEvent, setWhyThisEvent] = useState('');
   const [desiredOutcome, setDesiredOutcome] = useState('');
   const [whatYouBring, setWhatYouBring] = useState('');
   const [hostNote, setHostNote] = useState('');
-  const [understandPayment, setUnderstandPayment] = useState(false);
-  const [commitOnTime, setCommitOnTime] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const [hasLocalDraft, setHasLocalDraft] = useState(false);
 
@@ -148,15 +146,11 @@ export function ApplyPage() {
         desiredOutcome?: string;
         whatYouBring?: string;
         hostNote?: string;
-        understandPayment?: boolean;
-        commitOnTime?: boolean;
       };
       setWhyThisEvent(parsed.whyThisEvent ?? '');
       setDesiredOutcome(parsed.desiredOutcome ?? '');
       setWhatYouBring(parsed.whatYouBring ?? '');
       setHostNote(parsed.hostNote ?? '');
-      setUnderstandPayment(parsed.understandPayment ?? false);
-      setCommitOnTime(parsed.commitOnTime ?? false);
     } catch {
       // ignore local draft parse failures
       setHasLocalDraft(false);
@@ -173,8 +167,6 @@ export function ApplyPage() {
     setDesiredOutcome(answers.desired_outcome);
     setWhatYouBring(answers.what_you_bring);
     setHostNote(answers.host_note ?? '');
-    setUnderstandPayment(answers.understand_payment);
-    setCommitOnTime(answers.commit_on_time);
   }, [existingApplication, hasLocalDraft]);
 
   useEffect(() => {
@@ -243,8 +235,6 @@ export function ApplyPage() {
         desiredOutcome,
         whatYouBring,
         hostNote,
-        understandPayment,
-        commitOnTime,
       }),
     );
     setSavedMessage('הטיוטה נשמרה מקומית, אפשר לחזור אליה בהמשך.');
@@ -259,9 +249,7 @@ export function ApplyPage() {
     (!existingApplication || canReapplyToEvent(existingApplication.status)) &&
     whyThisEvent.trim().length >= 10 &&
     desiredOutcome.trim().length > 0 &&
-    whatYouBring.trim().length > 0 &&
-    understandPayment &&
-    commitOnTime;
+    whatYouBring.trim().length > 0;
 
   const persistedApplicationAnswers = existingApplication
     ? parsePersistedApplicationAnswers(existingApplication.application_answers)
@@ -283,8 +271,6 @@ export function ApplyPage() {
         desired_outcome: desiredOutcome,
         what_you_bring: whatYouBring,
         host_note: hostNote.trim() || null,
-        understand_payment: understandPayment,
-        commit_on_time: commitOnTime,
         submitted_at: new Date().toISOString(),
       };
 
@@ -302,8 +288,6 @@ export function ApplyPage() {
           desiredOutcome,
           whatYouBring,
           hostNote,
-          understandPayment,
-          commitOnTime,
           submittedAt: new Date().toISOString(),
           registrationId: result.registration.id,
         }),
@@ -387,6 +371,48 @@ export function ApplyPage() {
     }
   }
 
+  async function handleDeclineTemporarySpot() {
+    if (!existingApplication || !event || !user || !canConfirmSpot) return;
+
+    setIsDecliningSpot(true);
+    setConfirmError(null);
+
+    try {
+      const updatedRegistration = await declineRegistrationResponse({
+        registrationId: existingApplication.id,
+        eventId: event.id,
+        userId: user.id,
+      });
+
+      setExistingApplication(updatedRegistration);
+      setSavedMessage('הפעם זה לא יצא, ועדכנו את הסטטוס בהתאם.');
+      window.setTimeout(() => setSavedMessage(null), 2500);
+    } catch (error) {
+      if (error instanceof ApplicationConfirmError) {
+        switch (error.reason) {
+          case 'offer_expired':
+            setConfirmError('חלון התגובה כבר נסגר, ולכן אי אפשר לדחות את המקום הזמני הזה.');
+            return;
+          case 'not_awaiting_response':
+            setConfirmError('כרגע אין מקום זמני שמחכה לתגובה, ולכן אין מה לדחות כאן.');
+            return;
+          case 'unauthenticated':
+            setConfirmError('פג תוקף החיבור שלך. צריך להתחבר מחדש כדי להמשיך.');
+            return;
+          case 'forbidden':
+            setConfirmError('אי אפשר לעדכן את ההרשמה הזאת מהחשבון הנוכחי.');
+            return;
+          default:
+            break;
+        }
+      }
+
+      setConfirmError('לא הצלחנו לשמור את התגובה שלך כרגע. אפשר לנסות שוב בעוד רגע.');
+    } finally {
+      setIsDecliningSpot(false);
+    }
+  }
+
   if (pageLoading) {
     return (
       <PageShell title="הגשת מועמדות למפגש" subtitle="טוענים את פרטי ההגשה...">
@@ -411,10 +437,13 @@ export function ApplyPage() {
 
   if (!user) {
     return (
-      <PageShell title="כדי להגיש מועמדות צריך להתחבר" subtitle="ברגע שתהיה/י מחובר/ת נוכל לשמור את ההגשה שלך למפגש הזה.">
+      <PageShell
+        title="כדי להגיש מועמדות צריך להתחבר"
+        subtitle="עמוד זה הוא הסמכות היחידה להגשה ולניהול סטטוס, ולכן צריך להתחבר כדי להמשיך."
+      >
         <Card className={tokens.card.surface}>
           <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>כרגע האפליקציה החדשה עדיין לא כוללת מסך התחברות ייעודי. אפשר להתחבר בהמשך ולהמשיך מכאן.</p>
+            <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>
             </Button>
@@ -456,6 +485,15 @@ export function ApplyPage() {
                 {!offerExpired ? (
                   <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
                     {isConfirmingSpot ? 'שומר/ת...' : 'אישור המקום הזמני'}
+                  </Button>
+                ) : null}
+                {!offerExpired ? (
+                  <Button
+                    variant="outline"
+                    disabled={!canConfirmSpot || isDecliningSpot || isConfirmingSpot}
+                    onClick={() => void handleDeclineTemporarySpot()}
+                  >
+                    {isDecliningSpot ? 'מעדכן/ת...' : 'לא אוכל להגיע'}
                   </Button>
                 ) : null}
                 <Button asChild variant="outline">
@@ -568,7 +606,7 @@ export function ApplyPage() {
   return (
     <PageShell
       title="הגשה למפגש"
-      subtitle="כאן רק עוזרים לנו להבין למה דווקא המפגש הזה מרגיש נכון עבורך — לא ממלאים הכול מחדש."
+      subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך נשמר מקום זמני."
     >
       <Card className={tokens.card.accent}>
         <CardHeader>
@@ -590,6 +628,7 @@ export function ApplyPage() {
               שליחה עכשיו תפתח אותה מחדש כ-הגשה ממתינה.
             </p>
           ) : null}
+          <p>זהו עמוד ההגשה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
           <p>
             אחרי ההגשה הסטטוס שלך יישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי להגיב אליו בזמן.
           </p>
@@ -677,16 +716,6 @@ export function ApplyPage() {
               className="min-h-[100px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
             />
           </div>
-
-          <label className="flex items-center gap-3 text-sm text-foreground">
-            <input type="checkbox" checked={understandPayment} onChange={(e) => setUnderstandPayment(e.target.checked)} />
-            אני מבין/ה שהתשלום יישלח רק אם אתקבל/י.
-          </label>
-
-          <label className="flex items-center gap-3 text-sm text-foreground">
-            <input type="checkbox" checked={commitOnTime} onChange={(e) => setCommitOnTime(e.target.checked)} />
-            אם אתקבל/י, אני מתחייב/ת לשלם בזמן כדי לשמור על המקום שלי.
-          </label>
 
           {savedMessage ? <p className="text-sm text-primary">{savedMessage}</p> : null}
           {submitError ? <RouteErrorState title="לא הצלחנו לשמור את ההגשה" body={submitError} /> : null}

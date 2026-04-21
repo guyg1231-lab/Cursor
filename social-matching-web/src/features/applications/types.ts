@@ -40,7 +40,7 @@ export interface PersistedApplicationAnswers {
   desired_outcome: string;
   what_you_bring: string;
   host_note: string | null;
-  understand_payment: boolean;
-  commit_on_time: boolean;
+  understand_payment?: boolean;
+  commit_on_time?: boolean;
   submitted_at: string;
 }

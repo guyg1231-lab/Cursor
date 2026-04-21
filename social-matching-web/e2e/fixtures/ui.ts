@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { ENV } from './env';
 
+export const APPLY_PATH = `/events/${ENV.EVENT_ID}/apply`;
 export const EVENT_PATH = `/gathering/${ENV.EVENT_ID}`;
 export const TEAM_PATH = `/team/gathering/${ENV.EVENT_ID}`;
 
@@ -21,7 +22,7 @@ export function getSliceParticipants(): SliceParticipant[] {
 }
 
 /**
- * Fill and submit the participant intake form on /gathering/:eventId.
+ * Fill and submit the canonical participant application form on /events/:eventId/apply.
  * Assumes the page is already authenticated for this participant.
  */
 export async function submitApplicationViaUi(
@@ -30,11 +31,22 @@ export async function submitApplicationViaUi(
   phone: string,
   whyJoin: string,
 ): Promise<void> {
-  await page.goto(EVENT_PATH);
-  await expect(page.getByRole('textbox', { name: 'שם מלא' })).toBeVisible();
-  await page.getByRole('textbox', { name: 'שם מלא' }).fill(fullName);
-  await page.getByRole('textbox', { name: 'טלפון' }).fill(phone);
-  await page.getByRole('textbox', { name: 'למה להצטרף למפגש הזה?' }).fill(whyJoin);
-  await page.getByRole('button', { name: 'שליחת בקשה' }).click();
-  await expect(page.getByText('הבקשה שלך נשמרה')).toBeVisible();
+  await page.goto(APPLY_PATH);
+  await expect(page.getByRole('heading', { level: 1, name: 'הגשה למפגש' })).toBeVisible();
+
+  const whyJoinInput = page.locator('label:has-text("למה דווקא המפגש הזה מעניין אותך?") + textarea');
+  const desiredOutcomeSelect = page.locator('label:has-text("מה היית רוצה לקבל מהמפגש הזה?") + select');
+  const whatYouBringSelect = page.locator('label:has-text("מה היית רוצה להביא לקבוצה?") + select');
+  const hostNoteInput = page.locator('label:has-text("יש משהו שחשוב למארגן לדעת?") + textarea');
+
+  await expect(whyJoinInput).toBeVisible();
+  await whyJoinInput.fill(whyJoin);
+  await expect(desiredOutcomeSelect).toBeVisible();
+  await desiredOutcomeSelect.selectOption('meet_new_people');
+  await expect(whatYouBringSelect).toBeVisible();
+  await whatYouBringSelect.selectOption('good_energy');
+  await expect(hostNoteInput).toBeVisible();
+  await hostNoteInput.fill(`${fullName} / ${phone}`);
+  await page.getByRole('button', { name: 'שליחת הגשה' }).click();
+  await expect(page.getByText('ההגשה נשמרה ונשלחה בהצלחה.')).toBeVisible();
 }

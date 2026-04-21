@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { authenticateAs } from './fixtures/auth';
 import { fetchStatusForEmail, resetEventRegistrations } from './fixtures/db';
 import { ENV } from './fixtures/env';
-import { EVENT_PATH, TEAM_PATH, getSliceParticipants, submitApplicationViaUi } from './fixtures/ui';
+import { APPLY_PATH, TEAM_PATH, getSliceParticipants, submitApplicationViaUi } from './fixtures/ui';
 
 test.describe('Circles vertical slice - decline path', () => {
   test.beforeAll(async () => {
@@ -41,10 +41,10 @@ test.describe('Circles vertical slice - decline path', () => {
       try {
         await authenticateAs(ctx, ENV.EMAILS.P1);
         const page = await ctx.newPage();
-        await page.goto(EVENT_PATH);
-        await expect(page.getByText('נשמר עבורך מקום במפגש')).toBeVisible();
+        await page.goto(APPLY_PATH);
+        await expect(page.getByRole('button', { name: 'לא אוכל להגיע' })).toBeVisible();
         await page.getByRole('button', { name: 'לא אוכל להגיע' }).click();
-        await expect(page.getByText('הפעם זה לא יצא')).toBeVisible();
+        await expect(page.getByText('הפעם זה לא יצא, ועדכנו את הסטטוס בהתאם.')).toBeVisible();
       } finally {
         await ctx.close();
       }

@@ -82,9 +82,14 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground leading-relaxed">
             <p>הפרופיל שלך נבנה כדי לעזור לנו להבין אותך טוב יותר לפני כל הגשה.</p>
-            <Button asChild variant="outline">
-              <Link to="/questionnaire">לשאלון הפרופיל</Link>
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <Link to="/questionnaire">לשאלון הפרופיל</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/events/propose">להציע מפגש חדש</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

@@ -3,6 +3,7 @@ import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 import { createServiceRoleClient } from './fixtures/supabase';
 import { withFlippedRegistrationStatus } from './fixtures/registrations';
+import { submitApplicationViaUi } from './fixtures/ui';
 
 test.describe('participant foundation', () => {
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
@@ -59,9 +60,31 @@ test.describe('participant foundation', () => {
     await expect(page).toHaveURL(new RegExp(`/events/${ENV.EVENT_ID}`));
     await expect(
       page.getByRole('link', {
-        name: /להגיש מועמדות|להגיש שוב|לסטטוס ההרשמה|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
+        name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
       }).first(),
     ).toBeVisible();
+  });
+
+  test('events page offers a non-admin CTA to propose something new', async ({ page }) => {
+    await page.goto('/events');
+    await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
+  });
+
+  test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.goto('/events/propose');
+      await expect(page).toHaveURL(/\/events\/propose$/);
+      await expect(page.getByText('אין לך גישה לעמוד הזה', { exact: true })).toHaveCount(0);
+      await expect(page.getByRole('heading', { level: 1, name: 'בקשת אירוע' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'טיוטה חדשה' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'שליחה לבדיקה מנהלית' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
   });
 
   // Keep this alternation for readiness branches we cannot deterministically
@@ -80,6 +103,121 @@ test.describe('participant foundation', () => {
       await expect(
         page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה/i),
       ).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('apply: open form hides payment prompts even when readiness and event state are satisfied', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'stubbed-matching-response',
+              user_id: 'stubbed-user',
+              completed_at: new Date().toISOString(),
+              birth_date: '1990-01-01',
+              social_link: 'https://instagram.com/testuser',
+            },
+          ]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.goto(`/events/${ENV.EVENT_ID}/apply`);
+
+      await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
+      await expect(page.getByText('אני מבין/ה שהתשלום יישלח רק אם אתקבל/י.')).toHaveCount(0);
+      await expect(page.getByText('אם אתקבל/י, אני מתחייב/ת לשלם בזמן כדי לשמור על המקום שלי.')).toHaveCount(0);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('submitApplicationViaUi uses canonical apply controls without positional selectors', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+      let submitSucceeded = false;
+      await page.addInitScript(() => {
+        const decoy = document.createElement('section');
+        decoy.setAttribute('aria-label', 'decoy-apply-controls');
+        decoy.innerHTML = `
+          <textarea aria-label="Decoy intro textarea"></textarea>
+          <select aria-label="Decoy outcome select">
+            <option value="">Choose</option>
+            <option value="different_value">Different</option>
+          </select>
+          <select aria-label="Decoy bring select">
+            <option value="">Choose</option>
+            <option value="different_value">Different</option>
+          </select>
+          <textarea aria-label="Decoy host note"></textarea>
+        `;
+        document.body.prepend(decoy);
+      });
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'stubbed-matching-response',
+              user_id: 'stubbed-user',
+              completed_at: new Date().toISOString(),
+              birth_date: '1990-01-01',
+              social_link: 'https://instagram.com/testuser',
+            },
+          ]),
+        });
+      });
+      await page.route('**/rest/v1/rpc/register_or_reregister_with_email', async (route) => {
+        submitSucceeded = true;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([{ is_new: true }]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (!submitSucceeded) {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'stubbed-registration',
+              event_id: ENV.EVENT_ID,
+              user_id: 'stubbed-user',
+              status: 'pending',
+              submitted_at: new Date().toISOString(),
+              application_answers: {
+                why_this_event: 'Contract test for canonical apply helper selectors',
+                desired_outcome: 'meet_new_people',
+                what_you_bring: 'good_energy',
+                host_note: 'P1 E2E / +972500000001',
+                submitted_at: new Date().toISOString(),
+              },
+            },
+          ]),
+        });
+      });
+
+      await submitApplicationViaUi(page, 'P1 E2E', '+972500000001', 'Contract test for canonical apply helper selectors');
     } finally {
       await ctx.close();
     }
@@ -299,6 +437,19 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('dashboard proposal CTA links to /events/propose', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.goto('/dashboard');
+      await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('StatusBadge: apply surface shows current application short label when reapply form visible', async ({
     browser,
   }) => {
@@ -321,7 +472,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          const badge = page.locator('span.rounded-full', { hasText: 'לא נבחר/ת הפעם' });
+          const badge = page.getByText('לא נבחר/ת הפעם', { exact: true });
           await expect(badge).toBeVisible();
         } finally {
           try {
@@ -357,6 +508,8 @@ test.describe('participant foundation', () => {
           await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
           await expect(page.getByRole('heading', { name: 'ההגשה הקודמת שלך' })).toBeVisible();
           await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
+          await expect(page.getByText(/אישור תשלום לאחר קבלה/)).toHaveCount(0);
+          await expect(page.getByText(/התחייבות להגיע בזמן/)).toHaveCount(0);
         } finally {
           try {
             await ctx.close();
@@ -589,6 +742,10 @@ test.describe('participant foundation', () => {
           await page.goto('/dashboard');
           const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
           await expect(appsCard.getByText('המקום שלך שמור', { exact: true })).toBeVisible();
+          await expect(appsCard.getByRole('link', { name: 'להגשה ולסטטוס' })).toHaveAttribute(
+            'href',
+            `/events/${ENV.EVENT_ID}/apply`,
+          );
         } finally {
           try {
             await ctx.close();
@@ -696,14 +853,12 @@ test.describe('participant foundation', () => {
       await expect(page.getByText('מוכן להגשה', { exact: true })).toBeVisible();
 
       await expect(page.getByRole('heading', { level: 3, name: 'ההגשות שלך' })).toBeVisible();
-      const appsCard = page.getByRole('heading', { level: 3, name: 'ההגשות שלך' }).locator('..').locator('..');
-      await expect(appsCard.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first()).toBeVisible();
     } finally {
       await ctx.close();
     }
   });
 
-  test('gathering page frames itself as a participant gathering view and links to event details', async ({
+  test('gathering page frames itself as a later-stage participant view and links to the canonical apply page', async ({
     browser,
   }) => {
     const ctx = await browser.newContext();
@@ -711,9 +866,137 @@ test.describe('participant foundation', () => {
     const page = await ctx.newPage();
     try {
       await page.goto(`/gathering/${ENV.EVENT_ID}`);
-      await expect(page.getByText(/תצוגת המפגש|טופס הגשה מהיר/)).toBeVisible();
+      await expect(
+        page.getByText('כאן רואים מה קורה אחרי ההגשה, ומה הצעד הבא אם נשמר עבורך מקום או סטטוס מעודכן.'),
+      ).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להגשה ולסטטוס' }).first()).toHaveAttribute(
+        'href',
+        `/events/${ENV.EVENT_ID}/apply`,
+      );
       await expect(page.getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
       await expect(page.getByRole('link', { name: 'לאזור האישי' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('gathering sends first-time participants back to the canonical apply page', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      await page.route('**/rest/v1/event_registrations**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+      await page.goto(`/gathering/${ENV.EVENT_ID}`);
+
+      const applyLink = page.getByRole('link', { name: 'להגשה ולסטטוס' }).first();
+      await expect(applyLink).toBeVisible();
+      await expect(applyLink).toHaveAttribute('href', `/events/${ENV.EVENT_ID}/apply`);
+
+      await expect(page.getByRole('textbox', { name: 'שם מלא' })).toHaveCount(0);
+      await expect(page.getByRole('textbox', { name: 'טלפון' })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'שליחת בקשה' })).toHaveCount(0);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('gathering exposes only contract-approved participant actions after realignment', async ({ browser }) => {
+    const admin = createServiceRoleClient();
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', ENV.EMAILS.P1)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile?.id) throw new Error('E2E missing P1 profile');
+
+    const futureExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await withFlippedRegistrationStatus(
+      admin,
+      { userId: profile.id, eventId: ENV.EVENT_ID },
+      {
+        status: 'awaiting_response',
+        expires_at: futureExpires,
+        offered_at: new Date().toISOString(),
+      },
+      async () => {
+        const ctx = await browser.newContext();
+        try {
+          await authenticateAs(ctx, ENV.EMAILS.P1);
+          const page = await ctx.newPage();
+          await page.goto(`/gathering/${ENV.EVENT_ID}`);
+
+          await expect(page).toHaveURL(new RegExp(`/gathering/${ENV.EVENT_ID}$`));
+          await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          await expect(page.getByRole('button', { name: 'אישור המקום' })).toHaveCount(0);
+          await expect(page.getByRole('button', { name: 'לא אוכל להגיע' })).toHaveCount(0);
+
+          const applyAuthorityLink = page.getByRole('link', { name: 'להגשה ולסטטוס' }).first();
+          await expect(applyAuthorityLink).toBeVisible();
+          await expect(applyAuthorityLink).toHaveAttribute('href', `/events/${ENV.EVENT_ID}/apply`);
+        } finally {
+          await ctx.close();
+        }
+      },
+    );
+  });
+
+  test('gathering signed-in with no registration and closed registration shows closed-state branch', async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+
+    try {
+      await page.route('**/rest/v1/events**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: ENV.EVENT_ID,
+              title: 'מפגש סגור להרשמה',
+              description: 'בדיקה',
+              city: 'תל אביב',
+              starts_at: '2026-08-01T18:00:00.000Z',
+              registration_deadline: '2025-01-20T18:00:00.000Z',
+              venue_hint: 'יישלח בהמשך',
+              max_capacity: 8,
+              status: 'closed',
+              is_published: true,
+              created_at: '2026-06-01T10:00:00.000Z',
+              updated_at: '2026-06-01T10:00:00.000Z',
+              created_by_user_id: null,
+              host_user_id: null,
+              payment_required: false,
+              price_cents: 0,
+              currency: 'ILS',
+            },
+          ]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.goto(`/gathering/${ENV.EVENT_ID}`);
+
+      await expect(page.getByText('אין כרגע הגשה שמחוברת למפגש הזה', { exact: true })).toBeVisible();
+      await expect(
+        page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע, ולכן אין מה לנהל מכאן בשלב הזה.', { exact: true }),
+      ).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toHaveAttribute(
+        'href',
+        `/events/${ENV.EVENT_ID}`,
+      );
     } finally {
       await ctx.close();
     }
