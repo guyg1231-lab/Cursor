@@ -35,6 +35,20 @@ Git root is **`/Users/guygarfinkel/Documents/Cursor`** (remote **`origin`** → 
 2. Confirm **Supabase Auth → URL configuration** lists that production origin and **`/auth/callback`**.
 3. Begin the **§5.1 Discovery** post-MVP batch (curated list, calmer cards, confident detail) with **`npm run typecheck`** and **`npm run e2e`** (or focused specs) before calling the batch complete.
 
+## Vision, design, and how to use the “options” specs
+
+**Bigger product story (not only tickets):** The long-form narrative, tradeoffs, and **Option A / B / C** tables per theme live in **`docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md`** (especially **§4 decision lenses** and **§5.x major areas**). Each subsection ends with a **Recommended** path—treat that as the default engineering direction unless the product owner explicitly chooses another option.
+
+**Design north star (words + principles):** **`docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md`** ties visual and UX intent to the same roadmap; read it when changing participant-facing tone, density, or “marketplace vs gathering” feel.
+
+**Design system execution (tokens, components, rollout waves):** **`docs/superpowers/specs/2026-04-21-platform-design-system-spec.md`** is the place for color, typography, spacing rules, and how changes should roll through the app consistently with **`src/index.css`**, **`src/lib/design-tokens.ts`**, and shared UI.
+
+**Quick visual pass:** Open **`docs/design/visual-language-board.html`** in a browser before/after substantive UI work—it is the mood board, not the whole spec.
+
+**Canonical MVP product rules (still binding):** **`docs/mvp-v1/`** (especially discovery/detail in **`10_EVENT_DISCOVERY_AND_DETAIL_SPEC.md`**) remain the hard requirements; superpowers specs interpret and extend, they do not replace MVP scope docs.
+
+**How the next agent should proceed on a large chunk:** (1) Read the relevant **§5.x** + **Recommended** row and any **Option** table that applies. (2) Skim **§4 lenses** if the change touches trust, warmth, scarcity, or vocabulary. (3) Align UI with **platform design system** + **visual companion**. (4) Implement in one coherent batch; (5) update **Playwright** if Hebrew or labels change; (6) note in a short commit or doc line if you **diverged** from the spec’s recommendation and why.
+
 ## Codebase Understanding
 
 ### Architecture Overview
@@ -52,7 +66,9 @@ Vite + React + TypeScript SPA; Supabase auth and data. **Participant** routes un
 | `e2e/slice-admin-review.spec.ts` | Admin approve vertical slice | Hebrew button/heading names |
 | `docs/ops/public-readiness-smoke-checklist.md` | Post-deploy verification log | Single source for smoke + automated gate evidence |
 | `docs/ops/mvp-go-no-go-summary.md` | Launch decision narrative | GO + caveat for new domain |
-| `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md` | Post-MVP roadmap / audit | **§5.1 Discovery** = recommended next engineering theme |
+| `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md` | Post-MVP roadmap, **options A/B/C**, recommendations | Primary “where we are going” doc; use §4–§5 before big builds |
+| `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md` | Design + UX companion to roadmap | Warmth, density, brand feel |
+| `docs/superpowers/specs/2026-04-21-platform-design-system-spec.md` | Tokens, typography, governance | Implementation guardrails for UI |
 | `docs/superpowers/specs/2026-04-21-mvp-finish-roadmap-design.md` | MVP done definition | Canonical “what done means” |
 | `docs/mvp-v1/10_EVENT_DISCOVERY_AND_DETAIL_SPEC.md` | Discovery product spec | Align UI changes with MVP docs |
 
@@ -136,8 +152,11 @@ Vite + React + TypeScript SPA; Supabase auth and data. **Participant** routes un
 - `docs/ops/public-readiness-smoke-checklist.md` — evidence log
 - `docs/ops/mvp-go-no-go-summary.md` — decision summary
 - `docs/superpowers/plans/2026-04-21-mvp-finish-roadmap-implementation-plan.md` — closed MVP plan checklist
-- `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md` — **next: §5.1**
-- `docs/design/visual-language-board.html` — open in browser for visual reference
+- `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md` — vision, lenses, **options per area**, **next default §5.1**
+- `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md` — design/UX companion
+- `docs/superpowers/specs/2026-04-21-platform-design-system-spec.md` — design system / token governance
+- `docs/design/visual-language-board.html` — mood board in browser
+- `docs/mvp-v1/README.md` — canonical MVP reading order
 
 ---
 
