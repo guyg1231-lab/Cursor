@@ -41,7 +41,9 @@ npx playwright test --project=chromium
 ## 6. Latest verification evidence
 
 - Date: 2026-04-21
-- Branch context: `dev-a/circles-core-domain-v0`
-- Command: `npm run typecheck && npx playwright test --project=chromium`
-- Result: PASS (`65 passed`, Chromium full suite)
-- Note: This confirms code-level gate health only; deployed staging URL/manual browser smoke items above are still required and are not yet recorded inline here.
+- Owner: `circlesplatform@gmail.com` (CLI execution)
+- Deployed URL: `https://social-matching-web.vercel.app`
+- Manual smoke result: PASS
+  - Route fallback: direct loads for `/events`, `/auth`, `/questionnaire`, `/dashboard`, `/terms`, `/privacy`, `/auth/callback` all return 200 after Vercel SPA rewrite.
+  - Browser checks: landing, events, auth, questionnaire, dashboard-auth redirect behavior, legal pages, and callback route render expected UI states (no blank screen / no infinite spinner).
+- Automated gate (latest): `npm run typecheck && npx playwright test --project=chromium` -> PASS (`65 passed`, Chromium full suite).

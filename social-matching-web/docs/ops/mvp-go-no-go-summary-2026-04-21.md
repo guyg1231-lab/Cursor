@@ -2,12 +2,12 @@
 
 ## Recommendation
 
-**CONDITIONAL GO** pending manual staging smoke completion.
+**GO** (manual deployed smoke completed and recorded).
 
 Rationale:
 - Launch-critical participant and admin/host workflow gates are green in automated verification.
 - MVP-critical Dev B workflow gaps were closed and covered by dedicated regression tests.
-- Event packet baseline documentation is in repo, but deployed staging smoke still needs to be executed and recorded inline before go-live.
+- Event packet baseline documentation is in repo, and deployed smoke evidence is now recorded inline.
 
 ## What is complete
 
@@ -35,7 +35,7 @@ Rationale:
 
 ## Remaining launch blockers
 
-- Manual staging smoke checklist is not yet recorded against a deployed staging URL.
+- None for current MVP launch scope.
 
 ## Accepted post-MVP deferrals
 
@@ -45,6 +45,6 @@ Rationale:
 
 ## Final decision rule
 
-- **GO**: only after manual staging smoke is executed and recorded with owner/date against the deployed staging URL.
-- **CONDITIONAL GO**: current recommendation for this branch state while waiting on that manual smoke evidence.
+- **GO**: manual deployed smoke is executed and recorded with owner/date against `https://social-matching-web.vercel.app`.
+- **CONDITIONAL GO**: use only when deployed smoke evidence is missing or stale relative to the release candidate.
 - **NO-GO**: if staging or production smoke regressions appear without mitigation owner/date.

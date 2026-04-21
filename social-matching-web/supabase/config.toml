@@ -1,5 +1,37 @@
 project_id = "huzcvjyyyuudchnrosvx"
 
+[auth]
+site_url = "https://social-matching-web.vercel.app"
+additional_redirect_urls = [
+  "https://social-matching-web.vercel.app/auth/callback",
+  "https://social-matching-web.vercel.app",
+  "https://social-matching-350oq3jeq-circles-connect.vercel.app/auth/callback",
+  "https://social-matching-350oq3jeq-circles-connect.vercel.app",
+]
+
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+otp_length = 6
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+secure_password_change = false
+max_frequency = "1m0s"
+otp_length = 8
+otp_expiry = 3600
+
 [functions.process-email-queue]
 verify_jwt = false
 
