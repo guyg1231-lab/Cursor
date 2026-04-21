@@ -1,5 +1,9 @@
 import { supabase } from '@/integrations/supabase/client';
+import { safeSessionStorage } from '@/lib/safeStorage';
 import type { EventRow, VisibleEvent } from '@/features/events/types';
+
+const VISIBLE_EVENTS_CACHE_KEY = 'social_matching_visible_events_v1';
+const VISIBLE_EVENTS_REQUEST_TIMEOUT_MS = 1_500;
 
 function nowIso() {
   return new Date().toISOString();
@@ -66,13 +70,69 @@ function toVisibleEvents(events: EventRow[]): VisibleEvent[] {
   }));
 }
 
-/**
- * MVP browse visibility rule for the new app:
- * - `is_published = true`
- * - `status = 'active'`
- * Ordered by `starts_at` ascending.
- */
-export async function listVisibleEvents(): Promise<VisibleEvent[]> {
+async function fetchEventSocialSignals(eventIds: string[]) {
+  if (eventIds.length === 0) return new Map<string, { attendee_count: number }>();
+
+  const { data, error } = await supabase.rpc('get_public_event_social_signals', {
+    event_ids: eventIds,
+  });
+
+  if (error || !data) return new Map<string, { attendee_count: number }>();
+
+  return new Map(
+    data.map((row) => [
+      row.event_id,
+      {
+        attendee_count: row.attendee_count,
+      },
+    ]),
+  );
+}
+
+async function withSocialSignals(events: EventRow[]): Promise<VisibleEvent[]> {
+  const signals = await fetchEventSocialSignals(events.map((event) => event.id));
+  return events.map((event) => ({
+    ...event,
+    is_registration_open: isRegistrationOpen(event),
+    social_signal: signals.get(event.id),
+  }));
+}
+
+function isEventRow(value: unknown): value is EventRow {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record.id === 'string'
+    && typeof record.title === 'string'
+    && typeof record.city === 'string'
+    && typeof record.starts_at === 'string'
+    && typeof record.status === 'string'
+    && typeof record.is_published === 'boolean'
+  );
+}
+
+function readCachedVisibleEvents(): EventRow[] | null {
+  const raw = safeSessionStorage.getItem(VISIBLE_EVENTS_CACHE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.every(isEventRow)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedVisibleEvents(events: EventRow[]) {
+  try {
+    safeSessionStorage.setItem(VISIBLE_EVENTS_CACHE_KEY, JSON.stringify(events));
+  } catch {
+    // Storage can be unavailable in privacy modes; ignore and keep runtime-only behavior.
+  }
+}
+
+async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
   const { data, error } = await supabase
     .from('events')
     .select('*')
@@ -81,10 +141,43 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
     .order('starts_at', { ascending: true });
 
   if (error) {
-    return toVisibleEvents(INITIAL_EVENTS);
+    throw error;
   }
 
-  return toVisibleEvents(data ?? INITIAL_EVENTS);
+  const rows = data ?? INITIAL_EVENTS;
+  writeCachedVisibleEvents(rows);
+  return withSocialSignals(rows);
+}
+
+function timeoutVisibleEventsRequest(): Promise<null> {
+  return new Promise((resolve) => {
+    window.setTimeout(() => resolve(null), VISIBLE_EVENTS_REQUEST_TIMEOUT_MS);
+  });
+}
+
+/**
+ * MVP browse visibility rule for the new app:
+ * - `is_published = true`
+ * - `status = 'active'`
+ * Ordered by `starts_at` ascending.
+ */
+export async function listVisibleEvents(): Promise<VisibleEvent[]> {
+  const cached = readCachedVisibleEvents();
+
+  try {
+    const result = await Promise.race([
+      fetchVisibleEventsFromRemote(),
+      timeoutVisibleEventsRequest(),
+    ]);
+
+    if (result) {
+      return result;
+    }
+  } catch {
+    // Fall through to cached/seeded fallback below.
+  }
+
+  return withSocialSignals(cached ?? INITIAL_EVENTS);
 }
 
 /**
@@ -102,15 +195,17 @@ export async function getVisibleEventById(eventId: string): Promise<VisibleEvent
 
   if (error) {
     const initialEvent = INITIAL_EVENTS.find((event) => event.id === eventId);
-    return initialEvent ? { ...initialEvent, is_registration_open: isRegistrationOpen(initialEvent) } : null;
+    if (!initialEvent) return null;
+    const [visibleEvent] = await withSocialSignals([initialEvent]);
+    return visibleEvent ?? null;
   }
   if (!data) {
     const initialEvent = INITIAL_EVENTS.find((event) => event.id === eventId);
-    return initialEvent ? { ...initialEvent, is_registration_open: isRegistrationOpen(initialEvent) } : null;
+    if (!initialEvent) return null;
+    const [visibleEvent] = await withSocialSignals([initialEvent]);
+    return visibleEvent ?? null;
   }
 
-  return {
-    ...data,
-    is_registration_open: isRegistrationOpen(data),
-  };
+  const [visibleEvent] = await withSocialSignals([data]);
+  return visibleEvent ?? null;
 }

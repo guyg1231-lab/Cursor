@@ -1,3 +1,6 @@
+import type { VisibleEvent } from '@/features/events/types';
+import type { StatusBadgeTone } from '@/components/shared/StatusBadge';
+
 export function formatEventDate(value: string) {
   try {
     return new Intl.DateTimeFormat('he-IL', {
@@ -29,6 +32,38 @@ export function formatEventStatus(status: string) {
     default:
       return status;
   }
+}
+
+export function formatVisibleEventRegistrationState(event: VisibleEvent): {
+  label: string;
+  tone: StatusBadgeTone;
+} {
+  if (event.is_registration_open) {
+    if (event.registration_deadline) {
+      return {
+        label: `להגשה עד ${formatEventDate(event.registration_deadline)}`,
+        tone: 'warning',
+      };
+    }
+    return { label: 'פתוח להגשה', tone: 'default' };
+  }
+
+  if (event.status === 'completed') {
+    return { label: 'המפגש כבר הסתיים', tone: 'muted' };
+  }
+
+  return { label: 'ההגשה סגורה כרגע', tone: 'muted' };
+}
+
+export function formatMobileEventWindowLabel(event: VisibleEvent) {
+  const areaHint = event.venue_hint?.trim() ?? event.city;
+  const dateLabel = formatEventDate(event.starts_at);
+
+  if (event.is_registration_open) {
+    return `${dateLabel} · ${areaHint}`;
+  }
+
+  return `${dateLabel} · ${areaHint} · ההגשה סגורה כרגע`;
 }
 
 export function toDateTimeLocalValue(value: string | null) {

@@ -120,6 +120,7 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
+    await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
     await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
   });
 
