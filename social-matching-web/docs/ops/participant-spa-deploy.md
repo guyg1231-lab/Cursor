@@ -36,6 +36,28 @@ See [`.env.production.example`](../../.env.production.example) for shape. **Stag
 
 **Vercel:** for each `VITE_*` variable, open the variable → under *Environment*, enable **Production** and **Preview** (and *Development* if you use `vercel dev`). If Preview is unchecked, preview deployments bake empty values and auth shows “בעיה בהגדרת השרת”. Variables must be present **before** the deployment build runs.
 
+### One-shot sync (CLI + APIs)
+
+If you have a **Vercel token**, the **Vercel project id** (`prj_…` from Project → Settings → General), and a **Supabase account PAT** with access to the production project:
+
+```bash
+cd social-matching-web
+export VERCEL_TOKEN=…           # https://vercel.com/account/tokens
+export VERCEL_PROJECT_ID=…      # prj_… or project name as in the URL
+# export VERCEL_TEAM_ID=…       # only if the app lives under a Vercel team
+export SUPABASE_ACCESS_TOKEN=…  # same PAT style as prebuilt-prod-deploy
+# optional: export SUPABASE_PROJECT_REF=nshgmuqlivuhlimwdwhe
+npm run ops:sync-vercel-vite-env
+```
+
+This upserts `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY` (anon from Management API) for **production**, **preview**, and **development** targets. Then **redeploy** so a new build inlines them.
+
+Preview with `DRY_RUN=1` (still needs `SUPABASE_ACCESS_TOKEN` to resolve the key for display):
+
+```bash
+DRY_RUN=1 SUPABASE_ACCESS_TOKEN=… npm run ops:sync-vercel-vite-env
+```
+
 **Concrete refs in this repo (non-secret):** production frontend is shaped around project ref `nshgmuqlivuhlimwdwhe`; local/staging examples use `huzcvjyyyuudchnrosvx`. If Production hosting still bakes in the staging host, you will see intermittent auth issues and misleading smoke results — fix Vercel **Production** `VITE_*` values, then trigger a **new production deploy** (env changes do not rewrite an already-built `dist/`).
 
 After deploy, confirm the live bundle (not only Vercel’s env screen):
