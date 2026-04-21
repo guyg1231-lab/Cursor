@@ -24,7 +24,7 @@ export function OperatorEventAuditPage() {
       <PlaceholderPanel
         title="Operator audit"
         contractState="stubbed"
-        body="This route is reserved for operator audit trails, change history, and compliance review."
+        body="המסלול הזה שמור לעקבות ביקורת תפעוליות, היסטוריית שינויים, ובדיקות תאימות."
       />
     </PageShell>
   );

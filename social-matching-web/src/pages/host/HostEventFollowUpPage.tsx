@@ -22,9 +22,9 @@ export function HostEventFollowUpPage() {
       />
 
       <PlaceholderPanel
-        title="Host event follow-up"
+        title="Host follow-up"
         contractState="stubbed"
-        body="This route is reserved for host-only post-event recap, attendance, and follow-up actions."
+        body="המסך הזה שומר מקום לסיכום ופולואפ אחרי האירוע, אבל עדיין לא מבצע פעולות כתיבה."
       />
     </PageShell>
   );
