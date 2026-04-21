@@ -7,6 +7,7 @@ import {
 } from '@/features/applications/presentation';
 import { listDashboardApplications } from '@/features/events/query';
 import {
+  canReapplyToEvent,
   formatApplicationStatusShort,
   isAwaitingParticipantResponse,
   isOfferExpired,
@@ -44,7 +45,9 @@ export function ApplicationLifecycleList({ applications }: { applications: Appli
                   </Button>
                 ) : (
                   <Button asChild size="sm" variant="outline">
-                    <Link to={`/events/${application.event.id}`}>לפרטי המפגש</Link>
+                    <Link to={`/events/${application.event.id}/apply`}>
+                      {canReapplyToEvent(application.status) ? 'להגיש שוב' : 'להגשה ולסטטוס'}
+                    </Link>
                   </Button>
                 )}
               </div>

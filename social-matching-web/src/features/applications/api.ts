@@ -62,9 +62,14 @@ export function parsePersistedApplicationAnswers(value: unknown): PersistedAppli
     typeof record.why_this_event !== 'string'
     || typeof record.desired_outcome !== 'string'
     || typeof record.what_you_bring !== 'string'
-    || typeof record.understand_payment !== 'boolean'
-    || typeof record.commit_on_time !== 'boolean'
     || typeof record.submitted_at !== 'string'
+  ) {
+    return null;
+  }
+
+  if (
+    ('understand_payment' in record && typeof record.understand_payment !== 'boolean')
+    || ('commit_on_time' in record && typeof record.commit_on_time !== 'boolean')
   ) {
     return null;
   }
@@ -74,9 +79,20 @@ export function parsePersistedApplicationAnswers(value: unknown): PersistedAppli
     desired_outcome: record.desired_outcome,
     what_you_bring: record.what_you_bring,
     host_note: typeof record.host_note === 'string' ? record.host_note : null,
-    understand_payment: record.understand_payment,
-    commit_on_time: record.commit_on_time,
+    understand_payment: typeof record.understand_payment === 'boolean' ? record.understand_payment : undefined,
+    commit_on_time: typeof record.commit_on_time === 'boolean' ? record.commit_on_time : undefined,
     submitted_at: record.submitted_at,
+  };
+}
+
+function withDeferredPaymentDefaults(
+  answers: PersistedApplicationAnswers,
+): PersistedApplicationAnswers & { understand_payment: boolean; commit_on_time: boolean } {
+  return {
+    ...answers,
+    // Temporary compatibility defaults while payment stays out of participant-facing MVP flows.
+    understand_payment: answers.understand_payment ?? true,
+    commit_on_time: answers.commit_on_time ?? true,
   };
 }
 
@@ -194,7 +210,7 @@ export async function createApplication(params: {
     p_event_id: params.event.id,
     p_birth_date: params.questionnaireResponse?.birth_date ?? null,
     p_social_link: params.questionnaireResponse?.social_link ?? null,
-    p_application_answers: params.applicationAnswers,
+    p_application_answers: withDeferredPaymentDefaults(params.applicationAnswers),
   });
 
   if (error) {

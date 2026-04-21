@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { routeManifest } from '../src/app/router/routeManifest';
+import { parseSafeReturnTo } from '../src/lib/authReturnTo';
 import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
@@ -75,6 +76,66 @@ test.describe('foundation routes', () => {
     await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
   });
 
+  test('signed-out proposal route preserves returnTo through sign-in', async ({ page }) => {
+    await page.goto('/events/propose');
+    await expect(page).toHaveURL(/\/(sign-in|auth)(\?|$)/);
+    await expect(page).toHaveURL(/returnTo=.*events.*propose/);
+    await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
+  });
+
+  test('auth return allows canonical participant routes and blocks unknown paths', () => {
+    expect(parseSafeReturnTo('/events')).toBe('/events');
+    expect(parseSafeReturnTo(`/events/${ENV.EVENT_ID}`)).toBe(`/events/${ENV.EVENT_ID}`);
+    expect(parseSafeReturnTo('/questionnaire')).toBe('/questionnaire');
+    expect(parseSafeReturnTo(`/events/${ENV.EVENT_ID}/apply`)).toBe(`/events/${ENV.EVENT_ID}/apply`);
+    expect(parseSafeReturnTo('/events/propose')).toBe('/events/propose');
+    expect(parseSafeReturnTo('/events/unknown/path')).toBeNull();
+    expect(parseSafeReturnTo('https://evil.com')).toBeNull();
+    expect(parseSafeReturnTo('//evil.com')).toBeNull();
+    expect(parseSafeReturnTo('%2F%2Fevil.com')).toBeNull();
+    expect(parseSafeReturnTo('/events/%0Aadmin')).toBeNull();
+    expect(parseSafeReturnTo('javascript:alert(1)')).toBeNull();
+  });
+
+  test('proposal route shows readiness-gated branch when signed-in user is not ready', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/matching_responses**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+      await page.route('**/rest/v1/profiles**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([{ funnel_status: 'needs_questionnaire' }]),
+        });
+      });
+
+      await page.goto('/events/propose');
+
+      await expect(page.getByRole('heading', { level: 1, name: 'בקשת אירוע' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 3, name: 'עוד רגע אפשר לפתוח בקשת אירוע' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להשלמת השאלון' })).toHaveAttribute('href', '/questionnaire');
+      await expect(page.getByRole('button', { name: 'טיוטה חדשה' })).toHaveCount(0);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('gathering signed-out branch preserves returnTo through sign-in CTA', async ({ page }) => {
+    await page.goto(`/gathering/${ENV.EVENT_ID}`);
+    await expect(page.getByRole('link', { name: 'להיכנס להגשה ולסטטוס' })).toBeVisible();
+    await page.getByRole('link', { name: 'להיכנס להגשה ולסטטוס' }).click();
+    await expect(page).toHaveURL(/\/(sign-in|auth)(\?|$)/);
+    await expect(page).toHaveURL(new RegExp(`returnTo=.*gathering.*${ENV.EVENT_ID}`));
+    await expect(page.getByText(/כניסה|אימות/i).first()).toBeVisible();
+  });
+
   test('signed-in non-admin sees an explicit denied state on admin routes', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
@@ -142,6 +203,7 @@ test.describe('foundation routes', () => {
         expect.objectContaining({ path: '/privacy', workstream: 'participant', auth: 'public' }),
         expect.objectContaining({ path: '/questionnaire', workstream: 'participant', auth: 'preview' }),
         expect.objectContaining({ path: '/auth/callback', workstream: 'participant', auth: 'preview' }),
+        expect.objectContaining({ path: '/events/propose', workstream: 'participant', auth: 'protected' }),
         expect.objectContaining({ path: '/events/:eventId/apply', workstream: 'participant', auth: 'protected' }),
         expect.objectContaining({ path: '/host/events', workstream: 'host', auth: 'protected' }),
         expect.objectContaining({ path: '/host/events/:eventId', workstream: 'host', auth: 'protected' }),

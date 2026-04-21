@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
@@ -43,6 +45,11 @@ export function EventsPage() {
       title="מפגשים פתוחים"
       subtitle="כל המפגשים שפתוחים עכשיו. כניסה ישירה לעמוד ההרשמה של המפגש."
     >
+      <div className="flex flex-wrap gap-3">
+        <Button asChild variant="outline">
+          <Link to="/events/propose">להציע מפגש חדש</Link>
+        </Button>
+      </div>
       {isLoading ? (
         <RouteLoadingState />
       ) : error ? (

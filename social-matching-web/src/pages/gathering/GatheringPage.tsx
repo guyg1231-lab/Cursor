@@ -8,22 +8,13 @@ import { EventNotFound } from '@/components/participant/EventNotFound';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildAuthPath } from '@/lib/authReturnTo';
-import { supabase } from '@/integrations/supabase/client';
 import { getVisibleEventById } from '@/features/events/api';
 import { formatEventDate } from '@/features/events/formatters';
 import type { VisibleEvent } from '@/features/events/types';
 import {
-  ApplicationConfirmError,
-  ApplicationSubmitError,
-  confirmRegistrationResponse,
-  createApplication,
-  declineRegistrationResponse,
   getExistingApplication,
 } from '@/features/applications/api';
-import type {
-  EventRegistrationRow,
-  PersistedApplicationAnswers,
-} from '@/features/applications/types';
+import type { EventRegistrationRow } from '@/features/applications/types';
 import {
   formatApplicationStatusShort,
   formatLifecycleDateTime,
@@ -38,15 +29,6 @@ export function GatheringPage() {
   const [registration, setRegistration] = useState<EventRegistrationRow | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [whyJoin, setWhyJoin] = useState('');
-
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [infoMessage, setInfoMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isResponding, setIsResponding] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -69,16 +51,9 @@ export function GatheringPage() {
         setEvent(visibleEvent);
 
         if (visibleEvent && user) {
-          const [existing, profileResult] = await Promise.all([
-            getExistingApplication(visibleEvent.id, user.id),
-            supabase.from('profiles').select('full_name, phone').eq('id', user.id).maybeSingle(),
-          ]);
+          const existing = await getExistingApplication(visibleEvent.id, user.id);
           if (!active) return;
           setRegistration(existing);
-          if (profileResult.data) {
-            if (profileResult.data.full_name) setFullName(profileResult.data.full_name);
-            if (profileResult.data.phone) setPhone(profileResult.data.phone);
-          }
         } else if (active) {
           setRegistration(null);
         }
@@ -97,169 +72,6 @@ export function GatheringPage() {
   }, [authLoading, eventId, user]);
 
   const returnTo = eventId ? `/gathering/${eventId}` : null;
-  const canSubmit =
-    !!user &&
-    !!event &&
-    event.is_registration_open &&
-    !registration &&
-    fullName.trim().length > 0 &&
-    phone.trim().length > 0 &&
-    whyJoin.trim().length >= 10;
-
-  async function handleSubmit() {
-    if (!user || !event || !canSubmit) return;
-
-    setIsSubmitting(true);
-    setActionError(null);
-    setInfoMessage(null);
-
-    try {
-      const trimmedFullName = fullName.trim();
-      const trimmedPhone = phone.trim();
-      const trimmedWhyJoin = whyJoin.trim();
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ full_name: trimmedFullName, phone: trimmedPhone })
-        .eq('id', user.id);
-
-      if (profileError) {
-        setActionError('לא הצלחנו לשמור את פרטי הקשר. אפשר לנסות שוב בעוד רגע.');
-        return;
-      }
-
-      const applicationAnswers: PersistedApplicationAnswers = {
-        why_this_event: trimmedWhyJoin,
-        desired_outcome: '—',
-        what_you_bring: '—',
-        host_note: null,
-        understand_payment: true,
-        commit_on_time: true,
-        submitted_at: new Date().toISOString(),
-      };
-
-      const result = await createApplication({
-        event,
-        userId: user.id,
-        applicationAnswers,
-      });
-
-      setRegistration(result.registration);
-      setInfoMessage('ההגשה שלך נשמרה. נעדכן אותך ברגע שיש מקום.');
-    } catch (error) {
-      if (error instanceof ApplicationSubmitError) {
-        switch (error.reason) {
-          case 'unauthenticated':
-            setActionError('פג תוקף החיבור שלך. צריך להיכנס מחדש.');
-            break;
-          case 'event_closed':
-            setActionError('ההגשות למפגש הזה כבר סגורות.');
-            break;
-          case 'event_started':
-            setActionError('המפגש כבר התחיל, לא ניתן להגיש עכשיו.');
-            break;
-          case 'event_full':
-            setActionError('המפגש מלא כרגע.');
-            break;
-          case 'already_applied':
-            setActionError('כבר קיימת הגשה פעילה למפגש הזה.');
-            break;
-          default:
-            setActionError(
-              /questionnaire not ready/i.test(error.message)
-                ? 'צריך להשלים את הפרופיל לפני הגשה.'
-                : 'לא הצלחנו לשמור את ההגשה כרגע.',
-            );
-        }
-      } else {
-        setActionError('לא הצלחנו לשמור את ההגשה כרגע.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  async function handleAccept() {
-    if (!user || !event || !registration) return;
-
-    setIsResponding(true);
-    setActionError(null);
-    setInfoMessage(null);
-
-    try {
-      const updated = await confirmRegistrationResponse({
-        registrationId: registration.id,
-        eventId: event.id,
-        userId: user.id,
-      });
-      setRegistration(updated);
-      setInfoMessage('המקום שלך במפגש נשמר.');
-    } catch (error) {
-      if (error instanceof ApplicationConfirmError) {
-        switch (error.reason) {
-          case 'offer_expired':
-            setActionError('חלון התגובה נסגר.');
-            break;
-          case 'not_awaiting_response':
-            setActionError('אין כרגע מקום שמחכה לתגובה.');
-            break;
-          case 'unauthenticated':
-            setActionError('פג תוקף החיבור שלך. צריך להיכנס מחדש.');
-            break;
-          case 'forbidden':
-            setActionError('לא ניתן לאשר את ההרשמה הזאת מהחשבון הנוכחי.');
-            break;
-          default:
-            setActionError('לא הצלחנו לשמור את התגובה כרגע.');
-        }
-      } else {
-        setActionError('לא הצלחנו לשמור את התגובה כרגע.');
-      }
-    } finally {
-      setIsResponding(false);
-    }
-  }
-
-  async function handleDecline() {
-    if (!user || !event || !registration) return;
-
-    setIsResponding(true);
-    setActionError(null);
-    setInfoMessage(null);
-
-    try {
-      const updated = await declineRegistrationResponse({
-        registrationId: registration.id,
-        eventId: event.id,
-        userId: user.id,
-      });
-      setRegistration(updated);
-      setInfoMessage('רשמנו את הדחייה שלך. תודה שעדכנת אותנו.');
-    } catch (error) {
-      if (error instanceof ApplicationConfirmError) {
-        switch (error.reason) {
-          case 'offer_expired':
-            setActionError('חלון התגובה נסגר.');
-            break;
-          case 'not_awaiting_response':
-            setActionError('אין כרגע מקום שמחכה לתגובה.');
-            break;
-          case 'unauthenticated':
-            setActionError('פג תוקף החיבור שלך. צריך להיכנס מחדש.');
-            break;
-          case 'forbidden':
-            setActionError('לא ניתן לעדכן את ההרשמה הזאת מהחשבון הנוכחי.');
-            break;
-          default:
-            setActionError('לא הצלחנו לשמור את התגובה כרגע.');
-        }
-      } else {
-        setActionError('לא הצלחנו לשמור את התגובה כרגע.');
-      }
-    } finally {
-      setIsResponding(false);
-    }
-  }
 
   if (pageLoading) {
     return (
@@ -290,9 +102,12 @@ export function GatheringPage() {
   return (
     <PageShell
       title={event.title}
-      subtitle="תצוגת המפגש עם טופס הגשה מהיר. לפרטי המפגש המלאים עברו לעמוד הפרטים."
+      subtitle="כאן רואים מה קורה אחרי ההגשה, ומה הצעד הבא אם נשמר עבורך מקום או סטטוס מעודכן."
     >
       <PageActionBar>
+        <Button asChild variant="primary">
+          <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
+        </Button>
         <Button asChild variant="outline">
           <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
         </Button>
@@ -322,27 +137,13 @@ export function GatheringPage() {
               </p>
             </div>
 
-            {infoMessage ? <p className="text-sm text-primary">{infoMessage}</p> : null}
-            {actionError ? <p className="text-sm text-destructive">{actionError}</p> : null}
-
             <div className="pt-4 border-t border-border/40">
               <StatusPanel
                 user={!!user}
                 event={event}
                 registration={registration}
+                applyHref={`/events/${event.id}/apply`}
                 signInHref={buildAuthPath(returnTo)}
-                fullName={fullName}
-                phone={phone}
-                whyJoin={whyJoin}
-                onChangeFullName={setFullName}
-                onChangePhone={setPhone}
-                onChangeWhyJoin={setWhyJoin}
-                canSubmit={canSubmit}
-                isSubmitting={isSubmitting}
-                isResponding={isResponding}
-                onSubmit={handleSubmit}
-                onAccept={handleAccept}
-                onDecline={handleDecline}
               />
             </div>
           </CardContent>
@@ -350,12 +151,12 @@ export function GatheringPage() {
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">מה קורה אחרי שליחה?</CardTitle>
+            <CardTitle className="text-xl">מתי משתמשים בעמוד הזה?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-            <p>1. שליחת הבקשה שומרת את פרטיך. זו בקשה — לא אישור מיידי.</p>
-            <p>2. אם נפתח לך מקום, נשלח הזמנה ואפשר יהיה לאשר או לדחות מהמסך הזה.</p>
-            <p>3. עד שזה קורה — אין צורך לעשות דבר. נעדכן אותך.</p>
+            <p>1. להגשה ראשונה או לצפייה מלאה בסטטוס משתמשים בעמוד ההגשה הראשי.</p>
+            <p>2. כאן אפשר לחזור כדי לראות מה קרה אחרי ההגשה ולענות אם נשמר עבורך מקום זמני.</p>
+            <p>3. פרטי המפגש נשארים זמינים גם מכאן, בלי לפתוח מסלול הגשה נוסף.</p>
           </CardContent>
         </Card>
       </div>
@@ -367,46 +168,20 @@ function StatusPanel(props: {
   user: boolean;
   event: VisibleEvent;
   registration: EventRegistrationRow | null;
+  applyHref: string;
   signInHref: string;
-  fullName: string;
-  phone: string;
-  whyJoin: string;
-  onChangeFullName: (value: string) => void;
-  onChangePhone: (value: string) => void;
-  onChangeWhyJoin: (value: string) => void;
-  canSubmit: boolean;
-  isSubmitting: boolean;
-  isResponding: boolean;
-  onSubmit: () => void;
-  onAccept: () => void;
-  onDecline: () => void;
 }) {
-  const {
-    user,
-    event,
-    registration,
-    signInHref,
-    fullName,
-    phone,
-    whyJoin,
-    onChangeFullName,
-    onChangePhone,
-    onChangeWhyJoin,
-    canSubmit,
-    isSubmitting,
-    isResponding,
-    onSubmit,
-    onAccept,
-    onDecline,
-  } = props;
+  const { user, event, registration, applyHref, signInHref } = props;
 
   if (!user) {
     return (
       <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-3">
-        <p className="font-medium text-foreground">כדי להגיש בקשה צריך להיכנס לחשבון</p>
-        <p className="text-muted-foreground">נשלח קוד חד פעמי למייל, ואחרי האימות נחזיר אותך למסך הזה.</p>
+        <p className="font-medium text-foreground">כדי לראות סטטוס או להגיב צריך להיכנס לחשבון</p>
+        <p className="text-muted-foreground">
+          ההגשה הראשונה מתבצעת בעמוד ההגשה הראשי. אחרי ההתחברות נחזיר אותך למסך הזה אם הגעת לכאן כדי לבדוק סטטוס.
+        </p>
         <Button asChild variant="primary">
-          <Link to={signInHref}>להיכנס ולהגיש בקשה</Link>
+          <Link to={signInHref}>להיכנס להגשה ולסטטוס</Link>
         </Button>
       </div>
     );
@@ -415,60 +190,26 @@ function StatusPanel(props: {
   if (!registration) {
     if (!event.is_registration_open) {
       return (
-        <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm text-muted-foreground">
-          ההגשות למפגש הזה אינן פתוחות כרגע.
+        <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm text-muted-foreground space-y-3">
+          <p className="font-medium text-foreground">אין כרגע הגשה שמחוברת למפגש הזה</p>
+          <p>ההגשות למפגש הזה אינן פתוחות כרגע, ולכן אין מה לנהל מכאן בשלב הזה.</p>
+          <Button asChild variant="outline">
+            <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
+          </Button>
         </div>
       );
     }
 
     return (
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit();
-        }}
-      >
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground" htmlFor="gathering-full-name">שם מלא</label>
-          <input
-            id="gathering-full-name"
-            type="text"
-            autoComplete="name"
-            value={fullName}
-            onChange={(e) => onChangeFullName(e.target.value)}
-            className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground" htmlFor="gathering-phone">טלפון</label>
-          <input
-            id="gathering-phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={phone}
-            onChange={(e) => onChangePhone(e.target.value)}
-            className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground" htmlFor="gathering-why-join">למה להצטרף למפגש הזה?</label>
-          <textarea
-            id="gathering-why-join"
-            value={whyJoin}
-            onChange={(e) => onChangeWhyJoin(e.target.value)}
-            className="min-h-[120px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
-            placeholder="לפחות 10 תווים"
-          />
-        </div>
-
-        <Button type="submit" variant="primary" disabled={!canSubmit || isSubmitting}>
-          {isSubmitting ? 'שולחים...' : 'שליחת בקשה'}
+      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-3">
+        <p className="font-medium text-foreground">להגשה ראשונה משתמשים בעמוד ההגשה הראשי</p>
+        <p className="text-muted-foreground">
+          כאן חוזרים אחרי שהוגשה בקשה, או כשצריך להגיב על מקום זמני. כדי להתחיל את ההגשה למפגש הזה, עברו לעמוד ההגשה והסטטוס.
+        </p>
+        <Button asChild variant="primary">
+          <Link to={applyHref}>להגשה ולסטטוס</Link>
         </Button>
-      </form>
+      </div>
     );
   }
 
@@ -497,16 +238,10 @@ function StatusPanel(props: {
             ? `הדדליין לתגובה עבר${registration.expires_at ? ` ב-${formatLifecycleDateTime(registration.expires_at)}` : ''}.`
             : `צריך להגיב עד ${formatLifecycleDateTime(registration.expires_at)}.`}
         </p>
-        {!expired ? (
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Button variant="primary" disabled={isResponding} onClick={onAccept}>
-              {isResponding ? 'שומרים...' : 'אישור המקום'}
-            </Button>
-            <Button variant="outline" disabled={isResponding} onClick={onDecline}>
-              {isResponding ? 'שומרים...' : 'לא אוכל להגיע'}
-            </Button>
-          </div>
-        ) : null}
+        <p className="text-muted-foreground">התגובה עצמה מתבצעת בעמוד ההגשה והסטטוס הראשי.</p>
+        <Button asChild variant="primary">
+          <Link to={applyHref}>להגשה ולסטטוס</Link>
+        </Button>
       </div>
     );
   }

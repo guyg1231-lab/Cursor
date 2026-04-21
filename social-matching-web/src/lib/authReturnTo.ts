@@ -10,6 +10,9 @@ function isAllowedInternalPath(pathOnly: string) {
   const [pathname] = noHash.split('?');
 
   if (pathname === '/dashboard') return true;
+  if (pathname === '/events') return true;
+  if (pathname === '/events/propose') return true;
+  if (pathname === '/questionnaire') return true;
   if (pathname === '/host/events') return true;
   if (pathname === '/admin') return true;
   if (pathname === '/admin/events') return true;
@@ -17,6 +20,9 @@ function isAllowedInternalPath(pathOnly: string) {
   if (pathname === '/admin/events/new') return true;
 
   if (pathname.startsWith('/events/')) {
+    const detailMatch = pathname.match(/^\/events\/([a-zA-Z0-9_-]+)$/);
+    if (detailMatch) return true;
+
     const match = pathname.match(/^\/events\/([a-zA-Z0-9_-]+)\/apply$/);
     return !!match;
   }

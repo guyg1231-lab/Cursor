@@ -120,12 +120,12 @@ export function EventDetailPage() {
           </Button>
         ) : hasApplication && !canReapplyToEvent(application!.status) ? (
           <Button asChild variant="outline">
-            <Link to={`/events/${event.id}/apply`}>לסטטוס ההרשמה</Link>
+            <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
           </Button>
         ) : event.is_registration_open ? (
           <Button asChild variant="primary">
             <Link to={`/events/${event.id}/apply`}>
-              {application ? 'להגיש שוב' : 'להגיש מועמדות'}
+              {application ? 'להגיש שוב' : 'להגשה למפגש'}
             </Link>
           </Button>
         ) : (
