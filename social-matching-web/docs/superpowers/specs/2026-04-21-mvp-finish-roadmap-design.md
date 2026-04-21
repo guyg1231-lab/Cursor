@@ -1,7 +1,7 @@
 # MVP Finish Roadmap Design
 
 **Date:** 2026-04-21  
-**Status:** Active (execution in progress)  
+**Status:** Launch-closure sync on active PR branch  
 **Goal:** Define, in simple language, what “MVP done” means and the shortest safe path to finish.
 
 ---
@@ -20,9 +20,9 @@ This document gives one shared answer for Dev A, Dev B, and shared launch work.
 
 We are in the **final stretch**.
 
-- Dev A is mostly complete and stable.
-- Dev B still has key operating-flow work to close.
-- Shared launch readiness (docs + smoke + go/no-go evidence) still needs a final pass.
+- Dev A launch-critical participant work is complete on this branch.
+- Dev B MVP-critical host/admin operating-flow work is complete on this branch.
+- Shared launch readiness still needs a final truth-sync pass, and manual staging smoke evidence remains the main go-live gate.
 
 Think of it as:
 
@@ -66,7 +66,7 @@ If one of these five is missing, MVP is not done yet.
 - [x] Automated hard gate is green (`npm run typecheck` + full Chromium Playwright).
 - [x] Known post-MVP deferrals are explicitly documented with owners/timeframes.
 - [ ] Manual staging smoke checklist execution is recorded inline.
-- [ ] Remaining real-event packet placeholders are replaced with concrete event/operator values.
+- [x] Remaining real-event packet placeholders are replaced with concrete baseline event/operator values.
 - [x] Go/no-go summary document exists with explicit decision rule and open blockers.
 
 ---
@@ -116,26 +116,26 @@ Shared must finish:
 
 ## 5. Final sequence to finish MVP safely
 
-### Phase A — Close Dev A remaining must-haves
+### Phase A — Closed on this branch
 
 - freeze current stable behavior,
 - resolve only launch-relevant participant gaps,
 - keep gates green continuously.
 
-### Phase B — Close Dev B must-haves
+### Phase B — Closed on this branch
 
 - complete operator-critical flow,
 - ensure host/admin routes are usable for real operations,
 - lock with targeted host/admin test coverage.
 
-### Phase C — Launch-readiness closure
+### Phase C — Remaining launch-readiness closure
 
 - run final verification on release-candidate commit,
 - deploy to staging with production-like config,
 - execute and record full smoke checklist,
 - complete go/no-go review.
 
-This is the recommended order: **A -> B -> C**.
+For the current PR branch, the remaining order is: **truth-sync docs -> record manual staging smoke -> merge/signoff**.
 
 ---
 
@@ -158,4 +158,3 @@ But these are not MVP blockers:
 - deeper UX refactors,
 - advanced analytics/observability improvements,
 - expanded feature depth beyond core user/operator loops.
-

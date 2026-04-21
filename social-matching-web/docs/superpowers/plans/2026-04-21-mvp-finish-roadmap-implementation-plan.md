@@ -6,6 +6,8 @@
 
 **Architecture:** This plan is intentionally simple. First, close Dev A must-haves. Second, close Dev B must-haves. Third, run one shared launch-readiness pass with evidence. Everything else is post-MVP.
 
+**Branch status update (2026-04-21):** On `dev-a/circles-core-domain-v0`, Tasks 1-3 and Task 5 are complete. The remaining unresolved launch-readiness item is manual staging smoke execution/recording. The packet files are now filled as staging validation baselines and should be copied into dated real-event packets when operations lock an actual event.
+
 **Tech Stack:** React 18, TypeScript, React Router, Supabase, Playwright, docs under `docs/`.
 
 ---
@@ -48,7 +50,7 @@ rg "TBD|maybe|optional|if possible" docs/superpowers/specs/2026-04-21-mvp-finish
 
 Expected: no ambiguous terms inside must-have checklist section.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/superpowers/specs/2026-04-21-mvp-finish-roadmap-design.md
@@ -65,7 +67,7 @@ git commit -m "docs(mvp): freeze shared done checklist for launch"
   - `e2e/participant-foundation.spec.ts`
   - `e2e/foundation-routes.spec.ts`
 
-- [ ] **Step 1: Re-run Dev A launch-critical tests**
+- [x] **Step 1: Re-run Dev A launch-critical tests**
 
 Run:
 
@@ -76,16 +78,16 @@ npx playwright test e2e/foundation-routes.spec.ts e2e/participant-foundation.spe
 
 Expected: PASS.
 
-- [ ] **Step 2: Resolve only launch-critical Dev A gaps (if any fail)**
+- [x] **Step 2: Resolve only launch-critical Dev A gaps (if any fail)**
 
 If failures occur, patch only launch-critical paths (apply/gathering/propose/auth-return).  
 Avoid non-blocking refactors.
 
-- [ ] **Step 3: Re-run and confirm green**
+- [x] **Step 3: Re-run and confirm green**
 
 Run same commands again; expect PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add e2e/foundation-routes.spec.ts e2e/participant-foundation.spec.ts src/pages/apply/ApplyPage.tsx src/pages/gathering/GatheringPage.tsx src/lib/authReturnTo.ts
@@ -146,9 +148,9 @@ git commit -m "feat(dev-b): close MVP-critical host-admin operating gaps"
 Follow deploy doc and run checklist against staging URL.  
 Record pass/fail evidence inline in checklist.
 
-- [ ] **Step 2: Fill real-event packet placeholders**
+- [x] **Step 2: Fill real-event packet placeholders**
 
-Replace remaining `TBD` values with concrete event/operator details.
+Replace remaining `TBD` values with concrete baseline event/operator details and keep them ready to copy into a dated real-event packet once an actual event is locked.
 
 - [x] **Step 3: Record known deferred items**
 
@@ -200,4 +202,3 @@ git commit -m "docs(mvp): publish final go-no-go summary"
 
 MVP completion means “ready to launch core value safely,” not “finished forever.”  
 After this plan, continue with improvement phases as separate post-MVP work.
-

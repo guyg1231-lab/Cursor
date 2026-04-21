@@ -2,12 +2,12 @@
 
 ## Recommendation
 
-**GO** for MVP launch.
+**CONDITIONAL GO** pending manual staging smoke completion.
 
 Rationale:
 - Launch-critical participant and admin/host workflow gates are green in automated verification.
 - MVP-critical Dev B workflow gaps were closed and covered by dedicated regression tests.
-- Staging smoke checklist and event packet documentation are now completed in repo artifacts.
+- Event packet baseline documentation is in repo, but deployed staging smoke still needs to be executed and recorded inline before go-live.
 
 ## What is complete
 
@@ -22,6 +22,7 @@ Rationale:
   - `docs/ops/public-readiness-smoke-checklist.md`
   - `docs/ops/real-events/events/upcoming-event-packet.md`
   - `docs/ops/real-events/events/first-real-event-packet.md`
+  - these currently represent launch-readiness baselines, not proof of completed deployed staging smoke
 
 ## Verification evidence
 
@@ -34,7 +35,7 @@ Rationale:
 
 ## Remaining launch blockers
 
-No code or documentation blockers are currently open in this branch.
+- Manual staging smoke checklist is not yet recorded against a deployed staging URL.
 
 ## Accepted post-MVP deferrals
 
@@ -44,5 +45,6 @@ No code or documentation blockers are currently open in this branch.
 
 ## Final decision rule
 
-- **GO**: current recommendation for this branch state.
-- **NO-GO** only if new staging or production smoke regressions appear without mitigation owner/date.
+- **GO**: only after manual staging smoke is executed and recorded with owner/date against the deployed staging URL.
+- **CONDITIONAL GO**: current recommendation for this branch state while waiting on that manual smoke evidence.
+- **NO-GO**: if staging or production smoke regressions appear without mitigation owner/date.

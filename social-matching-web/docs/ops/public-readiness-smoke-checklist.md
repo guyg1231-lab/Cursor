@@ -36,7 +36,7 @@ npm run typecheck
 npx playwright test --project=chromium
 ```
 
-- [x] Both pass against **staging** before promoting deploy recipe to prod.
+- [x] Both pass on the current release-candidate branch before promoting deploy recipe to prod.
 
 ## 6. Latest verification evidence
 
@@ -44,4 +44,4 @@ npx playwright test --project=chromium
 - Branch context: `dev-a/circles-core-domain-v0`
 - Command: `npm run typecheck && npx playwright test --project=chromium`
 - Result: PASS (`65 passed`, Chromium full suite)
-- Note: This confirms code-level gate health; staging URL/manual browser smoke items above remain required before go-live.
+- Note: This confirms code-level gate health only; deployed staging URL/manual browser smoke items above are still required and are not yet recorded inline here.

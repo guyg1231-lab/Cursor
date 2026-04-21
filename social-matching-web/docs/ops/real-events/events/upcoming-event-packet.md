@@ -3,6 +3,8 @@
 **Copy or rename this file** when you lock the event (e.g. `events/2026-05-20-tel-aviv-salon.md`).  
 Find-replace in `queries/event_lifecycle_metrics.sql`: `00000000-0000-0000-0000-000000000000` → your **Event ID** below.
 
+**Current state:** this file is a staging validation baseline with synthetic values. Copy it into a dated real-event packet once an actual event/operator is locked.
+
 ---
 
 ## Event metrics (fill as you go)

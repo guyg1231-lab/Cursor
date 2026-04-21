@@ -2,6 +2,8 @@
 
 **STAGING only.** Use this file for the **first** production-style run on the curated lifecycle via the **operator UI** in this repo.
 
+**Current state:** this file is a staging/local validation baseline. It is not proof that deployed staging smoke has been executed and recorded.
+
 **Prep context:**
 
 - STAGING smoke event `798fb6a0-92d0-43b1-bc9d-b453752c4c81` was **removed** (no registrations; safe delete).
