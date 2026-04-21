@@ -34,6 +34,17 @@ Set in the hosting provider (or `.env.production` locally for preview — **neve
 
 See [`.env.production.example`](../../.env.production.example) for shape. **Staging** vs **production** must use **different** Supabase projects/keys when both exist.
 
+**Concrete refs in this repo (non-secret):** production frontend is shaped around project ref `nshgmuqlivuhlimwdwhe`; local/staging examples use `huzcvjyyyuudchnrosvx`. If Production hosting still bakes in the staging host, you will see intermittent auth issues and misleading smoke results — fix Vercel **Production** `VITE_*` values, then trigger a **new production deploy** (env changes do not rewrite an already-built `dist/`).
+
+After deploy, confirm the live bundle (not only Vercel’s env screen):
+
+```bash
+cd social-matching-web
+npm run ops:verify-deploy-supabase
+# or override:
+VERIFY_DEPLOY_URL=https://your-prod-host.example VERIFY_EXPECT_SUPABASE_REF=nshgmuqlivuhlimwdwhe npm run ops:verify-deploy-supabase
+```
+
 Service role keys and DB URLs belong to **Edge/cron/ops**, not the Vite bundle.
 
 ## 3. Supabase Auth URLs
