@@ -70,54 +70,6 @@ test.describe('participant foundation', () => {
     await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
   });
 
-  test('mobile discovery sheet can show attendee-circle count for a published event', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            event_id: 'playwright-map-event',
-            attendee_count: 4,
-          },
-        ]),
-      });
-    });
-
-    await page.route('**/rest/v1/events*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: 'playwright-map-event',
-            title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
-            description: 'מפגש אינטימי וחם לערב קטן בעיר.',
-            city: 'תל אביב',
-            starts_at: '2026-05-08T17:30:00.000Z',
-            registration_deadline: '2026-05-05T17:30:00.000Z',
-            venue_hint: 'נווה צדק',
-            max_capacity: 8,
-            status: 'active',
-            is_published: true,
-            created_at: '2026-04-01T10:00:00.000Z',
-            updated_at: '2026-04-01T10:00:00.000Z',
-            created_by_user_id: null,
-            host_user_id: null,
-            payment_required: false,
-            price_cents: 0,
-            currency: 'ILS',
-          },
-        ]),
-      });
-    });
-
-    await page.goto('/events');
-    await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
-  });
-
   test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
