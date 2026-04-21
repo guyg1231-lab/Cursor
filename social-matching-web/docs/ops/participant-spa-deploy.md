@@ -38,7 +38,9 @@ See [`.env.production.example`](../../.env.production.example) for shape. **Stag
 
 ### One-shot sync (CLI + APIs)
 
-Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`**, fill in tokens (file is gitignored), then from `social-matching-web/`:
+Copy [`.env.ops.local.example`](../../.env.ops.local.example) to **`.env.ops.local`**, add **`VERCEL_TOKEN`** and **`SUPABASE_ACCESS_TOKEN`**. If you already ran **`vercel link`** in `social-matching-web/`, **Project ID and team** are read from **`.vercel/project.json`** (gitignored) — you do not need to duplicate `VERCEL_PROJECT_ID` unless you want to override.
+
+Then from `social-matching-web/`:
 
 ```bash
 npm run ops:sync-vercel-vite-env

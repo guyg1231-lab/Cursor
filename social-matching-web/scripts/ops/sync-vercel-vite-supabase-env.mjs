@@ -9,11 +9,11 @@
  *
  * Requires (in process.env or .env.ops.local):
  *   VERCEL_TOKEN           — https://vercel.com/account/tokens
- *   VERCEL_PROJECT_ID      — Project → Settings → General → Project ID (prj_… or slug)
  *   SUPABASE_ACCESS_TOKEN  — Supabase account PAT (reads API keys)
  *
- * Optional:
- *   VERCEL_TEAM_ID         — Team id (team_…) if the project is under a team
+ * Optional (auto-filled from `vercel link` → `.vercel/project.json` if present):
+ *   VERCEL_PROJECT_ID      — overrides linked `projectId`
+ *   VERCEL_TEAM_ID         — overrides linked `orgId` when it is a team (team_…)
  *   SUPABASE_PROJECT_REF   — default nshgmuqlivuhlimwdwhe (production ref in this repo)
  *   DRY_RUN=1              — print actions only, no network writes to Vercel
  *
@@ -22,17 +22,38 @@
  *   npm run ops:sync-vercel-vite-env
  */
 import { config as loadEnv } from 'dotenv';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 loadEnv({ path: join(root, '.env.ops.local') });
 
+function loadVercelLinkedProject() {
+  const path = join(root, '.vercel', 'project.json');
+  if (!existsSync(path)) {
+    return { projectId: '', orgId: '' };
+  }
+  try {
+    const data = JSON.parse(readFileSync(path, 'utf8'));
+    return {
+      projectId: typeof data.projectId === 'string' ? data.projectId.trim() : '',
+      orgId: typeof data.orgId === 'string' ? data.orgId.trim() : '',
+    };
+  } catch {
+    return { projectId: '', orgId: '' };
+  }
+}
+
+const linked = loadVercelLinkedProject();
 const ref = process.env.SUPABASE_PROJECT_REF || 'nshgmuqlivuhlimwdwhe';
-const vercelToken = process.env.VERCEL_TOKEN || '';
-const projectId = process.env.VERCEL_PROJECT_ID || '';
-const teamId = process.env.VERCEL_TEAM_ID || '';
-const supabasePat = process.env.SUPABASE_ACCESS_TOKEN || '';
+const vercelToken = (process.env.VERCEL_TOKEN || '').trim();
+const projectId = (process.env.VERCEL_PROJECT_ID || linked.projectId || '').trim();
+const teamIdRaw = (process.env.VERCEL_TEAM_ID || '').trim();
+const teamId =
+  teamIdRaw
+  || (linked.orgId && linked.orgId.startsWith('team_') ? linked.orgId : '');
+const supabasePat = (process.env.SUPABASE_ACCESS_TOKEN || '').trim();
 const dryRun = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
 
 const targets = ['production', 'preview', 'development'];
@@ -99,13 +120,20 @@ async function main() {
   const anon = await fetchSupabaseAnon();
   const masked = `${anon.slice(0, 8)}…${anon.slice(-4)}`;
 
-  if (!vercelToken || !projectId) {
-    console.log('Dry info (missing VERCEL_TOKEN or VERCEL_PROJECT_ID — not calling Vercel):');
-    console.log(`  VITE_SUPABASE_URL=${viteUrl}`);
-    console.log(`  VITE_SUPABASE_PROJECT_ID=${viteProjectId}`);
-    console.log(`  VITE_SUPABASE_PUBLISHABLE_KEY=${masked}`);
-    console.log('\nSet VERCEL_TOKEN + VERCEL_PROJECT_ID (and optional VERCEL_TEAM_ID), then re-run without DRY_RUN.');
-    process.exit(0);
+  if (!projectId) {
+    console.error(
+      'Missing Vercel project id. Set VERCEL_PROJECT_ID in .env.ops.local, or run `vercel link` in social-matching-web/ (creates .vercel/project.json).',
+    );
+    process.exit(2);
+  }
+
+  if (!vercelToken) {
+    console.error(
+      'Missing VERCEL_TOKEN. Create a token at https://vercel.com/account/tokens and add VERCEL_TOKEN to .env.ops.local (or export in shell).',
+    );
+    console.log('Resolved from vercel link:', { projectId, teamId: teamId || '(none)' });
+    console.log(`Would set VITE_SUPABASE_URL=${viteUrl}; VITE_SUPABASE_PUBLISHABLE_KEY=${masked}`);
+    process.exit(2);
   }
 
   if (dryRun) {
