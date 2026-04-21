@@ -49,6 +49,20 @@ Git root is **`/Users/guygarfinkel/Documents/Cursor`** (remote **`origin`** → 
 
 **How the next agent should proceed on a large chunk:** (1) Read the relevant **§5.x** + **Recommended** row and any **Option** table that applies. (2) Skim **§4 lenses** if the change touches trust, warmth, scarcity, or vocabulary. (3) Align UI with **platform design system** + **visual companion**. (4) Implement in one coherent batch; (5) update **Playwright** if Hebrew or labels change; (6) note in a short commit or doc line if you **diverged** from the spec’s recommendation and why.
 
+**Default order for “the rest” of the roadmap (same audit file):** Treat each block below as a **separate large batch** unless product explicitly reorders. Each has options + a written recommendation—read before coding.
+
+| Order | Section | Plain topic |
+|-------|---------|-------------|
+| 1 | **§5.1** | Discovery — what can I join near me? |
+| 2 | **§5.2** | Activation — browsing → raising hand |
+| 3 | **§5.3** | Apply and propose — doing it the right way |
+| 4 | **§5.4** | Trust and verification |
+| 5 | **§5.5** | Admin and host tone / operations feel |
+| 6 | **§5.6** | Payment — “not now” contract (clarity, not checkout) |
+| 7 | **§5.7** | Circles-style inspiration — direction only, not a second spec |
+
+This handoff does **not** replace reading **`2026-04-21-circles-mvp-progress-and-audit-spec.md`**; it routes the next agent there. It also cannot replay every informal conversation—only what is written in repo docs and here.
+
 ## Codebase Understanding
 
 ### Architecture Overview
