@@ -2,7 +2,8 @@
  * Email OTP is sent by Supabase Auth via `signInWithOtp({ email })`.
  * The **Magic link** email template must include `{{ .Token }}` (6-digit code).
  * If the template only uses `{{ .ConfirmationURL }}`, users get a link while this app expects a code.
- * Configure in Supabase Dashboard → Authentication → Email Templates → Magic link,
+ * New users may receive **Confirm signup** (not Magic link) — that template must include `{{ .Token }}` too.
+ * Configure in Supabase Dashboard → Authentication → Email Templates,
  * or see `docs/ops/supabase-auth-email-templates.md`.
  */
 import {

@@ -39,10 +39,31 @@ Install dependencies:
 npm install
 ```
 
-Start the app locally:
+Start the app locally (defaults to **Vite mode `staging`**, so variables from **`.env.staging.local`** are picked up — same Supabase project as in [`.env.staging.example`](.env.staging.example)):
 
 ```bash
+cp .env.staging.example .env.staging.local
+# fill in VITE_SUPABASE_* and any other keys, then:
 npm run dev
+```
+
+To use plain Vite `development` mode instead (only `.env`, `.env.local`, `.env.development*`), run:
+
+```bash
+npm run dev:development
+```
+
+Production-shaped build + static preview (needs **`.env.production.local`** or **`.env.local`** with `VITE_*` before `npm run build`, because values are inlined at build time):
+
+```bash
+npm run build
+npm run preview
+```
+
+To build + preview against **staging** env files only:
+
+```bash
+npm run preview:staging
 ```
 
 Typecheck:
@@ -80,7 +101,9 @@ Committed examples:
 
 Local machine-specific secrets should stay untracked, for example:
 
-- `.env.staging.local`
+- `.env.staging.local` (used by `npm run dev` via `--mode staging`, and by `npm run build:staging` / `preview:staging`)
+- `.env.production.local` (used by default `npm run build` / `vite preview` after a production build)
+- `.env.local` (optional overrides; Vite merges this file in every mode)
 - `e2e/.env.e2e`
 
 ## Project Structure

@@ -15,7 +15,7 @@ npm run build
 
 Artifacts land in `dist/`. It is a static SPA; the server must serve `index.html` for client-side routes (history fallback).
 
-Preview locally:
+Preview locally (needs `VITE_*` present **before** `npm run build`, or use `npm run preview:staging` which builds with `--mode staging` and reads `.env.staging.local`):
 
 ```bash
 npm run preview

@@ -13,4 +13,9 @@ export default defineConfig({
     host: '::',
     port: 4173,
   },
+  /** Same defaults as dev so `vite preview` works from a phone / LAN IP after a local build. */
+  preview: {
+    host: '::',
+    port: 4173,
+  },
 });

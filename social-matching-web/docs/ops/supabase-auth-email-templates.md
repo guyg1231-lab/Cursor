@@ -24,6 +24,21 @@
 - **Production** — פרויקט `nshgmuqlivuhlimwdwhe` (ערכים כמו ב־[`.env.production.example`](../../.env.production.example)).
 - **Staging** — פרויקט `huzcvjyyyuudchnrosvx` (כמו ב־[`.env.staging.example`](../../.env.staging.example)); כדאי לשמור על אותה מדיניות OTP כדי שלא יבלבלו בדיקות ידניות.
 
+## תבנית «אשר הרשמה» / Confirm signup (מה שקיבלת מ־`noreply@mail.app.supabase.io`)
+
+כשמשתמש **חדש** נרשם לראשונה, Supabase לעיתים שולח את תבנית **Confirm signup** (נושא באנגלית כמו *Confirm your signup*), ולא את תבנית ה־Magic link — זה עדיין ברירת מחדל של המערכת, **לא** מהקוד ב־Vercel.
+
+מה לעשות ב־Dashboard (לכל סביבה: Staging / Production):
+
+1. **Authentication** → **Email Templates** → **Confirm signup**  
+   - **Subject:** לדוגמה `אישור ההרשמה — קוד כניסה` (או שם המוצר).  
+   - **Body:** להוסיף את **`{{ .Token }}`** כדי שהמשתמש יקבל את **קוד ה־OTP** באותו מסך אימות באפליקציה. אפשר להשאיר גם `{{ .ConfirmationURL }}` למי שמעדיף קישור.  
+2. באותו מקום, לעדכן גם את תבנית **Magic link** (ראו למעלה) — משתמשים חוזרים יקבלו אותה.
+3. **שולח המייל (From):** כל עוד לא מוגדר **SMTP מותאם**, השולח יישאר דומה ל־`Supabase Auth <noreply@mail.app.supabase.io>`. כדי למותג (דומיין משלכם, שם תצוגה):  
+   **Project Settings** → **Authentication** (או **Integrations**) → **SMTP** — חיבור ל־Resend / SendGrid / Postmark וכו׳, ואז **Custom SMTP** פעיל. אחרי זה ניתן לקבוע כתובת From מאומתת.
+
+נושאי מייל גלובליים (API / אוטומציה): השדות `mailer_subjects_magic_link`, `mailer_subjects_confirmation`, וכו׳ ב־`PATCH .../config/auth` של Management API — ראו [תיעוד Supabase Auth](https://supabase.com/docs/guides/auth/auth-email-templates).
+
 ## נושאים נוספים (ברירת מחדל באנגלית)
 
 באותו מסך ניתן לעדכן גם נושאים של הזמנה, אישור הרשמה, שחזור וכו׳ (`mailer_subjects_*`) כדי שלא יופיע "Confirm Your Signup" וכדומה במיילים למשתמשי קצה.

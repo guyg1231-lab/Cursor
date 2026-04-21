@@ -4,9 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode staging",
+    "dev:development": "vite",
     "build": "tsc -b && vite build",
+    "build:staging": "tsc -b && vite build --mode staging",
     "preview": "vite preview",
+    "preview:staging": "npm run build:staging && vite preview",
     "typecheck": "tsc -b --noEmit",
     "ci": "npm run typecheck && npm run build && npm run e2e",
     "staging:validation-users": "node --experimental-strip-types scripts/supabase/create-staging-validation-users.ts",
