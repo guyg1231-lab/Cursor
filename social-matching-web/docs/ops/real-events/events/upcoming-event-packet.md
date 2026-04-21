@@ -67,6 +67,14 @@ Find-replace in `queries/event_lifecycle_metrics.sql`: `00000000-0000-0000-0000-
 
 ---
 
+## Accepted post-MVP improvements
+
+| Item | Owner | Target timeframe | Notes |
+|------|-------|------------------|-------|
+| Host communications surface (currently placeholder-only) | Dev B | First post-MVP sprint | Keep host scope summary-only for MVP launch safety. |
+| Host follow-up write actions (currently read-only placeholder) | Dev B | First post-MVP sprint | Add after launch once operator core path is stable. |
+| Admin diagnostics/audit deep tooling (currently placeholder route content) | Dev B + Ops | 2-4 weeks post-MVP | Route exists and is guarded; deeper observability is deferred. |
+
 ## Day-of operator checklist
 
 _Use the morning / few hours before the event starts._

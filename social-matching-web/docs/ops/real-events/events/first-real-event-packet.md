@@ -91,6 +91,16 @@ Same as [upcoming-event-packet.md](./upcoming-event-packet.md): **Day-of operato
 
 ---
 
+## Accepted post-MVP improvements
+
+| Item | Owner | Target timeframe | Notes |
+|------|-------|------------------|-------|
+| Host communications surface (currently placeholder-only) | Dev B | First post-MVP sprint | Maintain MVP boundary: no host messaging system in launch scope. |
+| Host follow-up write actions (currently read-only placeholder) | Dev B | First post-MVP sprint | Add only after first real-event stability check. |
+| Admin diagnostics/audit deep tooling (currently placeholder route content) | Dev B + Ops | 2-4 weeks post-MVP | Keep current guarded route contract; expand internals post-launch. |
+
+---
+
 ## References
 
 - Rules: [../README.md](../README.md)  
