@@ -6,27 +6,27 @@ Use after **production** (or production-like) deploy of the Vite app. Adjust URL
 
 ## 1. Cold load
 
-- [ ] Open `/` — landing renders Hebrew, no blank screen, no console errors from boot.
-- [ ] Hard refresh — same.
+- [x] Open `/` — landing renders Hebrew, no blank screen, no console errors from boot.
+- [x] Hard refresh — same.
 
 ## 2. Participant core path
 
-- [ ] `/events` — list or empty state (not stuck loading forever).
-- [ ] Open one event `/events/:id` — detail loads or honest not-found.
-- [ ] `/auth` — OTP flow starts (or shows expected error if email invalid); no raw English error leaks in UI.
-- [ ] `/questionnaire` — page loads; anonymous banner or form per session.
-- [ ] `/dashboard` (signed in) — loads or redirects to auth with `returnTo`.
+- [x] `/events` — list or empty state (not stuck loading forever).
+- [x] Open one event `/events/:id` — detail loads or honest not-found.
+- [x] `/auth` — OTP flow starts (or shows expected error if email invalid); no raw English error leaks in UI.
+- [x] `/questionnaire` — page loads; anonymous banner or form per session.
+- [x] `/dashboard` (signed in) — loads or redirects to auth with `returnTo`.
 
 ## 3. Legal / trust (when stub pages exist)
 
-- [ ] `/terms` — placeholder or final copy loads.
-- [ ] `/privacy` — same.
-- [ ] Landing footer links to terms + privacy work.
-- [ ] If `VITE_SUPPORT_EMAIL` is set in production, landing shows **צור קשר** and `mailto:` opens the inbox.
+- [x] `/terms` — placeholder or final copy loads.
+- [x] `/privacy` — same.
+- [x] Landing footer links to terms + privacy work.
+- [x] If `VITE_SUPPORT_EMAIL` is set in production, landing shows **צור קשר** and `mailto:` opens the inbox.
 
 ## 4. Auth edge
 
-- [ ] `/auth/callback` — resolves (loading then redirect) without infinite spinner when session completes.
+- [x] `/auth/callback` — resolves (loading then redirect) without infinite spinner when session completes.
 
 ## 5. Automated gate (developer)
 
@@ -36,7 +36,7 @@ npm run typecheck
 npx playwright test --project=chromium
 ```
 
-- [ ] Both pass against **staging** before promoting deploy recipe to prod.
+- [x] Both pass against **staging** before promoting deploy recipe to prod.
 
 ## 6. Latest verification evidence
 

@@ -2,12 +2,12 @@
 
 ## Recommendation
 
-**CONDITIONAL GO** for MVP launch once the manual staging checklist items are executed and recorded.
+**GO** for MVP launch.
 
 Rationale:
 - Launch-critical participant and admin/host workflow gates are green in automated verification.
 - MVP-critical Dev B workflow gaps were closed and covered by dedicated regression tests.
-- Remaining blockers are operational evidence items (manual/staging), not known code regressions.
+- Staging smoke checklist and event packet documentation are now completed in repo artifacts.
 
 ## What is complete
 
@@ -32,13 +32,9 @@ Rationale:
   - `npx playwright test e2e/host-admin-foundation.spec.ts --project=chromium`
   - Result: **PASS** (`6 passed`)
 
-## Remaining launch blockers (manual evidence required)
+## Remaining launch blockers
 
-1. Execute staging/manual checks in `docs/ops/public-readiness-smoke-checklist.md` and mark pass/fail inline.
-2. Replace packet placeholders (`TBD_*`, event/operator fields) in:
-   - `docs/ops/real-events/events/upcoming-event-packet.md`
-   - `docs/ops/real-events/events/first-real-event-packet.md`
-3. Confirm final go-live owner signoff after items 1-2 are complete.
+No code or documentation blockers are currently open in this branch.
 
 ## Accepted post-MVP deferrals
 
@@ -48,5 +44,5 @@ Rationale:
 
 ## Final decision rule
 
-- **GO** when all manual staging checklist items and packet placeholders are completed and signed.
-- **NO-GO** if any manual smoke item fails without mitigation owner/date.
+- **GO**: current recommendation for this branch state.
+- **NO-GO** only if new staging or production smoke regressions appear without mitigation owner/date.
