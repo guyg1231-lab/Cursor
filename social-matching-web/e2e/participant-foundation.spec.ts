@@ -54,6 +54,21 @@ test.describe('participant foundation', () => {
     await expect(page.getByText('מפגש בדיקת טעינה', { exact: true })).toBeVisible();
   });
 
+  test('events falls back quickly when the live events request is slow', async ({ page }) => {
+    await page.route('**/rest/v1/events*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 5_000));
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '[]',
+      });
+    });
+
+    await page.goto('/events');
+
+    await expect(page.getByText('מעגל היכרות תל אביב', { exact: true })).toBeVisible({ timeout: 2_500 });
+  });
+
   test('discovery links into canonical event detail before apply', async ({ page }) => {
     await page.goto('/events');
     await page.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first().click();
@@ -68,6 +83,92 @@ test.describe('participant foundation', () => {
   test('events page offers a non-admin CTA to propose something new', async ({ page }) => {
     await page.goto('/events');
     await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
+  });
+
+  test('mobile discovery sheet can show attendee-circle count for a published event', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            event_id: 'playwright-map-event',
+            attendee_count: 4,
+          },
+        ]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'playwright-map-event',
+            title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
+            description: 'מפגש אינטימי וחם לערב קטן בעיר.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+    await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+  });
+
+  test('events cards surface vibe, area hint, and registration state copy', async ({ page }) => {
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'playwright-discovery-open-event',
+            title: 'ארוחת ערב לשיחה פתוחה',
+            description: 'מפגש רגוע לאנשים שרוצים ערב קטן עם הקשבה, עומק והיכרות בלי רעש מסביב.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'פלורנטין, הכתובת המלאה נשלחת אחרי התאמה',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    await expect(page.getByText('מה האווירה?', { exact: true })).toBeVisible();
+    await expect(page.getByText('איפה בערך?', { exact: true })).toBeVisible();
+    await expect(page.getByText(/פלורנטין/)).toBeVisible();
+    await expect(page.getByText(/להגשה עד/)).toBeVisible();
+    await expect(page.getByText('תהליך התאמה אנושי לפני אישור מקום סופי.', { exact: true })).toBeVisible();
   });
 
   test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
@@ -717,6 +818,43 @@ test.describe('participant foundation', () => {
         }
       },
     );
+  });
+
+  test('event detail keeps a published closed event visible with calm state explanation', async ({ page }) => {
+    await page.route('**/rest/v1/events*', async (route) => {
+      if (route.request().method() !== 'GET') return route.continue();
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: ENV.EVENT_ID,
+            title: 'מפגש סגור אך ברור',
+            description: 'מפגש קטן שממשיך להיות גלוי גם כשההגשה כבר סגורה.',
+            city: 'חיפה',
+            starts_at: '2026-06-18T17:00:00.000Z',
+            registration_deadline: '2026-04-01T17:00:00.000Z',
+            venue_hint: 'הדר, מיקום מלא נשלח אחרי התאמה',
+            max_capacity: 10,
+            status: 'closed',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto(`/events/${ENV.EVENT_ID}`);
+
+    await expect(page.getByText('ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.', { exact: true })).toBeVisible();
+    await expect(page.getByText('לפני אישור מקום סופי נעבור על כל הגשה באופן אנושי ונעדכן כאן מה קורה בהמשך.', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'חזרה למפגשים' }).first()).toHaveAttribute('href', '/events');
   });
 
   test('dashboard lifecycle list shows reserved status chip for confirmed application', async ({ browser }) => {

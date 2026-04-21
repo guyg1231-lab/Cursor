@@ -575,6 +575,15 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      get_public_event_social_signals: {
+        Args: {
+          event_ids: string[]
+        }
+        Returns: {
+          event_id: string
+          attendee_count: number
+        }[]
+      }
       cancel_registration_with_email: {
         Args: { p_registration_id: string }
         Returns: {
