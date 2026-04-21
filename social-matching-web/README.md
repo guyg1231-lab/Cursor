@@ -39,7 +39,7 @@ Install dependencies:
 npm install
 ```
 
-Start the app locally (defaults to **Vite mode `staging`**, so variables from **`.env.staging.local`** are picked up — same Supabase project as in [`.env.staging.example`](.env.staging.example)):
+Start the app locally. **`vite.config.ts` preloads `.env.staging.local` then `.env.local` into `process.env` for every command except `vite build` with `production` mode**, so `npm run dev` picks up staging secrets even though Vite’s mode is `development`. `npm run dev` also runs a short **`predev`** check that fails fast with a Hebrew hint if `VITE_*` are still missing.
 
 ```bash
 cp .env.staging.example .env.staging.local
@@ -47,13 +47,15 @@ cp .env.staging.example .env.staging.local
 npm run dev
 ```
 
-To use plain Vite `development` mode instead (only `.env`, `.env.local`, `.env.development*`), run:
+Alternative: **`npm run dev:staging`** — same env assert, then `vite --mode staging` (explicit mode).
+
+To skip the staging preload chain and use only Vite’s default `development` env files from disk, run plain Vite (no `predev` hook):
 
 ```bash
-npm run dev:development
+npx vite
 ```
 
-Production-shaped build + static preview (needs **`.env.production.local`** or **`.env.local`** with `VITE_*` before `npm run build`, because values are inlined at build time):
+Production-shaped build + static preview — צריך **`VITE_*` לפני `npm run build`** (למשל `.env.production.local` או `.env.local`), אחרת `npm run preview` ייעצר עם הודעה בעברית (בודקים שיש ב־`dist/` כתובת Supabase אמיתית):
 
 ```bash
 npm run build

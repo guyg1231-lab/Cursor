@@ -314,6 +314,12 @@ export function AuthPage() {
                   </p>
                   <p>מזינים כאן את 6 הספרות מהמייל (שורה אחת, בלי רווחים), ואז לוחצים על האימות.</p>
                   <p>תוקף הקוד: {formatCountdown(remainingSeconds)}</p>
+                  <p className="text-xs text-muted-foreground leading-snug">
+                    המייל מגיע מ־Supabase ולעיתים מופיע באנגלית (&quot;Confirm your signup&quot; וכו׳) או מתבנית &quot;אשר הרשמה&quot;
+                    — הקוד עדיין בגוף המייל; כדאי לבדוק גם בתיקיית ספאם. למותג בעברית ושולח מותאם: בפרויקט Supabase →
+                    Authentication → Email Templates (כולל Confirm signup + Magic link) ו־SMTP; פירוט ב־
+                    <code className="rounded bg-muted px-1">docs/ops/supabase-auth-email-templates.md</code>.
+                  </p>
                 </div>
 
                 <form className="space-y-4" onSubmit={handleVerifyOtp}>
