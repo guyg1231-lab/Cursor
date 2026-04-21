@@ -53,6 +53,8 @@ Service role keys and DB URLs belong to **Edge/cron/ops**, not the Vite bundle.
 
 ## 3. Supabase Auth URLs
 
+Email **OTP vs magic link**: the SPA expects a **6-digit code**; the Supabase “Magic link” template must include `{{ .Token }}`. See [`supabase-auth-email-templates.md`](supabase-auth-email-templates.md).
+
 In Supabase Dashboard → Authentication → URL configuration:
 
 - **Site URL** — production app origin (e.g. `https://app.example.com`).

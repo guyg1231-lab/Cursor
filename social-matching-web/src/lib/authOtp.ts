@@ -1,4 +1,11 @@
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * Email OTP is sent by Supabase Auth via `signInWithOtp({ email })`.
+ * The **Magic link** email template must include `{{ .Token }}` (6-digit code).
+ * If the template only uses `{{ .ConfirmationURL }}`, users get a link while this app expects a code.
+ * Configure in Supabase Dashboard → Authentication → Email Templates → Magic link,
+ * or see `docs/ops/supabase-auth-email-templates.md`.
+ */
+import { isSupabaseBrowserClientConfigured, supabase } from '@/integrations/supabase/client';
 import { safeLocalStorage, safeSessionStorage } from '@/lib/safeStorage';
 import { validateEmailAddress } from '@/lib/validation';
 
@@ -14,7 +21,12 @@ export type AuthOtpCode =
   | 'rate_limit_unknown'
   | 'rate_limit_quota'
   | 'invalid_email'
+  /** Browser could not complete the HTTP request (offline, DNS, blocked, wrong host). */
   | 'network'
+  /** Built without real VITE_SUPABASE_* — client uses placeholder host `invalid.supabase.co`. */
+  | 'client_misconfigured'
+  /** `emailRedirectTo` / site URL not in Supabase Auth → URL Configuration allow list. */
+  | 'redirect_not_allowed'
   | 'auth_error';
 
 export interface RequestOtpEmailResult {
@@ -104,9 +116,48 @@ function extractAuthErrorMessage(error: unknown): string {
     if (typeof record.error_description === 'string' && record.error_description.trim() !== '') {
       return record.error_description;
     }
+    if (typeof record.msg === 'string' && record.msg.trim() !== '') {
+      return record.msg;
+    }
+    if (typeof record.error === 'string' && record.error.trim() !== '') {
+      return record.error;
+    }
   }
 
   return 'Authentication error';
+}
+
+function looksLikeTransportFailure(message: string): boolean {
+  const m = message.toLowerCase();
+  return (
+    m.includes('failed to fetch')
+    || m.includes('load failed') // Safari
+    || m.includes('networkerror')
+    || m.includes('authretryablefetcherror')
+    || m.includes('fetcherror')
+    || m.includes('err_network')
+    || m.includes('err_internet_disconnected')
+    || m.includes('err_connection')
+    || m.includes('connection refused')
+    || m.includes('econnrefused')
+    || m.includes('enotfound')
+    || m.includes('net::err')
+    || m.includes('timed out')
+    || m.includes('timeout')
+    || m.includes('aborted')
+  );
+}
+
+function looksLikeRedirectNotAllowed(message: string): boolean {
+  const m = message.toLowerCase();
+  return (
+    (m.includes('redirect') && m.includes('not allowed'))
+    || (m.includes('redirect') && m.includes('invalid'))
+    || m.includes('redirect_uri')
+    || m.includes('redirect_to')
+    || m.includes('invalid redirect')
+    || m.includes('is not a valid redirect')
+  );
 }
 
 function classifyOtpError(error: unknown, fallbackCooldownSeconds: number): RequestOtpEmailResult {
@@ -166,11 +217,29 @@ function classifyOtpError(error: unknown, fallbackCooldownSeconds: number): Requ
     };
   }
 
+  if (looksLikeRedirectNotAllowed(message)) {
+    return {
+      ok: false,
+      code: 'redirect_not_allowed',
+      message,
+    };
+  }
+
   if (
-    normalizedMessage.includes('failed to fetch')
-    || normalizedMessage.includes('network')
-    || normalizedMessage.includes('timeout')
+    normalizedMessage.includes('invalid api key')
+    || (
+      normalizedMessage.includes('jwt')
+      && (normalizedMessage.includes('invalid') || normalizedMessage.includes('malformed'))
+    )
   ) {
+    return {
+      ok: false,
+      code: 'client_misconfigured',
+      message,
+    };
+  }
+
+  if (looksLikeTransportFailure(message)) {
     return {
       ok: false,
       code: 'network',
@@ -203,6 +272,14 @@ export async function requestOtpEmail(params: {
       ok: false,
       code: 'invalid_email',
       message: 'Invalid email address',
+    };
+  }
+
+  if (!isSupabaseBrowserClientConfigured()) {
+    return {
+      ok: false,
+      code: 'client_misconfigured',
+      message: 'Supabase URL or anon key missing at build time (invalid placeholder client).',
     };
   }
 

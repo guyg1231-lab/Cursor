@@ -16,6 +16,7 @@ import {
 } from '@/lib/authReturnTo';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateEmailAddress } from '@/lib/validation';
+import type { AuthOtpCode } from '@/lib/authOtp';
 
 function formatCountdown(totalSeconds: number) {
   const safeSeconds = Math.max(0, totalSeconds);
@@ -39,6 +40,8 @@ export function AuthPage() {
   const [otpCode, setOtpCode] = useState('');
   const [step, setStep] = useState<'email' | 'sent'>('email');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  /** Drives send-failure banner title so we do not stack two “could not send” headings on network errors. */
+  const [emailSendFailureCode, setEmailSendFailureCode] = useState<AuthOtpCode | null>(null);
   const [loadingPhase, setLoadingPhase] = useState<'sending' | 'verifying' | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [otpExpiresAt, setOtpExpiresAt] = useState<number | null>(null);
@@ -95,6 +98,7 @@ export function AuthPage() {
     });
 
     if (!result.ok) {
+      setEmailSendFailureCode(result.code);
       if ((result.code === 'rate_limit' || result.code === 'rate_limit_quota') && result.retryAfterSeconds != null) {
         setResendCooldown(result.retryAfterSeconds);
       }
@@ -111,14 +115,27 @@ export function AuthPage() {
           setSubmitError('יש כרגע מגבלת שליחה זמנית. אפשר לנסות שוב בעוד רגע.');
           return false;
         case 'network':
-          setSubmitError('יש תקלה זמנית בחיבור. אפשר לנסות שוב בעוד רגע.');
+          setSubmitError(
+            'לא הצלחנו להגיע לשרת האימות. כדאי לבדוק חיבור לאינטרנט או לנתונים סלולריים, לבטל חסימת תוכן/פרטיות זמנית לכתובת הזאת, ולנסות שוב בעוד רגע.',
+          );
+          return false;
+        case 'client_misconfigured':
+          setSubmitError(
+            'האפליקציה נטענה בלי הגדרות Supabase תקינות (כתובת פרויקט או מפתח). צריך להגדיר בזמן הבנייה את VITE_SUPABASE_URL ואת VITE_SUPABASE_PUBLISHABLE_KEY, ולפרוס מחדש.',
+          );
+          return false;
+        case 'redirect_not_allowed':
+          setSubmitError(
+            'כתובת האתר שממנה נפתחה ההתחברות לא מאושרת ב־Supabase. ב־Dashboard: Authentication → URL Configuration → Redirect URLs — יש להוסיף את כתובת האתר המלאה (כולל תצוגות Vercel אם צריך), ואז לנסות שוב.',
+          );
           return false;
         default:
-          setSubmitError('לא הצלחנו לשלוח כרגע קוד אימות. אפשר לנסות שוב בעוד רגע.');
+          setSubmitError('קיבלנו תשובה לא צפויה מהשרת. אם זה חוזר, כדאי לרענן את העמוד ולנסות שוב.');
           return false;
       }
     }
 
+    setEmailSendFailureCode(null);
     setFailedAttempts(0);
     setResendCooldown(result.retryAfterSeconds ?? 60);
     return true;
@@ -128,6 +145,7 @@ export function AuthPage() {
     event.preventDefault();
 
     if (!emailValidation.isValid) {
+      setEmailSendFailureCode('invalid_email');
       if (emailValidation.code === 'required') {
         setSubmitError('צריך להזין כתובת אימייל כדי להמשיך.');
       } else {
@@ -138,6 +156,7 @@ export function AuthPage() {
 
     setLoadingPhase('sending');
     setSubmitError(null);
+    setEmailSendFailureCode(null);
 
     try {
       const isSent = await sendOtpRequest();
@@ -161,6 +180,7 @@ export function AuthPage() {
 
     setLoadingPhase('sending');
     setSubmitError(null);
+    setEmailSendFailureCode(null);
 
     try {
       const isSent = await sendOtpRequest();
@@ -184,6 +204,7 @@ export function AuthPage() {
 
     setLoadingPhase('verifying');
     setSubmitError(null);
+    setEmailSendFailureCode(null);
 
     try {
       const { error } = await supabase.auth.verifyOtp({
@@ -213,7 +234,19 @@ export function AuthPage() {
     setFailedAttempts(0);
     setOtpExpiresAt(null);
     setSubmitError(null);
+    setEmailSendFailureCode(null);
   }
+
+  const emailSendBannerTitle =
+    emailSendFailureCode === 'network'
+      ? 'בעיה זמנית בחיבור'
+      : emailSendFailureCode === 'invalid_email'
+        ? 'כתובת האימייל לא מתאימה'
+        : emailSendFailureCode === 'client_misconfigured'
+          ? 'בעיה בהגדרת השרת'
+          : emailSendFailureCode === 'redirect_not_allowed'
+            ? 'כתובת האתר לא מאושרת'
+            : 'לא הצלחנו לשלוח קוד אימות';
 
   return (
     <PageShell
@@ -222,7 +255,7 @@ export function AuthPage() {
     >
       {submitError && step === 'email' ? (
         <div className="mb-4">
-          <RouteErrorState title="לא הצלחנו לשלוח קישור כניסה" body={submitError} />
+          <RouteErrorState title={emailSendBannerTitle} body={submitError} />
         </div>
       ) : null}
       <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
@@ -232,7 +265,8 @@ export function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
             <p>
-              לא צריך סיסמה. שולחים קוד חד-פעמי למייל, מזינים אותו כאן, וממשיכים ישר ליעד ששמרנו עבורך.
+              בלי סיסמה קבועה: נשלח אליכם מייל עם קוד בן 6 ספרות (לא קישור). מזינים את הקוד כאן וממשיכים
+              ישר ליעד ששמרנו עבורכם.
             </p>
 
             {effectiveReturnTo ? (
@@ -247,7 +281,7 @@ export function AuthPage() {
                   <p>
                     שלחנו קוד אימות אל <strong className="text-foreground">{submittedEmail}</strong>.
                   </p>
-                  <p>מזינים כאן את 6 הספרות שקיבלת, ואז ממשיכים אוטומטית ליעד ששמרנו.</p>
+                  <p>מזינים כאן את 6 הספרות מהמייל (שורה אחת, בלי רווחים), ואז לוחצים על האימות.</p>
                   <p>תוקף הקוד: {formatCountdown(remainingSeconds)}</p>
                 </div>
 
@@ -268,7 +302,7 @@ export function AuthPage() {
                         setOtpCode(nextValue);
                       }}
                       className="w-full rounded-full border border-input bg-background px-4 py-3 text-center text-lg tracking-[0.35em] outline-none"
-                      placeholder="123456"
+                      placeholder="······"
                     />
                     {failedAttempts > 0 ? (
                       <p className="text-xs text-muted-foreground">ניסיונות אימות שגויים: {failedAttempts}</p>
@@ -303,14 +337,17 @@ export function AuthPage() {
                     id="auth-email"
                     type="email"
                     autoComplete="email"
+                    dir="ltr"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-                    placeholder="name@example.com"
+                    placeholder=""
+                    aria-describedby="auth-email-hint"
                   />
+                  <p id="auth-email-hint" className="text-xs text-muted-foreground">
+                    כתובת שאליה יגיע קוד בן 6 ספרות בלבד (לא קישור).
+                  </p>
                 </div>
-
-                {submitError ? <p className="text-sm text-destructive">{submitError}</p> : null}
 
                 <Button type="submit" variant="primary" disabled={loadingPhase !== null}>
                   {loadingPhase === 'sending' ? 'שולחים...' : 'לשלוח קוד אימות'}
@@ -325,9 +362,9 @@ export function AuthPage() {
             <CardTitle className="text-xl">איך זה עובד?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-            <p>1. מזינים אימייל ומקבלים קוד בן 6 ספרות.</p>
-            <p>2. מזינים את הקוד כאן, והסשן נוצר מיד אחרי האימות.</p>
-            <p>3. חוזרים אוטומטית להגשה או לדשבורד, בלי לחפש שוב את המקום הנכון.</p>
+            <p>1. מזינים אימייל ומקבלים במייל קוד בן 6 ספרות.</p>
+            <p>2. מזינים את הקוד כאן — לא לוחצים על קישור במייל (אין צורך).</p>
+            <p>3. אחרי האימות חוזרים ליעד ששמרנו (הגשה, דשבורד וכו׳).</p>
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>
             </Button>

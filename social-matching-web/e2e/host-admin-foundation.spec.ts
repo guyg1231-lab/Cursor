@@ -120,9 +120,10 @@ test.describe('host/admin MVP-critical workflows', () => {
       await expect(page.getByRole('heading', { name: 'נשלח לבדיקה' })).toBeVisible();
 
       const approveButtons = page.getByRole('button', { name: 'אישור ופרסום' });
-      if ((await approveButtons.count()) === 0) {
-        await expect(page.getByText('אין כרגע בקשות ממתינות', { exact: true })).toBeVisible();
-      } else {
+      const emptyQueue = page.getByText('אין כרגע בקשות ממתינות', { exact: true });
+      // Avoid racing the initial fetch: count can be 0 while loading even when requests exist.
+      await expect(approveButtons.first().or(emptyQueue)).toBeVisible();
+      if ((await approveButtons.count()) > 0) {
         await expect(approveButtons.first()).toBeEnabled();
       }
     } finally {

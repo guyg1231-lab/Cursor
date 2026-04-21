@@ -23,7 +23,8 @@ export default defineConfig({
   reporter: [['list']],
   use: {
     baseURL: BASE_URL,
-    trace: 'retain-on-failure',
+    // retain-on-failure has caused ENOENT on trace zip/network files during context.close() locally.
+    trace: 'off',
     screenshot: 'only-on-failure',
     video: 'off',
     actionTimeout: 15_000,

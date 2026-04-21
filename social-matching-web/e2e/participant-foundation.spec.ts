@@ -141,10 +141,10 @@ test.describe('participant foundation', () => {
     }
   });
 
-  // Keep this alternation for readiness branches we cannot deterministically
-  // force yet (questionnaire/profile completeness, event openness). Dedicated
-  // tests below cover deterministic registration-state branches.
-  test('authenticated participant sees at least one blocking readiness message on /apply', async ({ browser }) => {
+  // Apply surface varies with staging data: participant may be gated (questionnaire /
+  // registration closed / prior status) or eligible with the open form. Dedicated tests
+  // below cover deterministic registration-state branches.
+  test('authenticated participant sees a stable apply surface on /apply', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
       await authenticateAs(ctx, ENV.EMAILS.P1);
@@ -152,11 +152,13 @@ test.describe('participant foundation', () => {
 
       await page.goto(`/events/${ENV.EVENT_ID}/apply`);
       await expect(
-        page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה/i }),
+        page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה|הגשת מועמדות למפגש/i }),
       ).toBeVisible();
-      await expect(
-        page.getByText(/צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה/i),
-      ).toBeVisible();
+      const openForm = page.getByRole('heading', { level: 3, name: 'פרטים על ההגשה' });
+      const gatedCopy = page.getByText(
+        /צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה|ההגשות למפגש הזה סגורות כרגע/i,
+      );
+      await expect(openForm.or(gatedCopy).first()).toBeVisible();
     } finally {
       await ctx.close();
     }

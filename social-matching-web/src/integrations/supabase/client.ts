@@ -10,13 +10,26 @@ const SUPABASE_PUBLISHABLE_KEY = (
   || import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
 );
 
-const FALLBACK_SUPABASE_URL = 'https://invalid.supabase.co';
-const FALLBACK_SUPABASE_KEY = 'public-anon-key-missing';
+export const FALLBACK_SUPABASE_URL = 'https://invalid.supabase.co';
+export const FALLBACK_SUPABASE_KEY = 'public-anon-key-missing';
 
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   console.error(
     '[supabase] Missing environment variables. Expected VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY).',
   );
+}
+
+/** False when env was missing at build time — requests hit a dead host and look like a "network" error. */
+export function isSupabaseBrowserClientConfigured(): boolean {
+  const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+  const key = (
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
+    || import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+  );
+  if (!url || !key) return false;
+  if (url === FALLBACK_SUPABASE_URL || url.includes('invalid.supabase.co')) return false;
+  if (key === FALLBACK_SUPABASE_KEY) return false;
+  return true;
 }
 
 // Import the supabase client like this:
