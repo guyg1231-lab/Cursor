@@ -6,6 +6,16 @@
 
 ברירת המחדל של Supabase בתבנית **Magic link** היא `{{ .ConfirmationURL }}` — מייל עם **קישור** בלי להדגיש את `{{ .Token }}`. אז המשתמש לא רואה קוד, בעוד הממשק מבקש OTP.
 
+## אוטומציה (Management API)
+
+מהשורש של `social-matching-web/` (נדרש `SUPABASE_ACCESS_TOKEN` או `USE_CURSOR_MCP_SUPABASE_TOKEN=1` עם `~/.cursor/mcp.json` — ראו כותרת הסקריפט):
+
+```bash
+npm run ops:patch-supabase-auth-email-templates
+```
+
+מעדכן נושא + גוף בעברית ל־**Confirm signup** ול־**Magic link** עם `{{ .Token }}` בשני הפרויקטים (סטייג’ינג + פרודקשן) לפי ברירת המחדל של הריפו.
+
 ## הפתרון (חובה)
 
 ב־Supabase Dashboard → **Authentication** → **Email Templates** → **Magic link**:
