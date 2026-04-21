@@ -9,7 +9,7 @@ import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import { getVisibleEventById } from '@/features/events/api';
-import { formatEventDate } from '@/features/events/formatters';
+import { formatEventDate, formatVisibleEventRegistrationState } from '@/features/events/formatters';
 import type { VisibleEvent } from '@/features/events/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { getExistingApplication } from '@/features/applications/api';
@@ -105,9 +105,14 @@ export function EventDetailPage() {
   const awaitingResponse = application ? isAwaitingParticipantResponse(application.status) : false;
   const offerExpired = application ? isOfferExpired(application) : false;
   const applicationPanelContent = application ? resolveApplicationPanelContent(application) : null;
+  const registrationState = formatVisibleEventRegistrationState(event);
+  const capacityLabel = event.max_capacity ? `עד ${event.max_capacity} אנשים` : 'קבוצה קטנה';
+  const detailSubtitle = event.is_registration_open
+    ? 'כל הפרטים כדי להבין את האווירה, הזמן והתהליך לפני שמגישים.'
+    : 'ההגשה אולי סגורה כרגע, אבל כל הפרטים נשארים כאן כדי לאפשר החלטה רגועה וברורה.';
 
   return (
-    <PageShell title={event.title} subtitle={event.description ?? 'מפגש קטן עם תהליך ברור יותר מרנדומליות.'}>
+    <PageShell title={event.title} subtitle={detailSubtitle}>
       <PageActionBar>
         <Button asChild variant="outline">
           <Link to="/events">חזרה לכל המפגשים</Link>
@@ -137,10 +142,20 @@ export function EventDetailPage() {
 
       <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
         <Card className={tokens.card.accent}>
-          <CardHeader>
+          <CardHeader className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge label={registrationState.label} tone={registrationState.tone} />
+              <StatusBadge label={capacityLabel} tone="muted" />
+            </div>
             <CardTitle className={tokens.typography.sectionTitle + ' leading-tight'}>{event.title}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground/85 leading-7">
+            {event.description ? (
+              <div className={tokens.card.inner + ' p-4 space-y-2'}>
+                <p className={tokens.typography.eyebrow}>מה האווירה?</p>
+                <p className="text-foreground/85">{event.description}</p>
+              </div>
+            ) : null}
             <div className={tokens.card.inner + ' p-4 space-y-2'}>
               <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
               <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
@@ -152,6 +167,7 @@ export function EventDetailPage() {
             <p>
               אחרי ההגשה נשמור את הסטטוס שלך למפגש הזה, ונעדכן אותך כאן אם יישמר עבורך מקום זמני שדורש תגובה.
             </p>
+            <p>לפני אישור מקום סופי נעבור על כל הגשה באופן אנושי ונעדכן כאן מה קורה בהמשך.</p>
 
             {application && applicationPanelContent ? (
               <>
@@ -180,7 +196,28 @@ export function EventDetailPage() {
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה חשוב לדעת?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
+            <div className={tokens.card.inner + ' p-4 space-y-2'}>
+              {event.is_registration_open ? (
+                <>
+                  <p className="font-medium text-foreground">
+                    {event.registration_deadline
+                      ? `ההגשה פתוחה כרגע עד ${formatEventDate(event.registration_deadline)}.`
+                      : 'ההגשה פתוחה כרגע.'}
+                  </p>
+                  <p>זה עדיין מסלול קטן ומסונן, לא הרשמה אוטומטית או שוק רועש.</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium text-foreground">
+                    ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.
+                  </p>
+                  <p>העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.</p>
+                </>
+              )}
+            </div>
             <p>• במסך הזה מוצגים גם אירועים פומביים שעדיין פתוחים וגם אירועים פומביים שכבר נסגרו להגשה.</p>
+            <p>• הכתובת המדויקת נשלחת רק אחרי שיש התאמה, כדי לשמור על תחושת אינטימיות ובטיחות.</p>
+            <p>• לפני אישור מקום סופי עוברים על כל הגשה בצורה אנושית ולא רק טכנית.</p>
           </CardContent>
         </Card>
       </div>
@@ -191,12 +228,13 @@ export function EventDetailPage() {
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה קורה אחרי שמגישים?</CardTitle>
         </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
-            <p>1. שומרים את ההגשה שלך למפגש הספציפי.</p>
-            <p>2. אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.</p>
-            <p>3. אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.</p>
-          </CardContent>
-        </Card>
-      </PageShell>
+        <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
+          <p>1. שומרים את ההגשה שלך למפגש הספציפי הזה.</p>
+          <p>2. בודקים התאמה באופן אנושי, כדי שהקבוצה תישאר מדויקת ורגועה.</p>
+          <p>3. אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.</p>
+          <p>4. אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.</p>
+        </CardContent>
+      </Card>
+    </PageShell>
   );
 }
