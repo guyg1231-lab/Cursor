@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteErrorState } from '@/components/shared/RouteState';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, type SupabaseBrowserConfigIssue } from '@/integrations/supabase/client';
 import { tokens } from '@/lib/design-tokens';
 import { getOtpCooldownSeconds, requestOtpEmail } from '@/lib/authOtp';
 import {
@@ -23,6 +23,39 @@ function formatCountdown(totalSeconds: number) {
   const minutes = String(Math.floor(safeSeconds / 60)).padStart(2, '0');
   const seconds = String(safeSeconds % 60).padStart(2, '0');
   return `${minutes}:${seconds}`;
+}
+
+function hebrewSupabaseMisconfigurationHint(issue: SupabaseBrowserConfigIssue | undefined): string {
+  switch (issue) {
+    case 'missing_url':
+      return (
+        'חסרה כתובת פרויקט Supabase. ב־Vercel (או CI) יש להוסיף VITE_SUPABASE_URL בערך https://<מזהה>.supabase.co, ' +
+        'לוודא שהמשתנה זמין בזמן הבנייה (Build) ולא רק בזמן ריצה של פונקציות שרת, ואז להריץ פריסה מחדש — עדכון משתנים לא מחליף bundle שכבר נבנה.'
+      );
+    case 'missing_key':
+      return (
+        'חסר מפתח אנונימי ל־Supabase. יש להוסיף VITE_SUPABASE_PUBLISHABLE_KEY או VITE_SUPABASE_ANON_KEY ' +
+        'מ־Settings → API בפרויקט Supabase, זמין בזמן Build כמו למעלה, ולפרוס מחדש.'
+      );
+    case 'both_missing':
+      return (
+        'האתר נבנה בלי VITE_SUPABASE_URL ובלי מפתח אנונימי — הדפדפן לא יכול לפנות לפרויקט. ' +
+        'יש להגדיר את שניהם בהוסטינג, לכלול גם סביבת Preview אם משתמשים בה, ולבצע build+deploy מחדש.'
+      );
+    case 'placeholder_url':
+      return (
+        'כתובת ה־Supabase שנשארה בבילד עדיין ערך דמה (למשל your-project). יש להחליף בכתובת האמיתית של הפרויקט ולפרוס מחדש.'
+      );
+    case 'placeholder_key':
+      return (
+        'מפתח ה־Supabase שנשאר בבילד נראה כמו טקסט דמה מהדוגמה. יש להחליף במפתח ה־anon/publishable האמיתי מלוח ה־API ולפרוס מחדש.'
+      );
+    default:
+      return (
+        'האפליקציה נטענה בלי הגדרות Supabase תקינות. יש להגדיר בזמן הבנייה את VITE_SUPABASE_URL ואת VITE_SUPABASE_PUBLISHABLE_KEY ' +
+        '(או VITE_SUPABASE_ANON_KEY), ולפרוס מחדש.'
+      );
+  }
 }
 
 export function AuthPage() {
@@ -120,9 +153,7 @@ export function AuthPage() {
           );
           return false;
         case 'client_misconfigured':
-          setSubmitError(
-            'האפליקציה נטענה בלי הגדרות Supabase תקינות (כתובת פרויקט או מפתח). צריך להגדיר בזמן הבנייה את VITE_SUPABASE_URL ואת VITE_SUPABASE_PUBLISHABLE_KEY, ולפרוס מחדש.',
-          );
+          setSubmitError(hebrewSupabaseMisconfigurationHint(result.misconfiguration));
           return false;
         case 'redirect_not_allowed':
           setSubmitError(

@@ -19,17 +19,69 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   );
 }
 
+/** Why the baked Supabase client is not usable (Vite inlines `import.meta.env` at build time). */
+export type SupabaseBrowserConfigIssue =
+  | 'missing_url'
+  | 'missing_key'
+  | 'both_missing'
+  | 'placeholder_url'
+  | 'placeholder_key';
+
+function isTruthyEnv(value: string | undefined): boolean {
+  if (value == null) return false;
+  const t = value.trim();
+  if (!t) return false;
+  const lower = t.toLowerCase();
+  return lower !== 'undefined' && lower !== 'null' && lower !== '0';
+}
+
+function looksLikePlaceholderUrl(url: string): boolean {
+  const u = url.trim().toLowerCase();
+  return (
+    u === FALLBACK_SUPABASE_URL
+    || u.includes('invalid.supabase.co')
+    || u.includes('your-project.supabase.co')
+    || u.includes('placeholder')
+  );
+}
+
+function looksLikePlaceholderKey(key: string): boolean {
+  const k = key.trim().toLowerCase();
+  return (
+    k === FALLBACK_SUPABASE_KEY.toLowerCase()
+    || k.includes('your-publishable')
+    || k.includes('your-anon')
+    || k.includes('replace_me')
+    || k.includes('changeme')
+    || k.includes('example')
+  );
+}
+
+/** Use for targeted user messaging; `null` means URL + key look present and non-placeholder. */
+export function getSupabaseBrowserConfigIssue(): SupabaseBrowserConfigIssue | null {
+  const urlRaw = import.meta.env.VITE_SUPABASE_URL;
+  const keyRaw =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  const url = typeof urlRaw === 'string' ? urlRaw.trim() : '';
+  const key = typeof keyRaw === 'string' ? keyRaw.trim() : '';
+
+  const hasUrl = isTruthyEnv(url);
+  const hasKey = isTruthyEnv(key);
+
+  if (!hasUrl && !hasKey) return 'both_missing';
+  if (!hasUrl) return 'missing_url';
+  if (!hasKey) return 'missing_key';
+
+  if (looksLikePlaceholderUrl(url)) return 'placeholder_url';
+  if (looksLikePlaceholderKey(key)) return 'placeholder_key';
+
+  return null;
+}
+
 /** False when env was missing at build time — requests hit a dead host and look like a "network" error. */
 export function isSupabaseBrowserClientConfigured(): boolean {
-  const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-  const key = (
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
-    || import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
-  );
-  if (!url || !key) return false;
-  if (url === FALLBACK_SUPABASE_URL || url.includes('invalid.supabase.co')) return false;
-  if (key === FALLBACK_SUPABASE_KEY) return false;
-  return true;
+  return getSupabaseBrowserConfigIssue() === null;
 }
 
 // Import the supabase client like this:

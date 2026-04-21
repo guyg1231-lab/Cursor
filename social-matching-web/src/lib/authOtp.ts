@@ -5,7 +5,11 @@
  * Configure in Supabase Dashboard → Authentication → Email Templates → Magic link,
  * or see `docs/ops/supabase-auth-email-templates.md`.
  */
-import { isSupabaseBrowserClientConfigured, supabase } from '@/integrations/supabase/client';
+import {
+  getSupabaseBrowserConfigIssue,
+  supabase,
+  type SupabaseBrowserConfigIssue,
+} from '@/integrations/supabase/client';
 import { safeLocalStorage, safeSessionStorage } from '@/lib/safeStorage';
 import { validateEmailAddress } from '@/lib/validation';
 
@@ -34,6 +38,8 @@ export interface RequestOtpEmailResult {
   code: AuthOtpCode;
   retryAfterSeconds?: number;
   message: string;
+  /** Present when `code === 'client_misconfigured'`. */
+  misconfiguration?: SupabaseBrowserConfigIssue;
 }
 
 function clampCooldown(seconds: number): number {
@@ -275,11 +281,13 @@ export async function requestOtpEmail(params: {
     };
   }
 
-  if (!isSupabaseBrowserClientConfigured()) {
+  const misconfiguration = getSupabaseBrowserConfigIssue();
+  if (misconfiguration) {
     return {
       ok: false,
       code: 'client_misconfigured',
-      message: 'Supabase URL or anon key missing at build time (invalid placeholder client).',
+      message: 'Supabase browser env invalid at build time.',
+      misconfiguration,
     };
   }
 
