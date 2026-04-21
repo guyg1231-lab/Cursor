@@ -9,10 +9,10 @@ export function HostEventWorkspacePage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="Host event workspace" subtitle={`Event ${eventId ?? 'unknown'}`}>
+    <PageShell title="מרחב ניהול מארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
-          <Link to="/host/events">Back to host events</Link>
+          <Link to="/host/events">חזרה לאירועי מארחים</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
           <Link to={`/host/events/${eventId ?? ''}/registrations`}>לתמונת ההרשמות</Link>
@@ -26,14 +26,14 @@ export function HostEventWorkspacePage() {
       </PageActionBar>
 
       <SectionHeader
-        title="Host event workspace"
-        description="Reserved for a later implementation pass."
+        title="מרחב ניהול מארח/ת"
+        description="שמורה להשלמת יישום עתידי."
       />
 
       <PlaceholderPanel
-        title="Host event workspace"
+        title="מרחב ניהול מארח/ת"
         contractState="stubbed"
-        body="This route is reserved for host-only event overview, milestones, and next-step navigation."
+        body="המסך שמור להצגת תמונת מצב למארח/ת, אבני דרך, וניווט לפעולות הבאות."
       />
     </PageShell>
   );

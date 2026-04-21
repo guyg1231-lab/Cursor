@@ -6,7 +6,7 @@
 
 **Architecture:** This plan is intentionally simple. First, close Dev A must-haves. Second, close Dev B must-haves. Third, run one shared launch-readiness pass with evidence. Everything else is post-MVP.
 
-**Branch status update (2026-04-21):** On `dev-a/circles-core-domain-v0`, Tasks 1-3 and Task 5 are complete. The remaining unresolved launch-readiness item is manual staging smoke execution/recording. The packet files are now filled as staging validation baselines and should be copied into dated real-event packets when operations lock an actual event.
+**Branch status update (2026-04-21):** Tasks 1–5 are complete for the current release candidate. Staging/production-like smoke is recorded in `docs/ops/public-readiness-smoke-checklist.md` (section 6), and the automated gate (`npm run typecheck`, full Chromium Playwright) is green. Event packet baselines remain ready to copy into dated real-event packets when operations lock an actual event.
 
 **Tech Stack:** React 18, TypeScript, React Router, Supabase, Playwright, docs under `docs/`.
 
@@ -143,10 +143,10 @@ git commit -m "feat(dev-b): close MVP-critical host-admin operating gaps"
   - `docs/ops/real-events/events/upcoming-event-packet.md`
   - `docs/ops/real-events/events/first-real-event-packet.md`
 
-- [ ] **Step 1: Execute staging smoke checklist**
+- [x] **Step 1: Execute staging smoke checklist**
 
 Follow deploy doc and run checklist against staging URL.  
-Record pass/fail evidence inline in checklist.
+Record pass/fail evidence inline in checklist. (Evidence: `docs/ops/public-readiness-smoke-checklist.md` §6; deploy URL matches production-like Vercel host used for manual checks.)
 
 - [x] **Step 2: Fill real-event packet placeholders**
 

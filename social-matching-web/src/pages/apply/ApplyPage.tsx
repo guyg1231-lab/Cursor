@@ -73,11 +73,11 @@ function SubmittedAnswersSummary({
 
   return (
     <Card className={tokens.card.surface}>
-      <CardHeader>
-        <CardTitle className="text-xl">{title}</CardTitle>
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">{title}</CardTitle>
         {subtitle ? <p className="text-sm text-muted-foreground leading-relaxed">{subtitle}</p> : null}
       </CardHeader>
-      <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
+        <CardContent className="space-y-4 text-sm text-foreground/85 leading-7">
         <div className={tokens.card.inner + ' p-4 space-y-3'}>
           <div className="space-y-1">
             <p className="font-medium text-foreground">למה דווקא המפגש הזה?</p>
@@ -610,9 +610,9 @@ export function ApplyPage() {
     >
       <Card className={tokens.card.accent}>
         <CardHeader>
-          <CardTitle className="text-2xl">לפני שמתחילים</CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמתחילים</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-foreground/85 leading-relaxed">
+        <CardContent className="space-y-3 text-sm text-foreground/85 leading-7">
           {/**
            * Intentional asymmetry with EventDetailPage: the reapply-eligible state there
            * renders ApplicationStatusPanel via resolveApplicationPanelContent, while here
@@ -659,7 +659,7 @@ export function ApplyPage() {
 
       <Card className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl">פרטים על ההגשה</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className={tokens.card.inner + ' p-4 space-y-2 text-sm text-foreground/80'}>

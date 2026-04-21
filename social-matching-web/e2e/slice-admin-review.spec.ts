@@ -103,7 +103,7 @@ test.describe('Circles admin-review slice', () => {
         await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
         const page = await ctx.newPage();
         await page.goto('/admin/event-requests');
-        await expect(page.getByRole('heading', { name: 'Submitted for review' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'נשלח לבדיקה' })).toBeVisible();
 
         // Card title is rendered as its own element with the exact title, while the
         // post-approve banner wraps it in quotes. Use exact match so the row-title
@@ -111,7 +111,7 @@ test.describe('Circles admin-review slice', () => {
         const rowTitle = page.getByText(uniqueTitle, { exact: true });
         await expect(rowTitle).toBeVisible();
         const row = page.locator('div').filter({ has: rowTitle }).last();
-        await row.getByRole('button', { name: 'Approve & publish' }).click();
+        await row.getByRole('button', { name: 'אישור ופרסום' }).click();
 
         await expect(page.getByText(`Approved and published: "${uniqueTitle}".`)).toBeVisible();
         await expect(rowTitle).toHaveCount(0);

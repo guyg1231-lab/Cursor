@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { FloatingCircles } from '@/components/shared/FloatingCircles';
 import { AppHeader } from '@/components/shared/AppHeader';
+import { tokens } from '@/lib/design-tokens';
 
 interface PageShellProps {
   children: React.ReactNode;
@@ -75,8 +76,8 @@ export function PageShell({
         <main id="main-content" className="container py-10 md:py-14 space-y-6">
           {title || subtitle ? (
             <div className="space-y-2 max-w-3xl">
-              {title ? <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">{title}</h1> : null}
-              {subtitle ? <p className="text-base md:text-lg text-foreground/80 leading-relaxed">{subtitle}</p> : null}
+              {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
+              {subtitle ? <p className="text-base md:text-lg leading-8 text-foreground/80">{subtitle}</p> : null}
             </div>
           ) : null}
           {children}

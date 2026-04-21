@@ -9,20 +9,20 @@ export function HostEventRegistrationsPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="Host event registrations" subtitle={`Event ${eventId ?? 'unknown'}`}>
+    <PageShell title="תמונת הרשמות למארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/host/events/${eventId ?? ''}`}>Back to host event workspace</Link>
+          <Link to={`/host/events/${eventId ?? ''}`}>חזרה למרחב ניהול מארח/ת</Link>
         </Button>
       </PageActionBar>
 
       <SectionHeader
-        title="Host event registrations"
-        description="Reserved for a later implementation pass."
+        title="תמונת הרשמות למארח/ת"
+        description="שמורה להשלמת יישום עתידי."
       />
 
       <PlaceholderPanel
-        title="Host registrations summary"
+        title="סיכום הרשמות למארח/ת"
         contractState="stubbed"
         body="אין כאן שמות משתתפים או שליטה בבחירה. המסך הזה שמור לסיכום ספירות ומצב כללי בלבד."
       />

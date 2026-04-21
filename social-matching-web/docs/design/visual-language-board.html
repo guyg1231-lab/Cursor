@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Circles — לוח שפה חזותית (טיוטת חזון)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Assistant:wght@400;500;600;700&family=Noto+Sans+Hebrew:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Warm neutrals + Circles sage from live site; primary CTA = app theme indigo (see src/index.css --primary) */
+    :root {
+      --bg: #f7f3ea;
+      --bg-alt: #f9f9f9;
+      --surface: #fffefc;
+      --text: #1a1a1a;
+      --muted: #5c6168;
+      --muted-cool: #9ba8c4;
+      --sage: #6b7f5e;
+      --accent: #5d68f2;
+      --accent-soft: rgba(93, 104, 242, 0.16);
+      --stroke: rgba(26, 26, 26, 0.08);
+      --radius: 20px;
+      --shadow: 0 12px 40px rgba(26, 26, 26, 0.06);
+      --font-ui: "Heebo", "Assistant", "Noto Sans Hebrew", "Rubik", system-ui, sans-serif;
+      --font-display: "Heebo", "Assistant", "Noto Sans Hebrew", "Rubik", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(120% 85% at 100% 0%, rgba(93, 104, 242, 0.12), transparent 52%),
+        radial-gradient(90% 55% at 0% 100%, rgba(107, 127, 94, 0.08), transparent 48%),
+        var(--bg-alt);
+    }
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    section {
+      margin-bottom: 2.5rem;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.15rem;
+      margin: 0 0 1rem;
+      border-bottom: 1px solid var(--stroke);
+      padding-bottom: 0.5rem;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .chip {
+      width: 120px;
+      height: 72px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .chip span { font-size: 0.65rem; opacity: 0.85; margin-top: 0.25rem; font-family: ui-monospace, monospace; direction: ltr; }
+    .grid-2 {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 720px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-visual {
+      height: 120px;
+      background: linear-gradient(135deg, rgba(93, 104, 242, 0.2), rgba(155, 168, 196, 0.26));
+    }
+    .card-body { padding: 1.1rem 1.25rem 1.25rem; }
+    .card-body h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      margin: 0 0 0.4rem;
+      font-weight: 700;
+    }
+    .meta { color: var(--muted); font-size: 0.88rem; margin-bottom: 1rem; }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    button.primary {
+      font-family: var(--font-ui);
+      background: var(--accent);
+      color: #fafaf8;
+      border: none;
+      padding: 0.65rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: default;
+    }
+    button.ghost {
+      font-family: var(--font-ui);
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(93, 104, 242, 0.35);
+      padding: 0.55rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: default;
+    }
+    .detail-hero {
+      padding: 1.5rem 1.25rem 1.25rem;
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.95), var(--surface));
+    }
+    .detail-hero h3 { font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 0.75rem; }
+    .bullets { margin: 0; padding: 0 1.1rem 0 0; color: var(--text); font-size: 0.92rem; }
+    .bullets li { margin-bottom: 0.45rem; }
+    .apply-mini {
+      padding: 1.25rem;
+    }
+    .apply-mini label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      font-size: 0.92rem;
+    }
+    .apply-mini textarea {
+      width: 100%;
+      min-height: 88px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      padding: 0.75rem;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      resize: vertical;
+      background: #fffefd;
+    }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    .admin-strip {
+      background: #e8e4df;
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .admin-strip strong { color: var(--text); font-weight: 600; }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--stroke);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <main>
+    <h1>לוח שפה חזותית — Circles</h1>
+    <p class="sub">טיוטה לוויזואליזציה מקומית · לא חלק מהאפליקציה · מבוסס על <code>docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md</code> · נייטרליים חמים + סגול ראשי כמו ב־app · ירוק מרווה כמו ב־<a href="https://circles-connect-human.vercel.app/" rel="noopener noreferrer">circles-connect-human.vercel.app</a></p>
+
+    <section>
+      <h2>צבעים (אפליקציה + אתר חי)</h2>
+      <div class="chips">
+        <div class="chip" style="background:#f7f3ea"><span>רקע חם</span><span>#f7f3ea</span></div>
+        <div class="chip" style="background:#f9f9f9"><span>רקע bootstrap</span><span>#f9f9f9</span></div>
+        <div class="chip" style="background:#fffefc"><span>כרטיס</span><span>#fffefc</span></div>
+        <div class="chip" style="background:#1a1a1a;color:#eee"><span>טקסט</span><span>#1a1a1a</span></div>
+        <div class="chip" style="background:#5d68f2;color:#fafaf8"><span>ראשי / CTA</span><span>#5d68f2</span></div>
+        <div class="chip" style="background:#6b7f5e;color:#fafaf8"><span>ירוק תומך</span><span>#6B7F5E</span></div>
+        <div class="chip" style="background:#9ba8c4;color:#1a1a1a"><span>משני</span><span>#9BA8C4</span></div>
+        <div class="chip" style="background:var(--accent-soft)"><span>שכבה רכה</span><span>indigo 16%</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>דוגמאות מסך מזויפות (RTL)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-visual"></div>
+          <div class="card-body">
+            <h3>ארוחת ערב — סלון שיחה קטן</h3>
+            <p class="meta">יום חמישי · נווה צדק · 6–8 משתתפים · הגשה עד יום שני</p>
+            <div class="btn-row">
+              <button type="button" class="primary">לפרטים ולהגשה</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="detail-hero">
+            <h3>ארוחת ערב — סלון שיחה קטן</h3>
+            <ul class="bullets">
+              <li><strong>מה זה?</strong> מפגש קטן סביב שולחן, שיחה מובילה.</li>
+              <li><strong>מה אחרי ההגשה?</strong> נבחן התאמה קצרה — ללא תשלום בשלב זה.</li>
+            </ul>
+            <div class="btn-row" style="margin-top:1rem">
+              <button type="button" class="primary">הגשת מועמדות</button>
+              <button type="button" class="ghost">חזרה</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card apply-mini" style="margin-top:1.25rem; max-width: 520px;">
+        <label for="t">למה האירוע הזה מתאים לך עכשיו?</label>
+        <textarea id="t" readonly placeholder="כאן ייכנס טקסט קצר ואנושי..."></textarea>
+        <p class="hint">אחרי השליחה תקבלו עדכון בטווח הזמנים שצוין — בלי שלב תשלום כרגע.</p>
+        <div class="btn-row" style="margin-top:0.75rem">
+          <button type="button" class="primary">שליחה</button>
+          <button type="button" class="ghost">שמירת טיוטה</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>ניגודיות אדמין (לזכור)</h2>
+      <div class="admin-strip">
+        <strong>מצב אופרטור:</strong> פחות אטמוספרה, יותר טבלה וסטטוסים — אותה זהות מותג, טון שונה ממשתתפים.
+      </div>
+    </section>
+
+    <footer>
+      פתיחה מהקובץ: לחיצה כפולה או גרירה לדפדפן. האתר החי תומך גם במצב כהה (<code>#111827</code>) — אפשר להרחיב את הלוח בהמשך.
+    </footer>
+  </main>
+</body>
+</html>

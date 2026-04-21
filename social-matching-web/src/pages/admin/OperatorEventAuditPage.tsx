@@ -9,20 +9,20 @@ export function OperatorEventAuditPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell variant="minimal" title="Operator audit" subtitle={`Event ${eventId ?? 'unknown'}`}>
+    <PageShell variant="minimal" title="ביקורת תפעולית" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/admin/events/${eventId ?? ''}`}>Back to event dashboard</Link>
+          <Link to={`/admin/events/${eventId ?? ''}`}>חזרה לדשבורד האירוע</Link>
         </Button>
       </PageActionBar>
 
       <SectionHeader
-        title="Operator audit"
-        description="Reserved for a later implementation pass."
+        title="ביקורת תפעולית"
+        description="שמורה להשלמת יישום עתידי."
       />
 
       <PlaceholderPanel
-        title="Operator audit"
+        title="ביקורת תפעולית"
         contractState="stubbed"
         body="המסלול הזה שמור לעקבות ביקורת תפעוליות, היסטוריית שינויים, ובדיקות תאימות."
       />

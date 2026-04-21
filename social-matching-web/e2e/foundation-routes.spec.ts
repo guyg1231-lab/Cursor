@@ -63,7 +63,7 @@ test.describe('foundation routes', () => {
       }
       releaseRolesRequest();
 
-      await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'דיאגנוסטיקה תפעולית' })).toBeVisible();
     } finally {
       await ctx.close();
     }
@@ -160,7 +160,7 @@ test.describe('foundation routes', () => {
       const page = await ctx.newPage();
 
       await page.goto('/host/events/future-workspace');
-      await expect(page.getByRole('heading', { level: 1, name: 'Host event workspace' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'מרחב ניהול מארח/ת' })).toBeVisible();
       await expect(page.getByText('הדף הזה מצומצם כרגע בכוונה.', { exact: true })).toBeVisible();
     } finally {
       await ctx.close();
@@ -174,7 +174,7 @@ test.describe('foundation routes', () => {
       const page = await ctx.newPage();
 
       await page.goto('/admin/events/future-event/diagnostics');
-      await expect(page.getByRole('heading', { level: 1, name: 'Operator diagnostics' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'דיאגנוסטיקה תפעולית' })).toBeVisible();
       await expect(page.getByText('הדף הזה מצומצם כרגע בכוונה.', { exact: true })).toBeVisible();
     } finally {
       await ctx.close();
@@ -188,8 +188,8 @@ test.describe('foundation routes', () => {
       const page = await ctx.newPage();
 
       await page.goto('/admin/events/future-event/audit');
-      await expect(page.getByRole('link', { name: 'Back to event dashboard' })).toBeVisible();
-      await expect(page.getByText('Reserved for a later implementation pass.')).toBeVisible();
+      await expect(page.getByRole('link', { name: 'חזרה לדשבורד האירוע' })).toBeVisible();
+      await expect(page.getByText('שמורה להשלמת יישום עתידי.')).toBeVisible();
     } finally {
       await ctx.close();
     }

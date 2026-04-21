@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageShell } from '@/components/shared/PageShell';
-import { RouteEmptyState, RouteErrorState } from '@/components/shared/RouteState';
+import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuestionnaireReadyState } from '@/features/applications/api';
@@ -78,9 +78,9 @@ export function DashboardPage() {
         <ProfileReadinessCard ready={profileReady} isLoading={authLoading || !user || readinessLoading} />
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">סטטוס פרופיל</CardTitle>
+            <CardTitle className="text-xl font-semibold tracking-[-0.015em]">סטטוס פרופיל</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+          <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
             <p>הפרופיל שלך נבנה כדי לעזור לנו להבין אותך טוב יותר לפני כל הגשה.</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="outline">
@@ -95,11 +95,11 @@ export function DashboardPage() {
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">ההגשות שלך</CardTitle>
+            <CardTitle className="text-xl font-semibold tracking-[-0.015em]">ההגשות שלך</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
             {isLoading ? (
-              <p>טוענים הגשות...</p>
+              <RouteLoadingState title="טוענים הגשות..." body="אוספים את ההגשות והסטטוסים שלך." />
             ) : applicationsLoadError ? (
               <RouteErrorState title="שגיאה בטעינת ההגשות" body="נסו לרענן את הדף או לחזור מאוחר יותר." />
             ) : applications.length === 0 ? (

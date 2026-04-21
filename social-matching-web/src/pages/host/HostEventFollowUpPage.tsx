@@ -9,20 +9,20 @@ export function HostEventFollowUpPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="Host event follow-up" subtitle={`Event ${eventId ?? 'unknown'}`}>
+    <PageShell title="מעקב אחרי אירוע" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/host/events/${eventId ?? ''}`}>Back to host event workspace</Link>
+          <Link to={`/host/events/${eventId ?? ''}`}>חזרה למרחב ניהול מארח/ת</Link>
         </Button>
       </PageActionBar>
 
       <SectionHeader
-        title="Host event follow-up"
-        description="Reserved for a later implementation pass."
+        title="מעקב אחרי אירוע"
+        description="שמורה להשלמת יישום עתידי."
       />
 
       <PlaceholderPanel
-        title="Host follow-up"
+        title="מעקב אחרי אירוע"
         contractState="stubbed"
         body="המסך הזה שומר מקום לסיכום ופולואפ אחרי האירוע, אבל עדיין לא מבצע פעולות כתיבה."
       />

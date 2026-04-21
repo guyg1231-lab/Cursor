@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { listOperatorEvents } from '@/features/admin/api';
 import type { OperatorEventListRow } from '@/features/admin/types';
@@ -38,40 +39,40 @@ export function OperatorEventsListPage() {
   return (
     <PageShell
       variant="minimal"
-      title="Operator — Events"
-      subtitle="List, create, and open an event dashboard. Internal use only."
+      title="ניהול אירועים (אופרטור)"
+      subtitle="רשימה, יצירה וכניסה לדשבורד אירוע. לשימוש תפעולי פנימי."
     >
       <div className="mb-4 flex flex-wrap gap-3">
         <Button asChild variant="default">
           <Link to="/admin/events/new">Create event</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/admin/event-requests">לבקשות מארחים ממתינות</Link>
+          <Link to="/admin/event-requests">בקשות מארחים ממתינות</Link>
         </Button>
       </div>
 
       <Card className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl">All events</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">כל האירועים</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <RouteLoadingState title="טוענים אירועים..." body="אוספים את רשימת האירועים הפנימית." />
           ) : error ? (
-            <p className="text-sm text-destructive">{error}</p>
+            <RouteErrorState title="שגיאת טעינה" body="לא הצלחנו לטעון את האירועים כרגע." />
           ) : events.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No events yet.</p>
+            <RouteEmptyState title="אין עדיין אירועים" body="אירועים חדשים יופיעו כאן אחרי יצירה." />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
-                    <th className="py-2 pr-4 font-medium">Title</th>
-                    <th className="py-2 pr-4 font-medium">Starts</th>
-                    <th className="py-2 pr-4 font-medium">Deadline</th>
-                    <th className="py-2 pr-4 font-medium">City</th>
-                    <th className="py-2 pr-4 font-medium">Status</th>
-                    <th className="py-2 pr-4 font-medium">Capacity</th>
+                    <th className="py-2 pr-4 font-medium">כותרת</th>
+                    <th className="py-2 pr-4 font-medium">תחילה</th>
+                    <th className="py-2 pr-4 font-medium">דדליין</th>
+                    <th className="py-2 pr-4 font-medium">עיר</th>
+                    <th className="py-2 pr-4 font-medium">סטטוס</th>
+                    <th className="py-2 pr-4 font-medium">קיבולת</th>
                     <th className="py-2 font-medium"> </th>
                   </tr>
                 </thead>
@@ -88,7 +89,7 @@ export function OperatorEventsListPage() {
                       <td className="py-2 pr-4 text-muted-foreground">{ev.max_capacity ?? '—'}</td>
                       <td className="py-2">
                         <Button asChild size="sm" variant="outline">
-                          <Link to={`/admin/events/${ev.id}`}>Open</Link>
+                          <Link to={`/admin/events/${ev.id}`}>פתיחה</Link>
                         </Button>
                       </td>
                     </tr>

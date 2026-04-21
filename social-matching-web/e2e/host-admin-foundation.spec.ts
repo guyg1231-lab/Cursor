@@ -13,7 +13,7 @@ test.describe('host/admin MVP-critical workflows', () => {
       await page.getByRole('link', { name: 'לניהול האירוע' }).first().click();
       await expect(page).toHaveURL(/\/host\/events\/.+$/);
       await expect(
-        page.getByText('This route is reserved for host-only event overview, milestones, and next-step navigation.'),
+        page.getByText('המסך שמור להצגת תמונת מצב למארח/ת, אבני דרך, וניווט לפעולות הבאות.'),
       ).toBeVisible();
     } finally {
       await ctx.close();
@@ -117,11 +117,11 @@ test.describe('host/admin MVP-critical workflows', () => {
       await page.goto('/admin/event-requests');
       await expect(page.getByTestId('admin-event-requests-review-queue')).toBeVisible();
       await expect(page.getByTestId('admin-event-requests-queue-description')).toBeVisible();
-      await expect(page.getByRole('heading', { name: 'Submitted for review' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'נשלח לבדיקה' })).toBeVisible();
 
-      const approveButtons = page.getByRole('button', { name: 'Approve & publish' });
+      const approveButtons = page.getByRole('button', { name: 'אישור ופרסום' });
       if ((await approveButtons.count()) === 0) {
-        await expect(page.getByText('אין כרגע בקשות ממתינות לאישור.')).toBeVisible();
+        await expect(page.getByText('אין כרגע בקשות ממתינות', { exact: true })).toBeVisible();
       } else {
         await expect(approveButtons.first()).toBeEnabled();
       }

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import {
@@ -204,9 +205,9 @@ export function OperatorEventDashboardPage() {
 
   if (!eventId) {
     return (
-      <PageShell variant="minimal" title="Operator" subtitle="Missing event id.">
+      <PageShell variant="minimal" title="אופרטור" subtitle="חסר מזהה אירוע.">
         <Button asChild variant="outline">
-          <Link to="/admin/events">Back to events</Link>
+          <Link to="/admin/events">חזרה לאירועים</Link>
         </Button>
       </PageShell>
     );
@@ -216,7 +217,7 @@ export function OperatorEventDashboardPage() {
     <PageShell
       variant="minimal"
       title={eventRow?.title ?? 'Event'}
-      subtitle="Operator dashboard — curated lifecycle actions only."
+      subtitle="דשבורד תפעולי לאירוע — פעולות מחזור חיים והרשמות."
     >
       <div className="mb-4 flex flex-wrap gap-3">
         <Button asChild variant="outline" size="sm">
@@ -231,31 +232,31 @@ export function OperatorEventDashboardPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <RouteLoadingState title="טוענים נתוני אירוע..." body="מושכים אירוע, הרשמות וסטטוסים." />
       ) : loadError ? (
-        <p className="text-sm text-destructive">{loadError}</p>
+        <RouteErrorState title="שגיאת טעינה" body={loadError} />
       ) : eventRow ? (
         <>
           <Card className={tokens.card.surface}>
             <CardHeader>
-              <CardTitle className="text-lg">Event</CardTitle>
+              <CardTitle className="text-lg font-semibold tracking-[-0.015em]">אירוע</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-              <p>Starts: {formatEventDate(eventRow.starts_at)}</p>
-              <p>City: {eventRow.city}</p>
-              <p>Status: {eventRow.status}</p>
-              <p>Published: {eventRow.is_published ? 'yes' : 'no'}</p>
-              <p>Capacity: {eventRow.max_capacity ?? '—'}</p>
-              <p>Deadline: {eventRow.registration_deadline ? formatEventDate(eventRow.registration_deadline) : '—'}</p>
+              <p>תחילה: {formatEventDate(eventRow.starts_at)}</p>
+              <p>עיר: {eventRow.city}</p>
+              <p>סטטוס: {eventRow.status}</p>
+              <p>פורסם: {eventRow.is_published ? 'כן' : 'לא'}</p>
+              <p>קיבולת: {eventRow.max_capacity ?? '—'}</p>
+              <p>דדליין: {eventRow.registration_deadline ? formatEventDate(eventRow.registration_deadline) : '—'}</p>
               <p className="md:col-span-2">
-                Selection batch recorded: <strong>{hasSelectionBatch ? 'yes' : 'no'}</strong>
+                אצוות בחירה נשמרו: <strong>{hasSelectionBatch ? 'כן' : 'לא'}</strong>
               </p>
             </CardContent>
           </Card>
 
           <Card className={tokens.card.surface}>
             <CardHeader>
-              <CardTitle className="text-lg">Live counts</CardTitle>
+              <CardTitle className="text-lg font-semibold tracking-[-0.015em]">ספירות חיות</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
               <p className="font-mono text-xs break-all">{countsLabel}</p>
@@ -278,7 +279,7 @@ export function OperatorEventDashboardPage() {
 
             <Card className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-lg">Orchestrated selection (RPC)</CardTitle>
+                <CardTitle className="text-lg font-semibold tracking-[-0.015em]">בחירה מתוזמרת (RPC)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
@@ -320,14 +321,14 @@ export function OperatorEventDashboardPage() {
                   disabled={isSavingSelection}
                   onClick={() => void handleSelectionSave()}
                 >
-                  {isSavingSelection ? 'Saving…' : 'Save selection (record_event_selection_output)'}
+                  {isSavingSelection ? 'שומרים...' : 'שמירת בחירה (record_event_selection_output)'}
                 </Button>
               </CardContent>
             </Card>
 
             <Card className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-lg">Expiry / refill</CardTitle>
+                <CardTitle className="text-lg font-semibold tracking-[-0.015em]">תפוגה / מילוי מחדש</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Button

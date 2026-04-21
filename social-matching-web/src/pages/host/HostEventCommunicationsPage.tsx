@@ -9,20 +9,20 @@ export function HostEventCommunicationsPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="Host event communications" subtitle={`Event ${eventId ?? 'unknown'}`}>
+    <PageShell title="תקשורת מארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/host/events/${eventId ?? ''}`}>Back to host event workspace</Link>
+          <Link to={`/host/events/${eventId ?? ''}`}>חזרה למרחב ניהול מארח/ת</Link>
         </Button>
       </PageActionBar>
 
       <SectionHeader
-        title="Host event communications"
-        description="Reserved for a later implementation pass."
+        title="תקשורת מארח/ת"
+        description="שמורה להשלמת יישום עתידי."
       />
 
       <PlaceholderPanel
-        title="Host communications"
+        title="תקשורת מארח/ת"
         contractState="stubbed"
         body="המסך הזה שומר מקום לעדכונים עתידיים מהמארח/ת בלי לרמוז שיש כרגע מערכת הודעות פעילה."
       />

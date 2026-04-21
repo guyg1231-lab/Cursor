@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuestionnaireReadyState } from '@/features/applications/api';
@@ -279,16 +280,20 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
     >
       {isLoading || isEligibilityLoading ? (
         <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים את אזור בקשות האירועים...</CardContent>
+          <CardContent className="py-10">
+            <RouteLoadingState title="טוענים..." body="טוענים את אזור בקשות האירועים." />
+          </CardContent>
         </Card>
       ) : loadError ? (
         <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-destructive">{loadError}</CardContent>
+          <CardContent className="py-10">
+            <RouteErrorState title="שגיאת טעינה" body={loadError} />
+          </CardContent>
         </Card>
       ) : !isReady ? (
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">עוד רגע אפשר לפתוח בקשת אירוע</CardTitle>
+            <CardTitle className="text-xl font-semibold tracking-[-0.015em]">עוד רגע אפשר לפתוח בקשת אירוע</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
             <p>בשלב הזה רק משתמשים עם פרופיל ושאלון מוכנים יכולים לפתוח טיוטת אירוע חדשה.</p>
@@ -302,7 +307,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
           <div className="space-y-4">
             <Card className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-xl">בקשות אירוע</CardTitle>
+                <CardTitle className="text-xl font-semibold tracking-[-0.015em]">בקשות אירוע</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                 <p>הטיוטות כאן פרטיות. רק אחרי שליחה לבדיקה הן יופיעו בצד המנהלי.</p>
@@ -333,7 +338,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                   className={activeEditorId === request.id ? tokens.card.accent : tokens.card.surface}
                 >
                   <CardHeader className="space-y-2">
-                    <CardTitle className="text-xl">{request.title}</CardTitle>
+                    <CardTitle className="text-xl font-semibold tracking-[-0.015em]">{request.title}</CardTitle>
                     <p className="text-sm text-muted-foreground">{getHostEventLabel(request)}</p>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
@@ -358,7 +363,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
 
             <Card className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-xl">אירועים שאת/ה מארח/ת</CardTitle>
+                <CardTitle className="text-xl font-semibold tracking-[-0.015em]">אירועים שאת/ה מארח/ת</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                 <p>כאן מוצגת תמונת מצב כוללת בלבד. אין כאן שמות משתתפים או שליטה בבחירתם.</p>
@@ -375,7 +380,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
               hostedEvents.map((event) => (
                 <Card key={event.id} className={tokens.card.surface}>
                   <CardHeader className="space-y-2">
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
+                    <CardTitle className="text-xl font-semibold tracking-[-0.015em]">{event.title}</CardTitle>
                     <p className="text-sm text-muted-foreground">{getHostEventLabel(event)}</p>
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
@@ -418,9 +423,6 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           >
                             פתיחת הקישור
                           </Button>
-                          <Button asChild type="button" variant="outline">
-                            <Link to={`/host/events/${event.id}`}>לניהול האירוע</Link>
-                          </Button>
                         </div>
                       </div>
                     ) : null}
@@ -443,6 +445,12 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                         <p className="text-2xl text-foreground">{event.registration_summary?.waitlisted ?? 0}</p>
                       </div>
                     </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild type="button" variant="outline">
+                        <Link to={`/host/events/${event.id}`}>לניהול האירוע</Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))
@@ -451,7 +459,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
 
           <Card className={tokens.card.accent}>
             <CardHeader>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">
                 {activeEditorId === 'new' ? 'טיוטת אירוע חדשה' : selectedRequest?.title ?? 'בקשת אירוע'}
               </CardTitle>
             </CardHeader>

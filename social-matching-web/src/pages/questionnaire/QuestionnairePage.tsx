@@ -34,9 +34,9 @@ export function QuestionnairePage() {
           </Card>
         ) : null}
 
-        <Card>
+        <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle>{t('questionnaireTitle')}</CardTitle>
+            <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">{t('questionnaireTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ProfileBaseQuestionnaire

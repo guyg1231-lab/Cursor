@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminEventRequestActionError, insertOperatorEventDraftAndPublish } from '@/features/admin/api';
@@ -84,21 +85,21 @@ export function OperatorEventCreatePage() {
   return (
     <PageShell variant="minimal" title="Create event" subtitle="Draft insert → admin publish (active + published).">
       <Button asChild variant="outline" size="sm" className="mb-4">
-        <Link to="/admin/events">← Events list</Link>
+          <Link to="/admin/events">← חזרה לרשימת אירועים</Link>
       </Button>
 
       <Card className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-lg">New event</CardTitle>
+          <CardTitle className="text-lg font-semibold tracking-[-0.015em]">אירוע חדש</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => void handleSubmit(e)} className="max-w-lg space-y-4">
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Title</span>
+              <span className="text-muted-foreground">כותרת</span>
               <input className={fieldClass} value={title} onChange={(e) => setTitle(e.target.value)} required />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Starts at</span>
+              <span className="text-muted-foreground">מועד התחלה</span>
               <input
                 className={fieldClass}
                 type="datetime-local"
@@ -108,7 +109,7 @@ export function OperatorEventCreatePage() {
               />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Registration deadline (optional)</span>
+              <span className="text-muted-foreground">דדליין להרשמה (אופציונלי)</span>
               <input
                 className={fieldClass}
                 type="datetime-local"
@@ -117,26 +118,26 @@ export function OperatorEventCreatePage() {
               />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">City</span>
+              <span className="text-muted-foreground">עיר</span>
               <input className={fieldClass} value={city} onChange={(e) => setCity(e.target.value)} />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Venue hint (optional)</span>
+              <span className="text-muted-foreground">רמז למיקום (אופציונלי)</span>
               <input className={fieldClass} value={venueHint} onChange={(e) => setVenueHint(e.target.value)} />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Max capacity (optional)</span>
+              <span className="text-muted-foreground">קיבולת מקסימלית (אופציונלי)</span>
               <input
                 className={fieldClass}
                 inputMode="numeric"
                 value={maxCapacity}
                 onChange={(e) => setMaxCapacity(e.target.value)}
-                placeholder="e.g. 12"
+                placeholder="למשל 12"
               />
             </label>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            {error ? <RouteErrorState title="לא ניתן ליצור אירוע" body={error} /> : null}
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Creating…' : 'Create (draft + publish)'}
+              {submitting ? 'יוצרים...' : 'יצירה (טיוטה + פרסום)'}
             </Button>
           </form>
         </CardContent>

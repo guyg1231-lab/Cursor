@@ -2,15 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
+/*
   CIRCLES DESIGN SYSTEM
   Clean, calm, human
-  Typography: Assistant (Hebrew) + Inter (English)
-  Palette: off-white, charcoal, soft indigo
+  Typography: Heebo-first Hebrew UI
+  Palette: warm neutral + soft indigo primary + sage support
 */
 
 @layer base {
   :root {
+    --font-family-ui: 'Heebo', 'Assistant', 'Noto Sans Hebrew', 'Rubik', system-ui, sans-serif;
+    --font-family-display: 'Heebo', 'Assistant', 'Noto Sans Hebrew', 'Rubik', system-ui, sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --font-size-xs: 0.75rem;
+    --line-height-xs: 1rem;
+    --font-size-sm: 0.875rem;
+    --line-height-sm: 1.25rem;
+    --font-size-md: 1rem;
+    --line-height-md: 1.5rem;
+    --font-size-lg: 1.125rem;
+    --line-height-lg: 1.75rem;
+    --font-size-xl: 1.25rem;
+    --line-height-xl: 1.875rem;
+    --font-size-2xl: 1.5rem;
+    --line-height-2xl: 2.125rem;
+    --font-size-3xl: 1.875rem;
+    --line-height-3xl: 2.5rem;
+    --font-size-4xl: 2.25rem;
+    --line-height-4xl: 2.875rem;
+    --letter-tight: -0.015em;
+    --letter-normal: 0;
+    --letter-wide: 0.02em;
+
     /* Base — clean off-white */
     --background: 0 0% 97.6%;
     --foreground: 0 0% 10%;
@@ -39,10 +66,10 @@
     --accent: 0 0% 95%;
     --accent-foreground: 0 0% 10%;
 
-    /* Destructive — aligned with primary (soft indigo) */
-    --destructive: 239 84% 67%;
+    /* Destructive — red, distinct from primary */
+    --destructive: 357 72% 46%;
     --destructive-foreground: 0 0% 100%;
-    --error-foreground: 239 88% 38%;
+    --error-foreground: 357 55% 32%;
 
     /* Border/Input */
     --border: 0 0% 91%;
@@ -64,7 +91,7 @@
     /* Status colors — from design system palette (primary, sage, destructive, accent-periwinkle, muted) */
     --status-pending: 239 84% 67%;
     --status-approved: 98 15% 43%;
-    --status-rejected: 239 84% 67%;
+    --status-rejected: 357 72% 46%;
     --status-waitlist: 230 35% 65%;
     --status-cancelled: 0 0% 55%;
 
@@ -102,9 +129,9 @@
     --accent: 217 33% 22%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 239 84% 72%;
+    --destructive: 357 72% 52%;
     --destructive-foreground: 0 0% 100%;
-    --error-foreground: 239 84% 78%;
+    --error-foreground: 357 80% 82%;
 
     --border: 217 32% 22%;
     --input: 217 32% 22%;
@@ -121,7 +148,7 @@
 
     --status-pending: 239 84% 72%;
     --status-approved: 98 20% 55%;
-    --status-rejected: 239 84% 72%;
+    --status-rejected: 357 72% 62%;
     --status-waitlist: 230 35% 70%;
     --status-cancelled: 0 0% 65%;
 
@@ -159,7 +186,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+    font-family: var(--font-family-ui);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -174,43 +201,45 @@
   }
 
   /* Hebrew font preference — Heebo for headings and RTL body */
-  [dir='rtl'] body,
-  [lang='he'] body {
-    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
-  }
-
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-semibold tracking-tight;
+    font-family: var(--font-family-display);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-tight);
   }
 
-  /* Headings — default to sans; Hebrew uses editorial stack */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
+  h1 {
+    font-size: var(--font-size-4xl);
+    line-height: var(--line-height-4xl);
+  }
+
+  h2 {
+    font-size: var(--font-size-3xl);
+    line-height: var(--line-height-3xl);
+  }
+
+  h3 {
+    font-size: var(--font-size-2xl);
+    line-height: var(--line-height-2xl);
+  }
+
+  h4 {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-xl);
+  }
+
+  h5 {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-lg);
+  }
+
   h6 {
-    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
-  }
-
-  [dir='rtl'] h1,
-  [dir='rtl'] h2,
-  [dir='rtl'] h3,
-  [dir='rtl'] h4,
-  [dir='rtl'] h5,
-  [dir='rtl'] h6,
-  [lang='he'] h1,
-  [lang='he'] h2,
-  [lang='he'] h3,
-  [lang='he'] h4,
-  [lang='he'] h5,
-  [lang='he'] h6 {
-    font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-md);
   }
 }
 

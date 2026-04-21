@@ -15,12 +15,12 @@ export const tokens = {
     content: 'space-y-6',
   },
   typography: {
-    hero: 'text-3xl md:text-5xl font-semibold tracking-tight text-foreground',
-    sectionTitle: 'text-2xl md:text-3xl font-semibold tracking-tight text-foreground',
-    pageTitle: 'text-2xl md:text-3xl font-semibold tracking-tight text-foreground',
-    body: 'text-base leading-relaxed text-foreground/90',
-    muted: 'text-sm leading-relaxed text-muted-foreground',
-    eyebrow: 'text-xs uppercase tracking-[0.18em] text-muted-foreground',
+    hero: 'text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-foreground',
+    sectionTitle: 'text-2xl md:text-4xl font-semibold tracking-[-0.015em] text-foreground',
+    pageTitle: 'text-2xl md:text-3xl font-semibold tracking-[-0.015em] text-foreground',
+    body: 'text-base leading-7 text-foreground/90',
+    muted: 'text-sm leading-6 text-muted-foreground',
+    eyebrow: 'text-xs tracking-[0.02em] font-medium text-muted-foreground',
   },
   card: {
     surface:

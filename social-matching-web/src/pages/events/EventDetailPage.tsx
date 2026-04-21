@@ -138,9 +138,9 @@ export function EventDetailPage() {
       <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
         <Card className={tokens.card.accent}>
           <CardHeader>
-            <CardTitle className="text-2xl md:text-3xl leading-tight">{event.title}</CardTitle>
+            <CardTitle className={tokens.typography.sectionTitle + ' leading-tight'}>{event.title}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
+          <CardContent className="space-y-4 text-sm text-foreground/85 leading-7">
             <div className={tokens.card.inner + ' p-4 space-y-2'}>
               <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
               <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
@@ -177,9 +177,9 @@ export function EventDetailPage() {
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">מה חשוב לדעת?</CardTitle>
+            <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה חשוב לדעת?</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
             <p>• במסך הזה מוצגים גם אירועים פומביים שעדיין פתוחים וגם אירועים פומביים שכבר נסגרו להגשה.</p>
           </CardContent>
         </Card>
@@ -189,9 +189,9 @@ export function EventDetailPage() {
 
       <Card className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl">מה קורה אחרי שמגישים?</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה קורה אחרי שמגישים?</CardTitle>
         </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+          <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
             <p>1. שומרים את ההגשה שלך למפגש הספציפי.</p>
             <p>2. אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.</p>
             <p>3. אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.</p>

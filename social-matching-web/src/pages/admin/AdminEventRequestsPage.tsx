@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import {
   AdminEventRequestActionError,
@@ -87,36 +88,36 @@ export function AdminEventRequestsPage() {
   return (
     <PageShell
       variant="minimal"
-      title="Host event requests"
-      subtitle="Approve a submitted request to publish the gathering, or reject it."
+      title="בקשות מארחים"
+      subtitle="אישור בקשה מפרסם את המפגש; דחייה סוגרת את הבקשה."
     >
       <Card data-testid="admin-event-requests-review-queue" className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl">Submitted for review</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">נשלח לבדיקה</CardTitle>
           <CardDescription data-testid="admin-event-requests-queue-description" className="text-sm text-muted-foreground">
             תור הבדיקה: מוצגות כאן בקשות בסטטוס &quot;נשלח לאישור&quot;; אישור מפרסם, דחייה סוגרת את הבקשה.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           {loading ? (
-            <p>Loading…</p>
+            <RouteLoadingState title="טוענים בקשות..." body="אוספים בקשות מארחים שממתינות לבדיקה." />
           ) : submittedError ? (
-            <p className="text-destructive">{submittedError}</p>
+            <RouteErrorState title="שגיאת טעינה" body={submittedError} />
           ) : submittedRequests.length === 0 ? (
-            <p>אין כרגע בקשות ממתינות לאישור.</p>
+            <RouteEmptyState title="אין כרגע בקשות ממתינות" body="בקשות חדשות יופיעו כאן אוטומטית." />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {submittedRequests.map((request) => (
                 <div key={request.id} className={tokens.card.inner + ' space-y-2 p-4'}>
                   <p className="font-medium text-foreground">{request.title}</p>
                   <p>{formatEventStatus(request.status)}</p>
-                  <p>Creator: {request.creator?.full_name || request.creator?.email || request.created_by_user_id}</p>
-                  <p>Starts: {formatEventDate(request.starts_at)}</p>
+                  <p>יוצר/ת: {request.creator?.full_name || request.creator?.email || request.created_by_user_id}</p>
+                  <p>תחילה: {formatEventDate(request.starts_at)}</p>
                   <p>
-                    Deadline: {request.registration_deadline ? formatEventDate(request.registration_deadline) : '—'}
+                    דדליין: {request.registration_deadline ? formatEventDate(request.registration_deadline) : '—'}
                   </p>
-                  <p>City: {request.city}</p>
-                  <p>Capacity: {request.max_capacity ?? '—'}</p>
+                  <p>עיר: {request.city}</p>
+                  <p>קיבולת: {request.max_capacity ?? '—'}</p>
                   <div className="flex flex-wrap gap-2 pt-2">
                     <Button
                       type="button"
@@ -124,7 +125,7 @@ export function AdminEventRequestsPage() {
                       disabled={requestActionId === request.id}
                       onClick={() => void handleApprove(request)}
                     >
-                      {requestActionId === request.id ? '…' : 'Approve & publish'}
+                      {requestActionId === request.id ? '…' : 'אישור ופרסום'}
                     </Button>
                     <Button
                       type="button"
@@ -133,7 +134,7 @@ export function AdminEventRequestsPage() {
                       disabled={requestActionId === request.id}
                       onClick={() => void handleReject(request)}
                     >
-                      Reject
+                      דחייה
                     </Button>
                   </div>
                 </div>

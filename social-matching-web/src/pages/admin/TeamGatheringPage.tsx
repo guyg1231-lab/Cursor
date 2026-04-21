@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
+import { RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { tokens } from '@/lib/design-tokens';
 import {
   adminMarkAttended,
@@ -111,7 +112,9 @@ export function TeamGatheringPage() {
     return (
       <PageShell title="ניהול מפגש" subtitle="טוענים את נתוני המפגש...">
         <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים...</CardContent>
+          <CardContent className="py-10">
+            <RouteLoadingState title="טוענים..." body="מושכים את תמונת ההרשמות של המפגש." />
+          </CardContent>
         </Card>
       </PageShell>
     );
@@ -121,7 +124,9 @@ export function TeamGatheringPage() {
     return (
       <PageShell title="ניהול מפגש" subtitle="לא הצלחנו לטעון את המפגש כרגע.">
         <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-destructive">{loadError}</CardContent>
+          <CardContent className="py-10">
+            <RouteErrorState title="שגיאת טעינה" body={loadError} />
+          </CardContent>
         </Card>
       </PageShell>
     );
@@ -146,7 +151,7 @@ export function TeamGatheringPage() {
     >
       <Card className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl">רשימת הנרשמים</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">רשימת הנרשמים</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {infoMessage ? <p className="text-sm text-primary">{infoMessage}</p> : null}
