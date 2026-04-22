@@ -114,8 +114,12 @@ export async function getQuestionnaireReadyState(userId: string): Promise<{
     supabase.from('profiles').select('funnel_status').eq('id', userId).limit(1).maybeSingle(),
   ]);
 
-  if (responseError) throw responseError;
-  if (profileError) throw profileError;
+  if (responseError) {
+    console.warn('[applications/api] getQuestionnaireReadyState response lookup failed', responseError);
+  }
+  if (profileError) {
+    console.warn('[applications/api] getQuestionnaireReadyState profile lookup failed', profileError);
+  }
 
   const readyByResponse = !!response?.completed_at;
   const readyByProfile = !!profile?.funnel_status && READY_FUNNEL_STATUSES.has(profile.funnel_status as ReadyFunnelStatus);

@@ -77,7 +77,10 @@ export async function listHostOverviewEvents(userId: string): Promise<HostOvervi
     .or(`created_by_user_id.eq.${userId},host_user_id.eq.${userId}`)
     .order('starts_at', { ascending: true });
 
-  if (eventsError) throw eventsError;
+  if (eventsError) {
+    console.warn('[host-events/api] listHostOverviewEvents base query failed', eventsError);
+    return [];
+  }
 
   const baseEvents = events ?? [];
   if (baseEvents.length === 0) return [];
@@ -92,9 +95,12 @@ export async function listHostOverviewEvents(userId: string): Promise<HostOvervi
     const { data: registrationRows, error: registrationsError } = await supabase
       .rpc('list_host_event_registration_summaries');
 
-    if (registrationsError) throw registrationsError;
-    const filteredRows = (registrationRows ?? []).filter((row) => hostedEventIds.includes(row.event_id));
-    summaryByEventId = buildRegistrationSummary(filteredRows as HostEventRegistrationSummaryRow[]);
+    if (registrationsError) {
+      console.warn('[host-events/api] registration summaries RPC failed', registrationsError);
+    } else {
+      const filteredRows = (registrationRows ?? []).filter((row) => hostedEventIds.includes(row.event_id));
+      summaryByEventId = buildRegistrationSummary(filteredRows as HostEventRegistrationSummaryRow[]);
+    }
   }
 
   return baseEvents.map((event) => ({
