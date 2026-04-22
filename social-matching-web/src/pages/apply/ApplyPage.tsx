@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
@@ -447,6 +447,10 @@ export function ApplyPage() {
 
   if (!event) {
     return <EventNotFound />;
+  }
+
+  if (eventId && eventId !== event.id) {
+    return <Navigate to={`/events/${event.id}/apply`} replace />;
   }
 
   if (!user) {
