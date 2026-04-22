@@ -1,0 +1,11 @@
+{
+  "installCommand": "cd social-matching-web && npm ci",
+  "buildCommand": "cd social-matching-web && npm run build",
+  "outputDirectory": "social-matching-web/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
