@@ -66,9 +66,17 @@ export function EventDetailPage() {
             console.warn('[EventDetailPage] Supabase session not synced; showing event without registration row');
             setApplication(null);
           } else {
-            const existing = await getExistingApplication(visibleEvent.id, user.id);
-            if (stale) return;
-            setApplication(existing);
+            try {
+              const existing = await getExistingApplication(visibleEvent.id, user.id);
+              if (stale) return;
+              setApplication(existing);
+            } catch (applicationError) {
+              if (stale) return;
+              // Event details are the primary content; do not fail the page when the optional
+              // per-user registration lookup has a transient RLS/session/network issue.
+              console.error('[EventDetailPage] registration lookup failed', applicationError);
+              setApplication(null);
+            }
           }
         } else {
           setApplication(null);
