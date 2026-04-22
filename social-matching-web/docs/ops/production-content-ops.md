@@ -26,6 +26,13 @@ Copy it to a private ops file (recommended outside git) and edit:
 npm run ops:upsert-content-bundle -- staging scripts/ops/content/production-bootstrap.sample.json
 ```
 
+### Recommended for real runs (rolling dates)
+
+```bash
+npm run ops:generate-tel-aviv-content-bundle
+npm run ops:upsert-content-bundle -- staging scripts/ops/content/tel-aviv-production-bundle.generated.json
+```
+
 ## 3) Verify in app/UI
 
 - `/events` shows realistic upcoming events
@@ -50,3 +57,7 @@ npm run ops:upsert-content-bundle -- production /absolute/path/to/your-content.j
   - `reminder_evening_before`
   - `location_morning_of`
   - `temporary_offer`
+
+## Fast runbook
+
+- `docs/ops/production-content-ops-10-minute-checklist.md`
