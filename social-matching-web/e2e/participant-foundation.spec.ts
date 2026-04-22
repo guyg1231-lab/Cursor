@@ -120,8 +120,66 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
-    await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const mobileSheet = page.locator('section').filter({
+      has: page.getByRole('link', { name: 'לפרטי המפגש' }),
+    }).first();
+    await expect(mobileSheet.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(mobileSheet.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+  });
+
+  test('desktop discovery card keeps attendee-circle signal for a published event', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
+      expect(payload).toEqual({
+        event_ids: ['playwright-desktop-event'],
+      });
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            event_id: 'playwright-desktop-event',
+            attendee_count: 4,
+          },
+        ]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'playwright-desktop-event',
+            title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
+            description: 'מפגש אינטימי וחם לערב קטן בעיר.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+    const desktopCard = page.locator('main').locator('.hidden.md\\:block').first();
+    await expect(desktopCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(desktopCard.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
   });
 
   test('mobile discovery uses map-sheet browse and carries attendee circles into detail/apply', async ({ browser }) => {
@@ -184,7 +242,10 @@ test.describe('participant foundation', () => {
 
       await page.goto('/events');
 
-      await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+      const mobileSheet = page.locator('section').filter({
+        has: page.getByRole('link', { name: 'לפרטי המפגש' }),
+      }).first();
+      await expect(mobileSheet.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
       await page.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
 
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
