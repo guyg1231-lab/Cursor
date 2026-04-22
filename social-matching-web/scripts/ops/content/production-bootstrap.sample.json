@@ -1,0 +1,84 @@
+{
+  "operators": [
+    {
+      "email": "circlesplatform@gmail.com",
+      "full_name": "Circles Platform",
+      "role": "admin"
+    },
+    {
+      "email": "ops-events@circles.local",
+      "full_name": "Operations Events",
+      "role": "admin"
+    }
+  ],
+  "events": [
+    {
+      "id": "7c88ef0f-6f66-4f9f-90c2-3f3d6e7ad001",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "circlesplatform@gmail.com",
+      "title": "מעגל היכרות - תל אביב מרכז",
+      "description": "מפגש עומק בגודל בינוני עם הנחיה קלילה, פתיחה מובנית וזמן חופשי בסיום.",
+      "city": "Tel Aviv",
+      "venue_hint": "אזור רוטשילד (מיקום מדויק יישלח לנרשמים)",
+      "starts_at": "2026-05-12T17:30:00.000Z",
+      "registration_deadline": "2026-05-10T21:00:00.000Z",
+      "max_capacity": 28,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "7c88ef0f-6f66-4f9f-90c2-3f3d6e7ad002",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-events@circles.local",
+      "title": "ערב חיבורים - ירושלים",
+      "description": "פורמט שיח פתוח עם שאלות מונחות, סביב קהילה, שייכות והיכרויות חדשות.",
+      "city": "Jerusalem",
+      "venue_hint": "מרכז העיר",
+      "starts_at": "2026-05-19T17:00:00.000Z",
+      "registration_deadline": "2026-05-17T20:00:00.000Z",
+      "max_capacity": 24,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "7c88ef0f-6f66-4f9f-90c2-3f3d6e7ad003",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-events@circles.local",
+      "title": "מפגש קיץ - חיפה",
+      "description": "מפגש ערב חווייתי בדגש על אנשים חדשים בעיר, קצב רגוע וסבבי היכרות קצרים.",
+      "city": "Haifa",
+      "venue_hint": "מרכז הכרמל",
+      "starts_at": "2026-05-26T17:30:00.000Z",
+      "registration_deadline": "2026-05-24T20:00:00.000Z",
+      "max_capacity": 22,
+      "status": "active",
+      "is_published": true
+    }
+  ],
+  "email_templates": [
+    {
+      "key": "registration_received",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "קיבלנו את ההרשמה שלך ל־Circles",
+      "html_body": "<h2>שמחים שנרשמת</h2><p>ההרשמה התקבלה בהצלחה. נעדכן אותך בהמשך התהליך.</p>"
+    },
+    {
+      "key": "approved",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "אושרת למפגש הקרוב",
+      "html_body": "<h2>איזה כיף, אושרת!</h2><p>שמרנו לך מקום. נשלח מיקום מדויק ותזכורת לפני המפגש.</p>"
+    },
+    {
+      "key": "rejected",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "עדכון לגבי ההרשמה שלך",
+      "html_body": "<h2>תודה שנרשמת</h2><p>כרגע לא נוכל לשבץ אותך למפגש הזה. נעדכן אותך על המפגשים הבאים.</p>"
+    },
+    {
+      "key": "temporary_offer",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "התפנה מקום עבורך (חלון זמן קצר)",
+      "html_body": "<h2>מקום עבורך התפנה</h2><p>יש לך חלון קצר לאישור ההשתתפות. נשמח לראותך.</p>"
+    }
+  ]
+}
