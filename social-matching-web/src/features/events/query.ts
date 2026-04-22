@@ -37,6 +37,9 @@ export async function listDashboardApplications(userId: string) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.warn('[events/query] listDashboardApplications failed', error);
+    return [];
+  }
   return data ?? [];
 }

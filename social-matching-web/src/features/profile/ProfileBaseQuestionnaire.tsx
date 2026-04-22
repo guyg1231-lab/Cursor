@@ -360,8 +360,9 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
       .then(({ data, error: fetchError }) => {
         if (!active) return;
         if (fetchError) {
+          console.warn('[ProfileBaseQuestionnaire] remote preload failed; using local draft only', fetchError);
           setError(text.loadRemoteError);
-          onLoadError?.(true);
+          onLoadError?.(false);
           setLoadedRemote(true);
           return;
         }

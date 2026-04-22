@@ -284,6 +284,45 @@ test.describe('participant foundation', () => {
     }
   });
 
+  test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'playwright-closed-mobile-event',
+            title: 'הליכת בוקר ושיחת קפה',
+            description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
+            city: 'תל אביב',
+            starts_at: '2026-05-10T07:00:00.000Z',
+            registration_deadline: '2026-05-01T07:00:00.000Z',
+            venue_hint: 'פארק הירקון',
+            max_capacity: 6,
+            status: 'closed',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events/playwright-closed-mobile-event');
+    await expect(page.getByText('העמוד נשאר פתוח', { exact: false })).toBeVisible();
+    await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.', { exact: true }),
+    ).toBeVisible();
+  });
+
   test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
@@ -1422,7 +1461,7 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('questionnaire: matching_responses load failure shows RouteErrorState and keeps form', async ({ browser }) => {
+  test('questionnaire: matching_responses load failure keeps form usable with inline warning', async ({ browser }) => {
     const ctx = await browser.newContext();
     await authenticateAs(ctx, ENV.EMAILS.P1);
     const page = await ctx.newPage();
@@ -1433,10 +1472,10 @@ test.describe('participant foundation', () => {
 
       await page.goto('/questionnaire');
 
-      await expect(page.getByText('שגיאת טעינה', { exact: true })).toBeVisible();
       await expect(
-        page.getByText('לא הצלחנו לטעון את הנתונים השמורים. אפשר לרענן ולנסות שוב.', { exact: true }),
+        page.getByText('לא הצלחנו לטעון כרגע את הנתונים השמורים.', { exact: true }),
       ).toBeVisible();
+      await expect(page.getByText('שגיאת טעינה', { exact: true })).toHaveCount(0);
       await expect(page.getByRole('button', { name: 'המשך' })).toBeVisible();
       await expect(page.getByLabel('שם מלא')).toBeVisible();
     } finally {
