@@ -1,0 +1,122 @@
+{
+  "operators": [
+    {
+      "email": "circlesplatform@gmail.com",
+      "full_name": "Circles Platform",
+      "role": "admin"
+    },
+    {
+      "email": "ops-tlv@circles.local",
+      "full_name": "Tel Aviv Ops",
+      "role": "admin"
+    }
+  ],
+  "events": [
+    {
+      "id": "97f4b30e-8ebf-4421-aae8-16a8a0d90001",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-tlv@circles.local",
+      "title": "קפה שכונתי והיכרות — פלורנטין",
+      "description": "מפגש בוקר קליל עם שיחה פתוחה בין אנשים חדשים בעיר. מתאים למי שמחפש התחלה נעימה בלי עומס.",
+      "category": "Coffee Meetup",
+      "tags": ["coffee", "weekday-morning", "new-in-city"],
+      "city": "Tel Aviv",
+      "venue_hint": "פלורנטין (מיקום מדויק לאחר אישור)",
+      "starts_at": "2026-05-05T07:30:00.000Z",
+      "registration_deadline": "2026-05-03T20:00:00.000Z",
+      "max_capacity": 10,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "97f4b30e-8ebf-4421-aae8-16a8a0d90002",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-tlv@circles.local",
+      "title": "הליכת שקיעה בטיילת",
+      "description": "הליכה עירונית רגועה לאורך הים עם עצירה קצרה לשיחה והיכרות. קצב בינוני, אווירה פתוחה.",
+      "category": "Urban Walk",
+      "tags": ["walk", "sunset", "seafront"],
+      "city": "Tel Aviv",
+      "venue_hint": "טיילת תל אביב (נקודת מפגש תישלח לנרשמים)",
+      "starts_at": "2026-05-07T16:30:00.000Z",
+      "registration_deadline": "2026-05-06T20:00:00.000Z",
+      "max_capacity": 14,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "97f4b30e-8ebf-4421-aae8-16a8a0d90003",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-tlv@circles.local",
+      "title": "פתיחת קבוצת כדורעף בפארק",
+      "description": "סשן פתיחה לקבוצה עירונית חדשה של כדורעף. מתאים גם למתחילים עם רקע בסיסי בספורט קבוצתי.",
+      "category": "Community Sport",
+      "tags": ["volleyball", "community", "park"],
+      "city": "Tel Aviv",
+      "venue_hint": "פארק הירקון",
+      "starts_at": "2026-05-10T14:30:00.000Z",
+      "registration_deadline": "2026-05-08T18:00:00.000Z",
+      "max_capacity": 16,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "97f4b30e-8ebf-4421-aae8-16a8a0d90004",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "ops-tlv@circles.local",
+      "title": "קפה + הליכה קצרה בדיזנגוף",
+      "description": "שילוב של ישיבה קצרה בבית קפה ולאחריה הליכה שכונתית. פורמט קליל למי שרוצה שיחה טבעית.",
+      "category": "Coffee Meetup",
+      "tags": ["coffee", "walk", "evening"],
+      "city": "Tel Aviv",
+      "venue_hint": "אזור דיזנגוף",
+      "starts_at": "2026-05-14T16:00:00.000Z",
+      "registration_deadline": "2026-05-12T20:00:00.000Z",
+      "max_capacity": 12,
+      "status": "active",
+      "is_published": true
+    },
+    {
+      "id": "97f4b30e-8ebf-4421-aae8-16a8a0d90005",
+      "created_by_email": "circlesplatform@gmail.com",
+      "host_email": "circlesplatform@gmail.com",
+      "title": "סיבוב גלריות עירוני + עצירת קפה",
+      "description": "מסלול קצר בין חללי תרבות מקומיים עם עצירה לקפה ושיח פתוח. מתאים לחיבורים סביב סקרנות ויצירה.",
+      "category": "Urban Culture",
+      "tags": ["culture", "gallery", "small-group"],
+      "city": "Tel Aviv",
+      "venue_hint": "לב העיר תל אביב",
+      "starts_at": "2026-05-17T15:00:00.000Z",
+      "registration_deadline": "2026-05-15T20:00:00.000Z",
+      "max_capacity": 10,
+      "status": "active",
+      "is_published": true
+    }
+  ],
+  "email_templates": [
+    {
+      "key": "registration_received",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "ההרשמה התקבלה — ממשיכים לשלב ההתאמה",
+      "html_body": "<h2>קיבלנו את ההרשמה שלך</h2><p>הצעד הבא: בדיקת התאמה קצרה לקבוצה. נעדכן אותך בהקדם.</p>"
+    },
+    {
+      "key": "approved",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "איזה כיף — אושרת למפגש בתל אביב",
+      "html_body": "<h2>אושרת למפגש</h2><p>המקום שלך נשמר. בקרוב נשלח פרטים סופיים לגבי זמן ומיקום.</p>"
+    },
+    {
+      "key": "rejected",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "עדכון לגבי הבקשה שלך",
+      "html_body": "<h2>תודה שנרשמת</h2><p>בשלב הזה לא נוכל לשבץ אותך למפגש הנוכחי. נציע לך מפגשים נוספים בקרוב.</p>"
+    },
+    {
+      "key": "temporary_offer",
+      "updated_by_email": "circlesplatform@gmail.com",
+      "subject": "התפנה מקום עבורך — לזמן מוגבל",
+      "html_body": "<h2>מקום התפנה עבורך</h2><p>אם זה רלוונטי לך, אשר/י בזמן כדי שנוכל לשמור עבורך את המקום.</p>"
+    }
+  ]
+}

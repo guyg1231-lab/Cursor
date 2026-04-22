@@ -303,6 +303,10 @@ export function LandingPage() {
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
             {t('privacyPolicy')}
           </Link>
+          <span aria-hidden>·</span>
+          <Link to="/guidelines" className="underline underline-offset-2 hover:text-foreground">
+            כללי קהילה
+          </Link>
           {supportEmail ? (
             <>
               <span aria-hidden>·</span>

@@ -197,10 +197,17 @@ async function upsertEvents(supabase, events = [], operatorEmailToId = new Map()
       throw new Error(`event ${id}: host_email "${hostEmail}" is not in operators list`);
     }
 
+    const category = String(event.category || '').trim();
+    const tags = Array.isArray(event.tags) ? event.tags.map((tag) => String(tag || '').trim()).filter(Boolean) : [];
+    const taggingLines = [];
+    if (category) taggingLines.push(`קטגוריה: ${category}`);
+    if (tags.length > 0) taggingLines.push(`תיוגים: ${tags.map((tag) => `#${tag.replace(/\s+/g, '-')}`).join(' ')}`);
+    const descriptionWithTagging = [String(event.description || '').trim(), ...taggingLines].filter(Boolean).join('\n\n');
+
     const payload = {
       id,
       title,
-      description: event.description || null,
+      description: descriptionWithTagging || null,
       city,
       venue_hint: event.venue_hint || null,
       starts_at: startsAt,
