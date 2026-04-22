@@ -65,13 +65,13 @@ export function EventsPage() {
         />
       ) : (
         <>
-          <div className="space-y-4 md:hidden">
+          <div data-testid="mobile-event-discovery-list" className="space-y-4 md:hidden">
             {events.map((event) => (
               <MobileEventMapSheet key={event.id} event={event} />
             ))}
           </div>
 
-          <div className={cn(tokens.spacing.content, 'hidden md:block')}>
+          <div data-testid="desktop-event-discovery-list" className={cn(tokens.spacing.content, 'hidden md:block')}>
             {events.map((event) => (
               <EventSummaryCard key={event.id} event={event} />
             ))}

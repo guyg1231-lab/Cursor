@@ -120,11 +120,9 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    const mobileSheet = page.locator('section').filter({
-      has: page.getByRole('link', { name: 'לפרטי המפגש' }),
-    }).first();
-    await expect(mobileSheet.getByTestId('event-attendee-circles')).toBeVisible();
-    await expect(mobileSheet.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const mobileDiscoveryList = page.getByTestId('mobile-event-discovery-list');
+    await expect(mobileDiscoveryList.getByTestId('event-attendee-circles').first()).toBeVisible();
+    await expect(mobileDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
   });
 
   test('desktop discovery card keeps attendee-circle signal for a published event', async ({ page }) => {
@@ -177,9 +175,9 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    const desktopCard = page.locator('main').locator('.hidden.md\\:block').first();
-    await expect(desktopCard.getByTestId('event-attendee-circles')).toBeVisible();
-    await expect(desktopCard.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const desktopDiscoveryList = page.getByTestId('desktop-event-discovery-list');
+    await expect(desktopDiscoveryList.getByTestId('event-attendee-circles').first()).toBeVisible();
+    await expect(desktopDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
   });
 
   test('mobile discovery uses map-sheet browse and carries attendee circles into detail/apply', async ({ browser }) => {
@@ -239,13 +237,39 @@ test.describe('participant foundation', () => {
         if (route.request().method() !== 'GET') return route.continue();
         await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
       });
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'stubbed-matching-response',
+              user_id: 'stubbed-user',
+              completed_at: new Date().toISOString(),
+              birth_date: '1990-01-01',
+              social_link: 'https://instagram.com/testuser',
+            },
+          ]),
+        });
+      });
+      await page.route('**/rest/v1/profiles*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              funnel_status: 'ready_for_registration',
+            },
+          ]),
+        });
+      });
 
       await page.goto('/events');
 
-      const mobileSheet = page.locator('section').filter({
-        has: page.getByRole('link', { name: 'לפרטי המפגש' }),
-      }).first();
-      await expect(mobileSheet.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+      const mobileDiscoveryList = page.getByTestId('mobile-event-discovery-list');
+      await expect(mobileDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
       await page.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
 
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
@@ -253,6 +277,8 @@ test.describe('participant foundation', () => {
 
       await page.getByRole('link', { name: 'להגשה למפגש' }).click();
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
     } finally {
       await ctx.close();
     }
