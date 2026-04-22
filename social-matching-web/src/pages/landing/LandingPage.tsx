@@ -102,6 +102,10 @@ export function LandingPage() {
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
             מדיניות פרטיות
           </Link>
+          <span aria-hidden>·</span>
+          <Link to="/guidelines" className="underline underline-offset-2 hover:text-foreground">
+            כללי קהילה
+          </Link>
           {supportEmail ? (
             <>
               <span aria-hidden>·</span>

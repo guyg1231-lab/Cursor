@@ -12,6 +12,7 @@ The flow is idempotent and driven by a JSON bundle.
 Start from:
 
 - `scripts/ops/content/production-bootstrap.sample.json`
+- `scripts/ops/content/tel-aviv-production-bundle.json` (Tel Aviv-only MVP pack: 4 categories, 5 activities)
 
 Copy it to a private ops file (recommended outside git) and edit:
 

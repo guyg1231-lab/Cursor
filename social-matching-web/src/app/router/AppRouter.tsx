@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/landing/LandingPage';
+import { CommunityGuidelinesPage } from '@/pages/legal/CommunityGuidelinesPage';
 import { PrivacyPage } from '@/pages/legal/PrivacyPage';
 import { TermsPage } from '@/pages/legal/TermsPage';
 import { EventsPage } from '@/pages/events/EventsPage';
@@ -30,6 +31,7 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/guidelines" element={<CommunityGuidelinesPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/sign-in" element={<AuthPage />} />
