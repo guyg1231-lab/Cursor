@@ -63,6 +63,15 @@ const INITIAL_EVENTS: EventRow[] = [
   },
 ];
 
+const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = {
+  'initial-tel-aviv-circle': 'מעגל היכרות תל אביב',
+  'initial-jerusalem-circle': 'מעגל ירושלים - עומק ושיח',
+};
+
+function looksLikeUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function toVisibleEvents(events: EventRow[]): VisibleEvent[] {
   return events.map((event) => ({
     ...event,
@@ -195,14 +204,35 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
  * - status may be any value so the UI can render a clean not-open state for published-but-closed events
  */
 export async function getVisibleEventById(eventId: string): Promise<VisibleEvent | null> {
-  const { data, error } = await supabase
+  const query = supabase
     .from('events')
     .select('*')
-    .eq('id', eventId)
-    .eq('is_published', true)
-    .maybeSingle();
+    .eq('is_published', true);
+
+  const normalizedId = eventId.trim();
+  let data: EventRow | null = null;
+  let error: { message?: string } | null = null;
+
+  if (looksLikeUuid(normalizedId)) {
+    const byId = await query.eq('id', normalizedId).maybeSingle();
+    data = byId.data;
+    error = byId.error;
+  } else {
+    const legacyTitle = LEGACY_EVENT_SLUG_TO_TITLE[normalizedId];
+    if (!legacyTitle) {
+      return null;
+    }
+    const byTitle = await query
+      .eq('title', legacyTitle)
+      .order('starts_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    data = byTitle.data;
+    error = byTitle.error;
+  }
 
   if (error) {
+    console.warn('[events/api] getVisibleEventById failed', { eventId, message: error.message });
     const initialEvent = INITIAL_EVENTS.find((event) => event.id === eventId);
     if (!initialEvent) return null;
     const [visibleEvent] = await withSocialSignals([initialEvent]);
