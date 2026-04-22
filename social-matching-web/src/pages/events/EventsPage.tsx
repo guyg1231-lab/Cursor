@@ -5,8 +5,10 @@ import { PageShell } from '@/components/shared/PageShell';
 import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
+import { MobileEventMapSheet } from '@/features/events/components/MobileEventMapSheet';
 import type { VisibleEvent } from '@/features/events/types';
 import { tokens } from '@/lib/design-tokens';
+import { cn } from '@/lib/utils';
 
 /**
  * Discovery page: lists active published events. Each card links to the
@@ -44,7 +46,8 @@ export function EventsPage() {
   return (
     <PageShell
       title="מפגשים פתוחים"
-      subtitle="כל המפגשים שפתוחים עכשיו. כניסה ישירה לעמוד ההרשמה של המפגש."
+      subtitle="ערבים קטנים, בקצב רגוע, עם דרך ברורה להבין אם זה מתאים."
+      heroAlign="center"
     >
       <div className="flex flex-wrap gap-3">
         <Button asChild variant="outline">
@@ -61,11 +64,19 @@ export function EventsPage() {
           body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
         />
       ) : (
-        <div className={tokens.spacing.content}>
-          {events.map((event) => (
-            <EventSummaryCard key={event.id} event={event} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4 md:hidden">
+            {events.map((event) => (
+              <MobileEventMapSheet key={event.id} event={event} />
+            ))}
+          </div>
+
+          <div className={cn(tokens.spacing.content, 'hidden md:block')}>
+            {events.map((event) => (
+              <EventSummaryCard key={event.id} event={event} />
+            ))}
+          </div>
+        </>
       )}
     </PageShell>
   );

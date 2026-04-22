@@ -23,7 +23,9 @@ import {
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { EventNotFound } from '@/components/participant/EventNotFound';
+import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
 import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
+import { cn } from '@/lib/utils';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
@@ -160,13 +162,24 @@ export function EventDetailPage() {
       <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
         <Card className={tokens.card.accent}>
           <CardHeader className="space-y-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
               <StatusBadge label={registrationState.label} tone={registrationState.tone} />
               <StatusBadge label={capacityLabel} tone="muted" />
             </div>
-            <CardTitle className={tokens.typography.sectionTitle + ' leading-tight'}>{event.title}</CardTitle>
+            <div className="space-y-2">
+              <CardTitle className={cn(tokens.typography.sectionTitle, 'text-center leading-tight sm:text-start')}>
+                {event.title}
+              </CardTitle>
+              <p className="text-center text-foreground/80 sm:text-start">{detailSubtitle}</p>
+            </div>
+            {event.social_signal?.attendee_count ? (
+              <EventAttendeeCircles
+                count={event.social_signal.attendee_count}
+                className="justify-center sm:justify-start"
+              />
+            ) : null}
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-foreground/85 leading-7">
+          <CardContent className="space-y-4 text-start text-sm leading-7 text-foreground/85">
             {event.description ? (
               <div className={tokens.card.inner + ' p-4 space-y-2'}>
                 <p className={tokens.typography.eyebrow}>מה האווירה?</p>

@@ -10,6 +10,7 @@ interface PageShellProps {
   variant?: 'default' | 'gradient' | 'minimal';
   title?: string;
   subtitle?: string;
+  heroAlign?: 'start' | 'center';
   headerTransparent?: boolean;
   headerActions?: React.ReactNode;
 }
@@ -20,11 +21,13 @@ export function PageShell({
   variant = 'gradient',
   title,
   subtitle,
+  heroAlign = 'start',
   headerTransparent = false,
   headerActions,
 }: PageShellProps) {
   const { isRTL, t } = useLanguage();
   const mode = variant === 'default' ? 'gradient' : variant;
+  const heroAlignClassName = heroAlign === 'center' ? 'text-center mx-auto' : 'text-start';
 
   return (
     <div
@@ -75,7 +78,7 @@ export function PageShell({
         <AppHeader transparent={headerTransparent} actions={headerActions} />
         <main id="main-content" className="container py-10 md:py-14 space-y-6">
           {title || subtitle ? (
-            <div className="space-y-2 max-w-3xl">
+            <div className={cn('space-y-2 max-w-3xl', heroAlignClassName)}>
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
               {subtitle ? <p className="text-base md:text-lg leading-8 text-foreground/80">{subtitle}</p> : null}
             </div>

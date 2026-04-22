@@ -34,6 +34,8 @@ import {
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
+import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
+import { formatEventDate } from '@/features/events/formatters';
 import type {
   EventRegistrationRow,
   MatchingResponseRow,
@@ -102,6 +104,40 @@ function SubmittedAnswersSummary({
 
         <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm text-muted-foreground space-y-1">
           <p>נשמר בתאריך: {new Date(answers.submitted_at).toLocaleString('he-IL')}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ApplyEventIdentityCard({
+  event,
+  subtitle,
+}: {
+  event: VisibleEvent;
+  subtitle: string;
+}) {
+  return (
+    <Card className={tokens.card.accent}>
+      <CardHeader className="space-y-4">
+        <div className="space-y-2 text-start">
+          <p className={tokens.typography.eyebrow}>המפגש שאליו הגעת</p>
+          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">{event.title}</CardTitle>
+          <p className="text-sm leading-7 text-foreground/80">{subtitle}</p>
+        </div>
+        {event.social_signal?.attendee_count ? (
+          <EventAttendeeCircles
+            count={event.social_signal.attendee_count}
+            label={`${event.social_signal.attendee_count} כבר מתחילים ליצור את החדר הזה`}
+            className="justify-start"
+          />
+        ) : null}
+      </CardHeader>
+      <CardContent className="space-y-3 text-start text-sm leading-7 text-foreground/85">
+        <div className={tokens.card.inner + ' space-y-2 p-4'}>
+          <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
+          <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
+          <p><strong className="text-foreground">רמז למיקום:</strong> {event.venue_hint ?? 'יישלח בהמשך אם צריך'}</p>
         </div>
       </CardContent>
     </Card>
@@ -455,14 +491,20 @@ export function ApplyPage() {
         title="כדי להגיש מועמדות צריך להתחבר"
         subtitle="עמוד זה הוא הסמכות היחידה להגשה ולניהול סטטוס, ולכן צריך להתחבר כדי להמשיך."
       >
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
-            <Button asChild variant="outline">
-              <Link to="/events">חזרה למפגשים</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. אחרי התחברות אפשר לחזור לכאן ולהמשיך בדיוק מאותה נקודה."
+          />
+          <Card className={tokens.card.surface}>
+            <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
+              <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
+              <Button asChild variant="outline">
+                <Link to="/events">חזרה למפגשים</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </PageShell>
     );
   }
@@ -479,6 +521,14 @@ export function ApplyPage() {
         }
       >
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle={
+              offerExpired
+                ? 'המקום הזמני כבר לא מחכה לתגובה, אבל כל פרטי המפגש נשארים כאן כדי לשמור על רצף ברור.'
+                : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש עצמו.'
+            }
+          />
           <ApplicationStatusPanel
             title={panel.title}
             body={panel.body}
@@ -544,6 +594,10 @@ export function ApplyPage() {
         }
       >
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="זהו הסטטוס העדכני של ההרשמה שלך למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
+          />
           <ApplicationStatusPanel
             title={blockingPanel.title}
             body={blockingPanel.body}
@@ -580,6 +634,10 @@ export function ApplyPage() {
     return (
       <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח להגשות חדשות.">
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="ההגשה סגורה כרגע, אבל פרטי המפגש נשארים כאן כדי שתהיה תמונה מלאה וברורה."
+          />
           <ApplicationStatusPanel
             title="ההגשות למפגש הזה סגורות כרגע"
             body="אפשר לחזור לרשימת המפגשים ולבדוק אם יש מפגש אחר שפתוח להגשה."
@@ -596,6 +654,10 @@ export function ApplyPage() {
     return (
       <PageShell title="הגשה למפגש – פרופיל חסר" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="לפני ששולחים הגשה, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
+          />
           <ApplicationStatusPanel
             title="צריך להשלים את השאלון לפני ההגשה"
             body="כדי שנוכל לשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל."
@@ -622,6 +684,11 @@ export function ApplyPage() {
       title="הגשה למפגש"
       subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך נשמר מקום זמני."
     >
+      <ApplyEventIdentityCard
+        event={event}
+        subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את התחושה של מי כבר מתחיל לבנות את החדר."
+      />
+
       <Card className={tokens.card.accent}>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמתחילים</CardTitle>
@@ -676,9 +743,7 @@ export function ApplyPage() {
           <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className={tokens.card.inner + ' p-4 space-y-2 text-sm text-foreground/80'}>
-            <p><strong className="text-foreground">מפגש:</strong> {event.title}</p>
-            <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
+          <div className={tokens.card.inner + ' p-4 space-y-2 text-start text-sm text-foreground/80'}>
             <p><strong className="text-foreground">תהליך:</strong> ההגשה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי.</p>
           </div>
 

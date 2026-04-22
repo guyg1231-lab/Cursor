@@ -124,6 +124,79 @@ test.describe('participant foundation', () => {
     await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
   });
 
+  test('mobile discovery uses map-sheet browse and carries attendee circles into detail/apply', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+        const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
+        expect(payload).toEqual({
+          event_ids: ['playwright-mobile-flow-event'],
+        });
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              event_id: 'playwright-mobile-flow-event',
+              attendee_count: 4,
+            },
+          ]),
+        });
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        const event = {
+          id: 'playwright-mobile-flow-event',
+          title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
+          description: 'מפגש אינטימי וחם לערב קטן בעיר.',
+          city: 'תל אביב',
+          starts_at: '2026-05-08T17:30:00.000Z',
+          registration_deadline: '2026-05-05T17:30:00.000Z',
+          venue_hint: 'נווה צדק',
+          max_capacity: 8,
+          status: 'active',
+          is_published: true,
+          created_at: '2026-04-01T10:00:00.000Z',
+          updated_at: '2026-04-01T10:00:00.000Z',
+          created_by_user_id: null,
+          host_user_id: null,
+          payment_required: false,
+          price_cents: 0,
+          currency: 'ILS',
+        };
+        const isSingleEventRequest = route.request().url().includes('id=eq.playwright-mobile-flow-event');
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(isSingleEventRequest ? event : [event]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.goto('/events');
+
+      await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+      await page.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
+
+      await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להגשה למפגש' })).toBeVisible();
+
+      await page.getByRole('link', { name: 'להגשה למפגש' }).click();
+      await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
