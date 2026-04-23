@@ -152,7 +152,11 @@ function DemoSection({
           )}
         >
           {DEMO_EVENTS.map((event) => (
-            <ExperienceDemoCard key={`${density}-${event.title}`} event={event} density={density} />
+            <ExperienceDemoCard
+              key={`${density}-${event.title}`}
+              event={event}
+              density={density}
+            />
           ))}
         </div>
       </div>
@@ -160,22 +164,29 @@ function DemoSection({
   );
 }
 
-function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'balanced' | 'editorial' }) {
+function ExperienceDemoCard({
+  event,
+  density,
+}: {
+  event: DemoEvent;
+  density: 'balanced' | 'editorial';
+}) {
   const isEditorial = density === 'editorial';
 
   return (
     <Card
       data-testid="experience-demo-card"
       className={cn(
-        'group flex h-full min-w-0 flex-col overflow-hidden border border-border/65 bg-card/98 transition duration-300 hover:-translate-y-0.5',
+        'group relative isolate flex h-full min-w-0 flex-col overflow-hidden border border-border/65 bg-card/98 transition duration-300 hover:-translate-y-0.5',
         isEditorial
-          ? 'rounded-[32px] shadow-[0_28px_52px_-34px_hsl(var(--foreground)/0.22),0_14px_24px_-18px_hsl(var(--foreground)/0.08)] hover:shadow-[0_34px_60px_-32px_hsl(var(--foreground)/0.24),0_18px_30px_-20px_hsl(var(--foreground)/0.1)]'
-          : 'rounded-[28px] shadow-[0_24px_42px_-32px_hsl(var(--foreground)/0.26),0_12px_20px_-18px_hsl(var(--foreground)/0.08)] hover:shadow-[0_28px_52px_-30px_hsl(var(--foreground)/0.28),0_16px_28px_-20px_hsl(var(--foreground)/0.12)]',
+          ? 'rounded-[32px] shadow-[0_28px_52px_-34px_hsl(var(--foreground)/0.22),0_14px_24px_-18px_hsl(var(--foreground)/0.08)] hover:border-primary/15 hover:shadow-[0_34px_60px_-32px_hsl(var(--foreground)/0.24),0_18px_30px_-20px_hsl(var(--foreground)/0.1)]'
+          : 'rounded-[28px] shadow-[0_24px_42px_-32px_hsl(var(--foreground)/0.26),0_12px_20px_-18px_hsl(var(--foreground)/0.08)] hover:border-primary/15 hover:shadow-[0_30px_56px_-30px_hsl(var(--foreground)/0.28),0_18px_30px_-20px_hsl(var(--foreground)/0.12)]',
       )}
     >
+      <div className="pointer-events-none absolute inset-x-8 top-0 h-16 rounded-full bg-white/30 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
       <div
         className={cn(
-          'relative overflow-hidden border-b border-border/55 bg-gradient-to-br',
+          'relative overflow-hidden border-b border-border/55 bg-gradient-to-br transition-colors duration-300',
           event.tintClassName,
           isEditorial ? 'px-5 pb-5 pt-5' : 'px-4 pb-4 pt-4',
         )}
@@ -199,7 +210,7 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
             </div>
             <div
               className={cn(
-                'flex shrink-0 items-center justify-center rounded-[22px] border border-white/65 bg-white/82 shadow-[0_12px_20px_-16px_hsl(var(--foreground)/0.4)]',
+                'flex shrink-0 items-center justify-center rounded-[22px] border border-white/65 bg-white/82 shadow-[0_12px_20px_-16px_hsl(var(--foreground)/0.4)] transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_18px_28px_-18px_hsl(var(--foreground)/0.3)]',
                 isEditorial ? 'h-16 w-16 text-[2rem]' : 'h-14 w-14 text-[1.9rem]',
               )}
             >
@@ -267,8 +278,17 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
             label={`${event.attendees} כבר בפנים`}
             detail={event.socialDetail}
             density="compact"
+            className="transition duration-300 group-hover:border-primary/10 group-hover:bg-background/96 group-hover:shadow-[inset_0_1px_0_hsl(var(--card)),0_10px_18px_-16px_hsl(var(--foreground)/0.24)]"
           />
-          <Button type="button" variant="primary" size={isEditorial ? 'lg' : 'default'} className="w-full">
+          <Button
+            type="button"
+            variant="primary"
+            size={isEditorial ? 'lg' : 'default'}
+            className={cn(
+              'w-full cta-glow relative overflow-hidden before:absolute before:inset-y-0 before:right-0 before:w-16 before:bg-white/15 before:blur-xl before:content-[\'\'] before:transition-transform before:duration-300 hover:before:-translate-x-6',
+              isEditorial ? 'tracking-[-0.01em]' : '',
+            )}
+          >
             {isEditorial ? 'לפתוח את הערב' : 'לפרטי הערב'}
           </Button>
         </div>

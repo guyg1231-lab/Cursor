@@ -69,6 +69,46 @@ test.describe('events experiences demo', () => {
     expect(hasOverflow).toBe(false);
   });
 
+  test('card and primary CTA react on hover to feel interactive', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 1400 });
+    await page.goto('/events/demo-experiences');
+
+    const card = page.getByTestId('experiences-demo-grid-4').getByTestId('experience-demo-card').first();
+    const button = card.getByRole('button', { name: 'לפרטי הערב' });
+
+    const beforeCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    await card.hover();
+    await page.waitForTimeout(120);
+
+    const afterCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterCard.transform).not.toBe(beforeCard.transform);
+    expect(afterCard.shadow).not.toBe(beforeCard.shadow);
+
+    const beforeButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    await button.hover();
+    await page.waitForTimeout(120);
+
+    const afterButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterButton.transform).not.toBe(beforeButton.transform);
+    expect(afterButton.shadow).not.toBe(beforeButton.shadow);
+  });
+
   test('lays out the 3-across shelf in two clean rows of three on wide screens', async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 1600 });
     await page.goto('/events/demo-experiences');
