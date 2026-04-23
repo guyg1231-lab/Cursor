@@ -47,27 +47,29 @@ export function EventsPage() {
       subtitle="יותר מפגשים באותו מסך, בקצב רגוע ועם דרך ברורה להבין אם זה מתאים."
       heroAlign="center"
     >
-      <PageActionBar variant="participant">
-        <Button asChild variant="outline">
-          <Link to="/events/propose">להציע מפגש חדש</Link>
-        </Button>
-      </PageActionBar>
-      {isLoading ? (
-        <RouteLoadingState />
-      ) : error ? (
-        <RouteErrorState title="שגיאת טעינה" body={error} />
-      ) : events.length === 0 ? (
-        <RouteEmptyState
-          title="אין כרגע מפגשים פתוחים"
-          body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
-        />
-      ) : (
-        <div data-testid="events-discovery-grid" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {events.map((event) => (
-            <EventSummaryCard key={event.id} event={event} />
-          ))}
-        </div>
-      )}
+      <div className="mx-auto w-full max-w-5xl space-y-4">
+        <PageActionBar variant="participant">
+          <Button asChild variant="outline">
+            <Link to="/events/propose">להציע מפגש חדש</Link>
+          </Button>
+        </PageActionBar>
+        {isLoading ? (
+          <RouteLoadingState />
+        ) : error ? (
+          <RouteErrorState title="שגיאת טעינה" body={error} />
+        ) : events.length === 0 ? (
+          <RouteEmptyState
+            title="אין כרגע מפגשים פתוחים"
+            body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
+          />
+        ) : (
+          <div data-testid="events-discovery-grid" className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {events.map((event) => (
+              <EventSummaryCard key={event.id} event={event} />
+            ))}
+          </div>
+        )}
+      </div>
     </PageShell>
   );
 }

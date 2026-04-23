@@ -30,7 +30,7 @@ export const tokens = {
       'rounded-[22px] border border-border/60 bg-background/92 shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_16px_-16px_hsl(var(--foreground)/0.2)]',
   },
   typography: {
-    hero: 'text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-foreground',
+    hero: 'text-[2.6rem] leading-[1.04] md:text-[4rem] md:leading-[0.98] font-semibold tracking-[-0.03em] text-foreground',
     sectionTitle: 'text-2xl md:text-4xl font-semibold tracking-[-0.015em] text-foreground',
     pageTitle: 'text-2xl md:text-3xl font-semibold tracking-[-0.015em] text-foreground',
     body: 'text-base leading-7 text-foreground/90',

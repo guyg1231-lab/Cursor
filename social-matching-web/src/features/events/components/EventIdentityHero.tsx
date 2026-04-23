@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
 import {
   formatEventAreaHint,
-  formatEventAtmosphereSnippet,
   formatEventCapacityLabel,
   formatEventDate,
 } from '@/features/events/formatters';
@@ -30,7 +29,6 @@ export function EventIdentityHero({
   socialDetail,
   className,
 }: EventIdentityHeroProps) {
-  const atmosphere = formatEventAtmosphereSnippet(event.description, 140);
   const facts = [
     { label: 'מתי', value: formatEventDate(event.starts_at) },
     { label: 'איפה בערך', value: formatEventAreaHint(event) },
@@ -43,25 +41,18 @@ export function EventIdentityHero({
 
   return (
     <Card data-testid="event-identity-hero" className={cn(tokens.card.accent, className)}>
-      <CardContent className="space-y-5 p-5 sm:p-6">
+      <CardContent className="space-y-4 p-5 sm:p-5">
         {badges ? <div className="flex flex-wrap gap-2">{badges}</div> : null}
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)]">
-          <div className="space-y-4">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.12fr)_minmax(270px,0.88fr)]">
+          <div className="space-y-2.5">
             <div className="space-y-2">
               <p className={cn(tokens.typography.eyebrow, 'text-foreground/65')}>{eyebrow}</p>
-              <h2 className="text-2xl font-semibold leading-[2.125rem] tracking-[-0.015em] text-foreground sm:text-3xl sm:leading-[2.5rem]">
+              <h2 className="text-[1.9rem] font-semibold leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[2.45rem]">
                 {event.title}
               </h2>
-              <p className="text-sm leading-6 text-foreground/80 sm:text-base sm:leading-7">{subtitle}</p>
+              <p className="max-w-[34rem] text-sm leading-6 text-foreground/80 sm:text-[15px] sm:leading-6">{subtitle}</p>
             </div>
-
-            {atmosphere ? (
-              <div className={cn(tokens.card.inner, 'space-y-2 p-4 text-start')}>
-                <p className={tokens.typography.eyebrow}>האווירה בקצרה</p>
-                <p className="text-sm leading-7 text-foreground/85">{atmosphere}</p>
-              </div>
-            ) : null}
           </div>
 
           <div className="space-y-3">
@@ -70,17 +61,18 @@ export function EventIdentityHero({
                 count={event.social_signal.attendee_count}
                 label={socialLabel}
                 detail={socialDetail}
+                density="compact"
               />
             ) : null}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               {facts.map((fact) => (
                 <div
                   key={fact.label}
-                  className="rounded-[22px] border border-primary/10 bg-background/86 px-3 py-3 text-center shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.25)]"
+                  className="rounded-[18px] border border-primary/10 bg-background/90 px-3 py-2 text-center shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.25)]"
                 >
                   <p className={tokens.typography.eyebrow}>{fact.label}</p>
-                  <p className="mt-1 text-sm leading-6 text-foreground">{fact.value}</p>
+                  <p className="mt-1 text-[13px] leading-5 text-foreground sm:text-sm sm:leading-6">{fact.value}</p>
                 </div>
               ))}
             </div>

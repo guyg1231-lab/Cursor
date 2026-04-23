@@ -27,7 +27,7 @@ export function PageShell({
 }: PageShellProps) {
   const { isRTL, t } = useLanguage();
   const mode = variant === 'default' ? 'gradient' : variant;
-  const heroAlignClassName = heroAlign === 'center' ? 'text-center mx-auto' : 'text-start';
+  const heroAlignClassName = heroAlign === 'center' ? 'text-center mx-auto items-center' : 'text-start items-start';
 
   return (
     <div
@@ -78,7 +78,10 @@ export function PageShell({
         <AppHeader transparent={headerTransparent} actions={headerActions} />
         <main id="main-content" className={tokens.participant.shell.content}>
           {title || subtitle ? (
-            <div data-testid="participant-page-hero" className={cn(tokens.participant.shell.hero, heroAlignClassName)}>
+            <div
+              data-testid="participant-page-hero"
+              className={cn('flex flex-col', tokens.participant.shell.hero, heroAlignClassName)}
+            >
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
               {subtitle ? <p className="text-base md:text-lg leading-7 md:leading-8 text-foreground/78">{subtitle}</p> : null}
             </div>

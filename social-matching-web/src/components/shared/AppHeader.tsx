@@ -32,7 +32,9 @@ export function AppHeader({
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
 
-  const navLinkClassName = 'rounded-full text-muted-foreground hover:text-foreground';
+  const navLinkClassName = 'rounded-full px-3 text-muted-foreground hover:text-foreground';
+  const trayClassName =
+    'rounded-full border border-border/75 bg-card/94 px-2 py-1 shadow-[0_14px_30px_-24px_hsl(var(--foreground)/0.3),0_4px_10px_hsl(var(--foreground)/0.04)]';
 
   return (
     <header
@@ -52,7 +54,7 @@ export function AppHeader({
           <Logo size={logoSize} />
         </Link>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className={cn('hidden md:flex items-center gap-1.5', trayClassName)}>
           <RouterLinkButton to="/events" variant="ghost" size="sm" className={navLinkClassName}>
             {t('navEvents')}
           </RouterLinkButton>
@@ -74,7 +76,7 @@ export function AppHeader({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className={cn('flex items-center gap-1.5', trayClassName)}>
           {user ? (
             <Button
               type="button"

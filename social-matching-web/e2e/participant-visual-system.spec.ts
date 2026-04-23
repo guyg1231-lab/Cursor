@@ -158,6 +158,59 @@ test.describe('participant visual system', () => {
     await expect(firstSummaryCard.getByTestId('event-summary-card-action')).toHaveAttribute('href', `/events/${eventId}`);
   });
 
+  test('browse cards stay compact enough to avoid tall empty shelves on desktop', async ({ page }) => {
+    const eventId = '88888888-8888-4888-8888-888888888888';
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            event_id: eventId,
+            attendee_count: 2,
+          },
+        ]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: eventId,
+            title: 'ערב שיחה קטן למי שמעדיף להתחבר לאט',
+            description: 'מפגש רגוע, חם ומדויק עם מקום להיכנס לשיחה בלי לחץ.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const height = await page.getByTestId('event-summary-card').first().evaluate((node) =>
+      Math.round(node.getBoundingClientRect().height),
+    );
+
+    expect(height).toBeLessThan(360);
+  });
+
   test('detail and apply keep participant continuity semantics across the flow', async ({ browser }) => {
     const eventId = '55555555-5555-4555-8555-555555555555';
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -241,6 +294,94 @@ test.describe('participant visual system', () => {
       await expect(page.getByTestId('event-identity-hero')).toBeVisible();
       await expect(page.getByTestId('participant-page-actions')).toBeVisible();
       await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('detail and apply heroes stay compact enough to keep primary content above the fold', async ({ browser }) => {
+    const eventId = '77777777-7777-4777-8777-777777777777';
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              event_id: eventId,
+              attendee_count: 4,
+            },
+          ]),
+        });
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        const event = {
+          id: eventId,
+          title: 'מעגל היכרות תל אביב',
+          description: 'מפגש קטן בסלון אינטימי עם שיחה מונחית וחיבור בין אנשים שחושבים דומה.',
+          city: 'תל אביב',
+          starts_at: '2026-05-08T17:30:00.000Z',
+          registration_deadline: '2026-05-05T17:30:00.000Z',
+          venue_hint: 'פלורנטין',
+          max_capacity: 8,
+          status: 'active',
+          is_published: true,
+          created_at: '2026-04-01T10:00:00.000Z',
+          updated_at: '2026-04-01T10:00:00.000Z',
+          created_by_user_id: null,
+          host_user_id: null,
+          payment_required: false,
+          price_cents: 0,
+          currency: 'ILS',
+        };
+        const isSingleEventRequest = route.request().url().includes(`id=eq.${eventId}`);
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(isSingleEventRequest ? event : [event]),
+        });
+      });
+
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'participant-visual-matching-response-compact-hero',
+              user_id: 'participant-visual-user-compact-hero',
+              birth_date: '1995-05-05',
+              social_link: 'https://example.com/p1',
+            },
+          ]),
+        });
+      });
+
+      const expectCompactHero = async () => {
+        const height = await page.getByTestId('event-identity-hero').evaluate((node) =>
+          Math.round(node.getBoundingClientRect().height),
+        );
+        expect(height).toBeLessThan(370);
+      };
+
+      await page.goto(`/events/${eventId}`);
+      await expectCompactHero();
+
+      await page.goto(`/events/${eventId}/apply`);
+      await expectCompactHero();
     } finally {
       await ctx.close();
     }

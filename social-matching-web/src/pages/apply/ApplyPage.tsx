@@ -296,6 +296,9 @@ export function ApplyPage() {
   const offerExpired = existingApplication ? isOfferExpired(existingApplication) : false;
   const canConfirmSpot = existingApplication ? canConfirmTemporarySpot(existingApplication) : false;
   const confirmedParticipation = existingApplication ? isConfirmedParticipation(existingApplication.status) : false;
+  const fieldShellClassName = tokens.card.inner + ' space-y-2.5 p-4';
+  const textInputClassName =
+    'w-full rounded-[22px] border border-border/70 bg-card/94 px-4 py-3 text-sm text-foreground shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_18px_-16px_hsl(var(--foreground)/0.18)] outline-none transition focus:border-primary/35 focus:ring-2 focus:ring-primary/10';
 
   async function handleSubmit() {
     if (!user || !event || !canSubmit) return;
@@ -760,69 +763,84 @@ export function ApplyPage() {
           <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className={tokens.card.inner + ' p-4 space-y-2 text-start text-sm text-foreground/80'}>
-            <p><strong className="text-foreground">תהליך:</strong> ההגשה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי.</p>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+            <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
+              <p className={tokens.typography.eyebrow}>איך זה מרגיש</p>
+              <p>
+                זהו טופס קצר, רגוע וממוקד. המטרה היא להבין למה דווקא המפגש הזה מתאים לך, בלי להפוך את ההגשה
+                למסך כבד או טכני.
+              </p>
+            </div>
+            <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
+              <p className={tokens.typography.eyebrow}>תהליך</p>
+              <p>
+                ההגשה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי. אם ייפתח מקום זמני, נחזור למסך
+                הזה עם צעד ברור להמשך.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
+          <div className={fieldShellClassName}>
             <label className="text-sm font-medium text-foreground">למה דווקא המפגש הזה מעניין אותך?</label>
             <textarea
               value={whyThisEvent}
               onChange={(e) => setWhyThisEvent(e.target.value)}
-              className="min-h-[120px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
+              className={textInputClassName + ' min-h-[124px] resize-y'}
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">מה היית רוצה לקבל מהמפגש הזה?</label>
-            <select
-              value={desiredOutcome}
-              onChange={(e) => setDesiredOutcome(e.target.value)}
-              className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-            >
-              <option value="">בחר/י תשובה אחת</option>
-              <option value="meet_new_people">להכיר אנשים חדשים</option>
-              <option value="meaningful_conversation">שיחה טובה ומשמעותית</option>
-              <option value="easygoing_experience">חוויה נעימה וקלילה</option>
-              <option value="inspiration">השראה / פתיחת אופקים</option>
-            </select>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className={fieldShellClassName}>
+              <label className="text-sm font-medium text-foreground">מה היית רוצה לקבל מהמפגש הזה?</label>
+              <select
+                value={desiredOutcome}
+                onChange={(e) => setDesiredOutcome(e.target.value)}
+                className={textInputClassName}
+              >
+                <option value="">בחר/י תשובה אחת</option>
+                <option value="meet_new_people">להכיר אנשים חדשים</option>
+                <option value="meaningful_conversation">שיחה טובה ומשמעותית</option>
+                <option value="easygoing_experience">חוויה נעימה וקלילה</option>
+                <option value="inspiration">השראה / פתיחת אופקים</option>
+              </select>
+            </div>
+
+            <div className={fieldShellClassName}>
+              <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לקבוצה?</label>
+              <select
+                value={whatYouBring}
+                onChange={(e) => setWhatYouBring(e.target.value)}
+                className={textInputClassName}
+              >
+                <option value="">בחר/י תשובה אחת</option>
+                {WHAT_YOU_BRING_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לקבוצה?</label>
-            <select
-              value={whatYouBring}
-              onChange={(e) => setWhatYouBring(e.target.value)}
-              className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-            >
-              <option value="">בחר/י תשובה אחת</option>
-              {WHAT_YOU_BRING_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
+          <div className={fieldShellClassName}>
             <label className="text-sm font-medium text-foreground">יש משהו שחשוב למארגן לדעת?</label>
             <textarea
               value={hostNote}
               onChange={(e) => setHostNote(e.target.value)}
-              className="min-h-[100px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
+              className={textInputClassName + ' min-h-[108px] resize-y'}
             />
           </div>
 
           {savedMessage ? <p className="text-sm text-primary">{savedMessage}</p> : null}
           {submitError ? <RouteErrorState title="לא הצלחנו לשמור את ההגשה" body={submitError} /> : null}
 
-          <div className="grid gap-3 sm:flex sm:flex-wrap">
+          <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <Button variant="secondary" className="w-full sm:w-auto" onClick={saveDraft} disabled={isSubmitting}>
               שמירת טיוטה
             </Button>
             <Button
               variant="primary"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto sm:min-w-[172px]"
               disabled={!canSubmit || isSubmitting}
               onClick={() => void handleSubmit()}
             >
