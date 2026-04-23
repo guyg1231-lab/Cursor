@@ -63,7 +63,7 @@ test.describe('participant foundation', () => {
     await page.goto('/events');
     const discoveryGrid = page.getByTestId('events-discovery-grid');
     await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
-    await expect(page).toHaveURL(/\/events\/[0-9a-f-]+$/i);
+    await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+)$/i);
     await expect(
       page.getByRole('link', {
         name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
@@ -392,11 +392,8 @@ test.describe('participant foundation', () => {
       await expect(
         page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה|הגשת מועמדות למפגש/i }),
       ).toBeVisible();
-      const openForm = page.getByRole('heading', { level: 3, name: 'פרטים על ההגשה' });
-      const gatedCopy = page.getByText(
-        /צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה|ההגשות למפגש הזה סגורות כרגע/i,
-      );
-      await expect(openForm.or(gatedCopy).first()).toBeVisible();
+      await expect(page.getByTestId('event-identity-hero')).toBeVisible();
+      await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
     } finally {
       await ctx.close();
     }

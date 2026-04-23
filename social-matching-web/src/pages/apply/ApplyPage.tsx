@@ -563,29 +563,6 @@ export function ApplyPage() {
 
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               {confirmError ? <p className="text-destructive">{confirmError}</p> : null}
-
-              <div className="flex flex-wrap gap-3 pt-1">
-                {!offerExpired ? (
-                  <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
-                    {isConfirmingSpot ? 'שומר/ת...' : 'אישור המקום הזמני'}
-                  </Button>
-                ) : null}
-                {!offerExpired ? (
-                  <Button
-                    variant="outline"
-                    disabled={!canConfirmSpot || isDecliningSpot || isConfirmingSpot}
-                    onClick={() => void handleDeclineTemporarySpot()}
-                  >
-                    {isDecliningSpot ? 'מעדכן/ת...' : 'לא אוכל להגיע'}
-                  </Button>
-                ) : null}
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to="/dashboard">לאזור האישי</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
