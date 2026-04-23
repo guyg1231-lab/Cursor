@@ -104,7 +104,6 @@ const DEMO_EVENTS: DemoEvent[] = [
 function DemoSection({
   title,
   subtitle,
-  description,
   gridClassName,
   shelfClassName,
   sectionClassName,
@@ -114,7 +113,6 @@ function DemoSection({
 }: {
   title: string;
   subtitle: string;
-  description: string;
   gridClassName: string;
   shelfClassName?: string;
   sectionClassName?: string;
@@ -123,31 +121,28 @@ function DemoSection({
   testId: string;
 }) {
   return (
-    <section className={cn('space-y-4', sectionClassName)}>
-      <div className="mx-auto flex max-w-[1380px] flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-1">
+    <section className={cn('space-y-3', sectionClassName)}>
+      <div className="mx-auto flex max-w-[1380px] flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <p className={tokens.typography.eyebrow}>{subtitle}</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">{title}</h2>
-            <span className="rounded-full border border-border/70 bg-card/88 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
-              {density === 'balanced' ? 'צפוף מאוזן' : 'editorial רגוע'}
+          <h2 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">{title}</h2>
+          <span className="rounded-full border border-border/70 bg-card/88 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
+            {density === 'balanced' ? 'צפוף מאוזן' : 'editorial רגוע'}
+          </span>
+          {emphasis === 'selected' ? (
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
+              נבחר להמשך
             </span>
-            {emphasis === 'selected' ? (
-              <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
-                נבחר להמשך
-              </span>
-            ) : null}
-            {emphasis === 'explore' ? (
-              <span className="rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
-                כיוון רגוע לבדיקה
-              </span>
-            ) : null}
-          </div>
+          ) : null}
+          {emphasis === 'explore' ? (
+            <span className="rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
+              כיוון רגוע
+            </span>
+          ) : null}
         </div>
-        <p className="max-w-2xl text-sm leading-6 text-foreground/72">{description}</p>
       </div>
 
-      <div className="relative left-1/2 w-screen max-w-[1740px] -translate-x-1/2 px-4 sm:px-6 xl:px-10">
+      <div className="mx-auto w-full px-4 sm:px-6 xl:px-8">
         <div
           data-testid={testId}
           className={cn(
@@ -284,51 +279,28 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
 
 export function EventsExperiencesDemoPage() {
   return (
-    <PageShell
-      title="השוואת מדף אירועים"
-      subtitle="שתי גרסאות לאותה משפחת גלישה: אחת מאוזנת עם 4 בשורה, ואחת רגועה יותר עם 3 בשורה, כדי לבדוק מדף פרימיום נינוח יותר."
-      heroAlign="center"
-    >
-      <div className="mx-auto w-full max-w-[1580px] space-y-10">
-        <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-center gap-2.5">
-          <span className="rounded-full border border-border/70 bg-card/84 px-4 py-2 text-[12px] font-medium text-foreground/74 shadow-sm">
-            6 אירועים אמיתיים להשוואה
-          </span>
-          <span className="rounded-full border border-border/70 bg-card/84 px-4 py-2 text-[12px] font-medium text-foreground/74 shadow-sm">
-            עיגולי המשתתפים נשארים גלויים
-          </span>
-          <span className="rounded-full border border-border/70 bg-card/84 px-4 py-2 text-[12px] font-medium text-foreground/74 shadow-sm">
-            עברית-ראשונה, חם, רגוע, פרימיום
-          </span>
-          <span className="rounded-full border border-border/70 bg-card/84 px-4 py-2 text-[12px] font-medium text-foreground/74 shadow-sm">
-            4 מול 3 בשורה באותה משפחה
-          </span>
-        </div>
-
-        <div className="mx-auto rounded-[28px] border border-border/65 bg-card/78 p-4 text-center shadow-[0_22px_42px_-34px_hsl(var(--foreground)/0.2)] md:hidden">
-          <p className={tokens.typography.eyebrow}>במובייל</p>
-          <p className="mt-1 text-sm leading-6 text-foreground/78">אנחנו לא משווים כאן 4 מול 3 בשורה. במובייל בודקים רק את גרסת ה-fallback האופקית.</p>
-        </div>
-
-        <div className="mx-auto hidden max-w-[1180px] gap-3 md:grid md:grid-cols-3">
-          <div className={tokens.card.inner + ' p-4'}>
-            <p className={tokens.typography.eyebrow}>מה בודקים</p>
-            <p className="mt-1 text-sm leading-6 text-foreground/80">האם אותו עולם יכול להחזיק מדף שקט אבל צפוף, בלי להפוך ללוח אירועים מסחרי.</p>
+    <PageShell>
+      <div className="mx-auto w-full max-w-[1580px] space-y-6 md:space-y-7">
+        <div className="mx-auto flex max-w-[1380px] items-end justify-between gap-4">
+          <div className="space-y-1">
+            <p className={tokens.typography.eyebrow}>אירועים</p>
+            <h1 className="text-[2rem] font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-[2.7rem]">
+              אירועים
+            </h1>
           </div>
-          <div className={tokens.card.inner + ' p-4'}>
-            <p className={tokens.typography.eyebrow}>מה נשאר</p>
-            <p className="mt-1 text-sm leading-6 text-foreground/80">שם, vibe, מיקום, זמן, הוכחה חברתית ו-CTA עגול נשארים מרכזיים בכל כרטיס.</p>
-          </div>
-          <div className={tokens.card.inner + ' p-4'}>
-            <p className={tokens.typography.eyebrow}>מה משתנה</p>
-            <p className="mt-1 text-sm leading-6 text-foreground/80">ב-3 בשורה הכרטיסים נושמים יותר, מקבלים נוכחות editorial ובודקים feel רגוע יותר.</p>
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary">
+              4 בשורה נבחר
+            </span>
+            <span className="rounded-full border border-border/70 bg-card/90 px-3 py-1.5 text-[11px] font-medium text-foreground/72">
+              3 בשורה לבדיקה
+            </span>
           </div>
         </div>
 
         <DemoSection
           title="4 בשורה"
           subtitle="גרסה מאוזנת"
-          description="גרסה צפופה אבל יותר נינוחה, עם כרטיסים מעט עשירים יותר ותחושת מדף פרימיום שמתאימה למי שרוצה להשוות בלי עומס."
           gridClassName="xl:grid-cols-4"
           shelfClassName="max-w-[1340px]"
           sectionClassName="hidden md:block"
@@ -340,7 +312,6 @@ export function EventsExperiencesDemoPage() {
         <DemoSection
           title="3 בשורה"
           subtitle="גרסה רגועה"
-          description="אותה משפחה, אבל עם יותר נוכחות לכל אירוע: כרטיסים רחבים יותר, טיפוגרפיה גדולה יותר ותחושת shelf רגועה ו-premium יותר."
           gridClassName="xl:grid-cols-3"
           shelfClassName="max-w-[1320px]"
           sectionClassName="hidden md:block"
@@ -349,11 +320,12 @@ export function EventsExperiencesDemoPage() {
           testId="experiences-demo-grid-3"
         />
 
-        <section className="mx-auto max-w-[1180px] space-y-4">
-          <div className="space-y-1 text-center">
-            <p className={tokens.typography.eyebrow}>מבט מובייל</p>
-            <h2 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">fallback למובייל</h2>
-            <p className="text-sm leading-6 text-foreground/72">אותו עולם יורד למסך צר דרך כרטיסים אופקיים, בלי לאבד את העיגולים, ה-vibe וה-CTA.</p>
+        <section className="mx-auto max-w-[1180px] space-y-3">
+          <div className="flex flex-wrap items-center gap-2 text-center md:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className={tokens.typography.eyebrow}>מבט מובייל</p>
+              <h2 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">fallback למובייל</h2>
+            </div>
           </div>
           <div
             data-testid="experiences-demo-mobile"

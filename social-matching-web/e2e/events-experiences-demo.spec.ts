@@ -1,15 +1,18 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('events experiences demo', () => {
-  test('renders 4-across and 3-across shelf comparisons plus a mobile fallback', async ({ page }) => {
+  test('renders a production-like shelf display with minimal framing', async ({ page }) => {
     await page.goto('/events/demo-experiences');
 
     await expect(page).toHaveURL(/\/events\/demo-experiences$/);
-    await expect(page.getByRole('heading', { name: 'השוואת מדף אירועים' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'אירועים' })).toBeVisible();
     await expect(page.getByRole('heading', { name: '4 בשורה' })).toBeVisible();
     await expect(page.getByRole('heading', { name: '3 בשורה' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'fallback למובייל' })).toBeVisible();
-    await expect(page.getByText('עיגולי המשתתפים נשארים גלויים')).toBeVisible();
+    await expect(page.getByText('מה בודקים')).toHaveCount(0);
+    await expect(page.getByText('מה נשאר')).toHaveCount(0);
+    await expect(page.getByText('מה משתנה')).toHaveCount(0);
+    await expect(page.getByText('אנחנו לא משווים כאן 4 מול 3 בשורה.')).toHaveCount(0);
 
     const section4 = page.getByTestId('experiences-demo-grid-4');
     const section3 = page.getByTestId('experiences-demo-grid-3');
@@ -42,6 +45,7 @@ test.describe('events experiences demo', () => {
           y: Math.round(rect.y),
           height: Math.round(rect.height),
           width: Math.round(rect.width),
+          right: Math.round(rect.right),
         };
       }),
     );
@@ -55,6 +59,11 @@ test.describe('events experiences demo', () => {
     expect(firstRow).toHaveLength(4);
     expect(secondRow).toHaveLength(2);
     expect(firstRowHeights.length).toBe(1);
+    expect(Math.min(...firstRow.map((card) => card.x))).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...firstRow.map((card) => card.right))).toBeLessThanOrEqual(1600);
+
+    const sectionTop = await section4.evaluate((node) => Math.round(node.getBoundingClientRect().top));
+    expect(sectionTop).toBeLessThan(320);
 
     const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(hasOverflow).toBe(false);
