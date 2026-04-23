@@ -3,6 +3,99 @@ import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
 test.describe('participant visual system', () => {
+  test('participant action rails stay compact across browse, detail, and apply', async ({ browser }) => {
+    const eventId = '66666666-6666-4666-8666-666666666666';
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              event_id: eventId,
+              attendee_count: 3,
+            },
+          ]),
+        });
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        const event = {
+          id: eventId,
+          title: 'ערב שיחה קטן למי שמעדיף להתחבר לאט',
+          description: 'מפגש רגוע, חם ומדויק עם מקום להיכנס לשיחה בלי לחץ.',
+          city: 'תל אביב',
+          starts_at: '2026-05-08T17:30:00.000Z',
+          registration_deadline: '2026-05-05T17:30:00.000Z',
+          venue_hint: 'נווה צדק',
+          max_capacity: 8,
+          status: 'active',
+          is_published: true,
+          created_at: '2026-04-01T10:00:00.000Z',
+          updated_at: '2026-04-01T10:00:00.000Z',
+          created_by_user_id: null,
+          host_user_id: null,
+          payment_required: false,
+          price_cents: 0,
+          currency: 'ILS',
+        };
+        const isSingleEventRequest = route.request().url().includes(`id=eq.${eventId}`);
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(isSingleEventRequest ? event : [event]),
+        });
+      });
+
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'participant-visual-matching-response-compact',
+              user_id: 'participant-visual-user-compact',
+              birth_date: '1995-05-05',
+              social_link: 'https://example.com/p1',
+            },
+          ]),
+        });
+      });
+
+      const expectCompactActionRail = async () => {
+        const width = await page.getByTestId('participant-page-actions').evaluate((node) =>
+          Math.round(node.getBoundingClientRect().width),
+        );
+        expect(width).toBeLessThan(760);
+      };
+
+      await page.goto('/events');
+      await expectCompactActionRail();
+
+      await page.getByTestId('event-summary-card-action').first().click();
+      await expect(page).toHaveURL(`/events/${eventId}`);
+      await expectCompactActionRail();
+
+      await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
+      await expect(page).toHaveURL(`/events/${eventId}/apply`);
+      await expectCompactActionRail();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('events exposes participant shell, hero, and action rail semantics', async ({ page }) => {
     const eventId = '44444444-4444-4444-8444-444444444444';
 

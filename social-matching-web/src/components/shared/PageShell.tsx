@@ -42,8 +42,7 @@ export function PageShell({
         mode === 'gradient'
           ? {
               background:
-                'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--accent-lavender) / 0.3) 50%, hsl(var(--background)) 100%)',
-              backgroundAttachment: 'fixed',
+                'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--accent-sky) / 0.14) 18%, hsl(var(--background)) 54%, hsl(var(--accent-lavender) / 0.14) 100%)',
             }
           : undefined
       }
@@ -54,12 +53,12 @@ export function PageShell({
 
       {mode === 'gradient' && (
         <>
-          <FloatingCircles />
+          <FloatingCircles variant="muted" />
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                'radial-gradient(ellipse 60% 50% at 50% 30%, hsl(var(--primary) / 0.08), transparent 70%)',
+                'radial-gradient(ellipse 52% 32% at 50% 14%, hsl(var(--primary) / 0.06), transparent 72%)',
             }}
           />
         </>
@@ -81,7 +80,7 @@ export function PageShell({
           {title || subtitle ? (
             <div data-testid="participant-page-hero" className={cn(tokens.participant.shell.hero, heroAlignClassName)}>
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
-              {subtitle ? <p className="text-base md:text-lg leading-8 text-foreground/80">{subtitle}</p> : null}
+              {subtitle ? <p className="text-base md:text-lg leading-7 md:leading-8 text-foreground/78">{subtitle}</p> : null}
             </div>
           ) : null}
           {children}

@@ -13,49 +13,49 @@ export function FloatingCircles({ className, variant = 'default' }: FloatingCirc
       <div
         className="absolute rounded-full animate-float"
         style={{
-          width: '320px',
-          height: '320px',
+          width: '260px',
+          height: '260px',
           background: 'hsl(var(--accent-lavender))',
-          top: '8%',
-          left: '-8%',
-          filter: 'blur(56px)',
-          opacity: 0.22 * opacityModifier,
+          top: '10%',
+          left: '-6%',
+          filter: 'blur(64px)',
+          opacity: 0.12 * opacityModifier,
         }}
       />
       <div
         className="absolute rounded-full animate-float-delayed"
         style={{
-          width: '220px',
-          height: '220px',
+          width: '180px',
+          height: '180px',
           background: 'hsl(var(--accent-sky))',
-          top: '18%',
-          right: '-5%',
-          filter: 'blur(48px)',
-          opacity: 0.18 * opacityModifier,
+          top: '14%',
+          right: '-3%',
+          filter: 'blur(56px)',
+          opacity: 0.1 * opacityModifier,
         }}
       />
       <div
         className="absolute rounded-full animate-float"
         style={{
-          width: '180px',
-          height: '180px',
+          width: '140px',
+          height: '140px',
           background: 'hsl(var(--accent-periwinkle))',
-          bottom: '12%',
-          left: '10%',
-          filter: 'blur(44px)',
-          opacity: 0.16 * opacityModifier,
+          bottom: '10%',
+          left: '12%',
+          filter: 'blur(48px)',
+          opacity: 0.08 * opacityModifier,
         }}
       />
       <div
         className="absolute rounded-full animate-float-delayed hidden md:block"
         style={{
-          width: '140px',
-          height: '140px',
+          width: '120px',
+          height: '120px',
           background: 'hsl(var(--primary) / 0.12)',
-          top: '38%',
+          top: '34%',
           right: '18%',
-          filter: 'blur(40px)',
-          opacity: 0.2 * opacityModifier,
+          filter: 'blur(44px)',
+          opacity: 0.12 * opacityModifier,
         }}
       />
     </div>

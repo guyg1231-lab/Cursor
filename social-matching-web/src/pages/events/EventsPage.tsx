@@ -7,7 +7,6 @@ import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/component
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
 import type { VisibleEvent } from '@/features/events/types';
-import { tokens } from '@/lib/design-tokens';
 
 /**
  * Discovery page: lists active published events. Each card links to the
@@ -63,15 +62,11 @@ export function EventsPage() {
           body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
         />
       ) : (
-        <section className={tokens.participant.panel + ' p-3 sm:p-4'}>
-          <div className={tokens.participant.panelInner + ' p-3 sm:p-4'}>
-            <div data-testid="events-discovery-grid" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {events.map((event) => (
-                <EventSummaryCard key={event.id} event={event} />
-              ))}
-            </div>
-          </div>
-        </section>
+        <div data-testid="events-discovery-grid" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {events.map((event) => (
+            <EventSummaryCard key={event.id} event={event} />
+          ))}
+        </div>
       )}
     </PageShell>
   );
