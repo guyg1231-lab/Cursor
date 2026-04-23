@@ -7,6 +7,8 @@ import { submitApplicationViaUi } from './fixtures/ui';
 
 test.describe('participant foundation', () => {
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
     let releaseEventsRequest: (() => void) | null = null;
     const eventsRequestReleased = new Promise<void>((resolve) => {
       releaseEventsRequest = resolve;
@@ -51,13 +53,17 @@ test.describe('participant foundation', () => {
     }
     releaseEventsRequest();
 
-    await expect(page.getByText('מפגש בדיקת טעינה', { exact: true })).toBeVisible();
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid.getByRole('heading', { name: 'מפגש בדיקת טעינה' })).toBeVisible();
   });
 
   test('discovery links into canonical event detail before apply', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
     await page.goto('/events');
-    await page.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first().click();
-    await expect(page).toHaveURL(new RegExp(`/events/${ENV.EVENT_ID}`));
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
+    await expect(page).toHaveURL(/\/events\/[0-9a-f-]+$/i);
     await expect(
       page.getByRole('link', {
         name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
@@ -120,9 +126,12 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    const mobileDiscoveryList = page.getByTestId('mobile-event-discovery-list');
-    await expect(mobileDiscoveryList.getByTestId('event-attendee-circles').first()).toBeVisible();
-    await expect(mobileDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid).toBeVisible();
+    await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+    await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+    await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
+    await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
   });
 
   test('desktop discovery card keeps attendee-circle signal for a published event', async ({ page }) => {
@@ -175,13 +184,17 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    const desktopDiscoveryList = page.getByTestId('desktop-event-discovery-list');
-    await expect(desktopDiscoveryList.getByTestId('event-attendee-circles').first()).toBeVisible();
-    await expect(desktopDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid).toBeVisible();
+    await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+    await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+    await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
+    await expect(page.getByTestId('desktop-event-discovery-list')).toHaveCount(0);
   });
 
-  test('mobile discovery uses map-sheet browse and carries attendee circles into detail/apply', async ({ browser }) => {
+  test('mobile discovery uses the shared dense grid and carries attendee circles into detail/apply', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const mobileFlowEventId = '33333333-3333-4333-8333-333333333333';
 
     try {
       await authenticateAs(ctx, ENV.EMAILS.P1);
@@ -190,7 +203,7 @@ test.describe('participant foundation', () => {
       await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
         const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
         expect(payload).toEqual({
-          event_ids: ['playwright-mobile-flow-event'],
+          event_ids: [mobileFlowEventId],
         });
 
         await route.fulfill({
@@ -198,7 +211,7 @@ test.describe('participant foundation', () => {
           contentType: 'application/json',
           body: JSON.stringify([
             {
-              event_id: 'playwright-mobile-flow-event',
+              event_id: mobileFlowEventId,
               attendee_count: 4,
             },
           ]),
@@ -207,7 +220,7 @@ test.describe('participant foundation', () => {
 
       await page.route('**/rest/v1/events*', async (route) => {
         const event = {
-          id: 'playwright-mobile-flow-event',
+          id: mobileFlowEventId,
           title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
           description: 'מפגש אינטימי וחם לערב קטן בעיר.',
           city: 'תל אביב',
@@ -225,7 +238,7 @@ test.describe('participant foundation', () => {
           price_cents: 0,
           currency: 'ILS',
         };
-        const isSingleEventRequest = route.request().url().includes('id=eq.playwright-mobile-flow-event');
+        const isSingleEventRequest = route.request().url().includes(`id=eq.${mobileFlowEventId}`);
 
         await route.fulfill({
           status: 200,
@@ -268,15 +281,21 @@ test.describe('participant foundation', () => {
 
       await page.goto('/events');
 
-      const mobileDiscoveryList = page.getByTestId('mobile-event-discovery-list');
-      await expect(mobileDiscoveryList.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
-      await page.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
+      const discoveryGrid = page.getByTestId('events-discovery-grid');
+      await expect(discoveryGrid).toBeVisible();
+      await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+      await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+      await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
+      await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
+      await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).click();
 
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByText(/הערב מתחיל לקבל צורה/)).toBeVisible();
       await expect(page.getByRole('link', { name: 'להגשה למפגש' })).toBeVisible();
 
       await page.getByRole('link', { name: 'להגשה למפגש' }).click();
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByText(/החדר כבר מתחיל להיבנות/)).toBeVisible();
       await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
       await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
     } finally {
@@ -286,37 +305,41 @@ test.describe('participant foundation', () => {
 
   test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const closedEventId = '22222222-2222-4222-8222-222222222222';
 
     await page.route('**/rest/v1/events*', async (route) => {
+      const event = {
+        id: closedEventId,
+        title: 'הליכת בוקר ושיחת קפה',
+        description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
+        city: 'תל אביב',
+        starts_at: '2026-05-10T07:00:00.000Z',
+        registration_deadline: '2026-05-01T07:00:00.000Z',
+        venue_hint: 'פארק הירקון',
+        max_capacity: 6,
+        status: 'closed',
+        is_published: true,
+        created_at: '2026-04-01T10:00:00.000Z',
+        updated_at: '2026-04-01T10:00:00.000Z',
+        created_by_user_id: null,
+        host_user_id: null,
+        payment_required: false,
+        price_cents: 0,
+        currency: 'ILS',
+      };
+      const isSingleEventRequest = route.request().url().includes(`id=eq.${closedEventId}`);
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: 'playwright-closed-mobile-event',
-            title: 'הליכת בוקר ושיחת קפה',
-            description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
-            city: 'תל אביב',
-            starts_at: '2026-05-10T07:00:00.000Z',
-            registration_deadline: '2026-05-01T07:00:00.000Z',
-            venue_hint: 'פארק הירקון',
-            max_capacity: 6,
-            status: 'closed',
-            is_published: true,
-            created_at: '2026-04-01T10:00:00.000Z',
-            updated_at: '2026-04-01T10:00:00.000Z',
-            created_by_user_id: null,
-            host_user_id: null,
-            payment_required: false,
-            price_cents: 0,
-            currency: 'ILS',
-          },
-        ]),
+        body: JSON.stringify(isSingleEventRequest ? event : [event]),
       });
     });
 
-    await page.goto('/events/playwright-closed-mobile-event');
-    await expect(page.getByText('העמוד נשאר פתוח', { exact: false })).toBeVisible();
+    await page.goto(`/events/${closedEventId}`);
+    await expect(
+      page.getByText('העמוד נשאר פתוח כדי לאפשר הבנה רגועה של הערב הזה גם אחרי שהחלון נסגר.', { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
     await expect(
       page.getByText('ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.', { exact: true }),

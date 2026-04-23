@@ -5,10 +5,7 @@ import { PageShell } from '@/components/shared/PageShell';
 import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
-import { MobileEventMapSheet } from '@/features/events/components/MobileEventMapSheet';
 import type { VisibleEvent } from '@/features/events/types';
-import { tokens } from '@/lib/design-tokens';
-import { cn } from '@/lib/utils';
 
 /**
  * Discovery page: lists active published events. Each card links to the
@@ -46,7 +43,7 @@ export function EventsPage() {
   return (
     <PageShell
       title="מפגשים פתוחים"
-      subtitle="ערבים קטנים, בקצב רגוע, עם דרך ברורה להבין אם זה מתאים."
+      subtitle="יותר מפגשים באותו מסך, בקצב רגוע ועם דרך ברורה להבין אם זה מתאים."
       heroAlign="center"
     >
       <div className="flex flex-wrap gap-3">
@@ -64,19 +61,11 @@ export function EventsPage() {
           body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
         />
       ) : (
-        <>
-          <div data-testid="mobile-event-discovery-list" className="space-y-4 md:hidden">
-            {events.map((event) => (
-              <MobileEventMapSheet key={event.id} event={event} />
-            ))}
-          </div>
-
-          <div data-testid="desktop-event-discovery-list" className={cn(tokens.spacing.content, 'hidden md:block')}>
-            {events.map((event) => (
-              <EventSummaryCard key={event.id} event={event} />
-            ))}
-          </div>
-        </>
+        <div data-testid="events-discovery-grid" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {events.map((event) => (
+            <EventSummaryCard key={event.id} event={event} />
+          ))}
+        </div>
       )}
     </PageShell>
   );

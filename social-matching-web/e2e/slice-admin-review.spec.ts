@@ -110,7 +110,7 @@ test.describe('Circles admin-review slice', () => {
         // locator stops matching once the card is removed.
         const rowTitle = page.getByText(uniqueTitle, { exact: true });
         await expect(rowTitle).toBeVisible();
-        const row = page.locator('div').filter({ has: rowTitle }).last();
+        const row = page.getByTestId(`admin-event-request-${submittedEventId}`);
         await row.getByRole('button', { name: 'אישור ופרסום' }).click();
 
         await expect(page.getByText(`Approved and published: "${uniqueTitle}".`)).toBeVisible();
@@ -150,7 +150,8 @@ test.describe('Circles admin-review slice', () => {
       try {
         const page = await ctx.newPage();
         await page.goto('/events');
-        await expect(page.getByText(previewPrefix, { exact: false })).toBeVisible();
+        const discoveryGrid = page.getByTestId('events-discovery-grid');
+        await expect(discoveryGrid.getByText(previewPrefix, { exact: false })).toBeVisible();
         await expect(page.getByText(longDescription, { exact: true })).toHaveCount(0);
       } finally {
         await ctx.close();

@@ -108,7 +108,11 @@ export function AdminEventRequestsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {submittedRequests.map((request) => (
-                <div key={request.id} className={tokens.card.inner + ' space-y-2 p-4'}>
+                <div
+                  key={request.id}
+                  data-testid={`admin-event-request-${request.id}`}
+                  className={tokens.card.inner + ' space-y-2 p-4'}
+                >
                   <p className="font-medium text-foreground">{request.title}</p>
                   <p>{formatEventStatus(request.status)}</p>
                   <p>יוצר/ת: {request.creator?.full_name || request.creator?.email || request.created_by_user_id}</p>
