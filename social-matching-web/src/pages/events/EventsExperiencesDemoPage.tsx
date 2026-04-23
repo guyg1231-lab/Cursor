@@ -107,6 +107,7 @@ function DemoSection({
   description,
   gridClassName,
   shelfClassName,
+  sectionClassName,
   density,
   testId,
 }: {
@@ -115,11 +116,12 @@ function DemoSection({
   description: string;
   gridClassName: string;
   shelfClassName?: string;
+  sectionClassName?: string;
   density: 'balanced' | 'tight';
   testId: string;
 }) {
   return (
-    <section className="space-y-4">
+    <section className={cn('space-y-4', sectionClassName)}>
       <div className="mx-auto flex max-w-[1380px] flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div className="space-y-1">
           <p className={tokens.typography.eyebrow}>{subtitle}</p>
@@ -128,6 +130,11 @@ function DemoSection({
             <span className="rounded-full border border-border/70 bg-card/88 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
               {density === 'balanced' ? 'יותר נושם' : 'יותר מהודק'}
             </span>
+            {density === 'balanced' ? (
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
+                נבחר להמשך
+              </span>
+            ) : null}
           </div>
         </div>
         <p className="max-w-2xl text-sm leading-6 text-foreground/72">{description}</p>
@@ -137,7 +144,7 @@ function DemoSection({
         <div
           data-testid={testId}
           className={cn(
-            'mx-auto grid items-start gap-4 rounded-[36px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.95)_0%,hsl(var(--background)/0.92)_100%)] p-4 shadow-[0_28px_60px_-40px_hsl(var(--foreground)/0.24)]',
+            'mx-auto grid items-stretch gap-4 rounded-[36px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.95)_0%,hsl(var(--background)/0.92)_100%)] p-4 shadow-[0_28px_60px_-40px_hsl(var(--foreground)/0.24)]',
             gridClassName,
             shelfClassName,
           )}
@@ -176,7 +183,12 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
                 <StatusBadge label={event.mood} tone="muted" />
                 {!isTight ? <StatusBadge label={event.capacity} tone="warning" /> : null}
               </div>
-              <p className={cn('max-w-[18ch] text-foreground/78', isTight ? 'text-[12px] leading-5' : 'text-xs leading-5')}>
+              <p
+                className={cn(
+                  'max-w-[18ch] overflow-hidden text-foreground/78',
+                  isTight ? 'min-h-[3.75rem] text-[12px] leading-5' : 'min-h-[3.75rem] text-xs leading-5',
+                )}
+              >
                 {event.hostNote}
               </p>
             </div>
@@ -210,7 +222,12 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
           >
             {event.title}
           </h3>
-          <p className={cn('text-foreground/78', isTight ? 'text-[12px] leading-5' : 'text-sm leading-6')}>
+          <p
+            className={cn(
+              'overflow-hidden text-foreground/78',
+              isTight ? 'min-h-[3.75rem] text-[12px] leading-5' : 'min-h-[5.25rem] text-sm leading-6',
+            )}
+          >
             {event.vibe}
           </p>
         </div>
@@ -278,7 +295,12 @@ export function EventsExperiencesDemoPage() {
           </span>
         </div>
 
-        <div className="mx-auto grid max-w-[1180px] gap-3 md:grid-cols-3">
+        <div className="mx-auto rounded-[28px] border border-border/65 bg-card/78 p-4 text-center shadow-[0_22px_42px_-34px_hsl(var(--foreground)/0.2)] md:hidden">
+          <p className={tokens.typography.eyebrow}>במובייל</p>
+          <p className="mt-1 text-sm leading-6 text-foreground/78">אנחנו לא משווים כאן 4 מול 6 בשורה. במובייל בודקים רק את גרסת ה-fallback האופקית.</p>
+        </div>
+
+        <div className="mx-auto hidden max-w-[1180px] gap-3 md:grid md:grid-cols-3">
           <div className={tokens.card.inner + ' p-4'}>
             <p className={tokens.typography.eyebrow}>מה בודקים</p>
             <p className="mt-1 text-sm leading-6 text-foreground/80">האם אותו עולם יכול להחזיק מדף שקט אבל צפוף, בלי להפוך ללוח אירועים מסחרי.</p>
@@ -299,6 +321,7 @@ export function EventsExperiencesDemoPage() {
           description="גרסה צפופה אבל יותר נינוחה, עם כרטיסים מעט עשירים יותר ותחושת מדף פרימיום שמתאימה למי שרוצה להשוות בלי עומס."
           gridClassName="xl:grid-cols-4"
           shelfClassName="max-w-[1340px]"
+          sectionClassName="hidden md:block"
           density="balanced"
           testId="experiences-demo-grid-4"
         />
@@ -309,6 +332,7 @@ export function EventsExperiencesDemoPage() {
           description="אותה משפחה, רק מהירה ומהודקת יותר: כרטיסים קצרים יותר, CTA קטן יותר, והצגה שמתקרבת יותר למדף צפוף בסגנון ההשראות."
           gridClassName="xl:grid-cols-6 md:grid-cols-3"
           shelfClassName="max-w-[1680px]"
+          sectionClassName="hidden md:block"
           density="tight"
           testId="experiences-demo-grid-6"
         />
