@@ -18,10 +18,11 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
   const areaHint = formatEventAreaHint(event);
   const registrationState = formatVisibleEventRegistrationState(event);
   const capacityLabel = formatEventCapacityLabel(event);
-  const hasAttendeeSignal = !!event.social_signal?.attendee_count;
+  const attendeeSignal = event.social_signal;
+  const hasAttendeeSignal = attendeeSignal !== undefined;
 
   return (
-    <Card className={tokens.card.accent}>
+    <Card data-testid="event-summary-card" className={tokens.card.accent + ' h-full'}>
       <CardHeader className="space-y-3 p-5 pb-3">
         <div className="flex flex-wrap gap-2">
           <StatusBadge label={registrationState.label} tone={registrationState.tone} />
@@ -32,27 +33,27 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
           <p className="max-w-[56ch] text-sm leading-6 text-foreground/80">{atmospherePreview}</p>
         ) : null}
       </CardHeader>
-      <CardContent className="grid gap-3 p-5 pt-0 text-sm text-foreground/85 md:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)]">
-        <div className={tokens.card.inner + ' space-y-3 p-4'}>
-          <div className="space-y-1">
+      <CardContent className="grid h-full gap-3 p-5 pt-0 text-sm text-foreground/85 md:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)]">
+        <div className={tokens.participant.panelInner + ' space-y-3 p-4'}>
+          <div className="space-y-1.5">
             <p className={tokens.typography.eyebrow}>מתי?</p>
             <p className="text-foreground">{formatEventDate(event.starts_at)}</p>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <p className={tokens.typography.eyebrow}>איפה בערך?</p>
             <p className="text-foreground">{areaHint}</p>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="flex h-full flex-col gap-3">
           {hasAttendeeSignal ? (
             <EventAttendeeCircles
-              count={event.social_signal!.attendee_count}
+              count={attendeeSignal.attendee_count}
               detail="החדר נבנה בקצב רגוע"
               density="compact"
             />
           ) : (
-            <div className={tokens.card.inner + ' space-y-1.5 p-4'}>
+            <div className={tokens.participant.panelInner + ' space-y-1.5 p-4'}>
               <p className={tokens.typography.eyebrow}>אנרגיה חברתית</p>
               <p className="text-foreground">קבוצה קטנה ומאוצרת</p>
               <p className="text-xs leading-5 text-muted-foreground">
@@ -61,8 +62,10 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
             </div>
           )}
 
-          <Button asChild variant="primary" className="w-full">
-            <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
+          <Button asChild variant="primary" className="mt-auto w-full">
+            <Link data-testid="event-summary-card-action" to={`/events/${event.id}`}>
+              לפרטי המפגש
+            </Link>
           </Button>
         </div>
       </CardContent>

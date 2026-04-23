@@ -151,7 +151,11 @@ test.describe('Circles admin-review slice', () => {
         const page = await ctx.newPage();
         await page.goto('/events');
         const discoveryGrid = page.getByTestId('events-discovery-grid');
-        await expect(discoveryGrid.getByText(previewPrefix, { exact: false })).toBeVisible();
+        const summaryCard = discoveryGrid.getByTestId('event-summary-card').filter({
+          has: page.getByRole('heading', { name: uniqueTitle }),
+        });
+        await expect(summaryCard).toBeVisible();
+        await expect(summaryCard.getByText(previewPrefix, { exact: false })).toBeVisible();
         await expect(page.getByText(longDescription, { exact: true })).toHaveCount(0);
       } finally {
         await ctx.close();

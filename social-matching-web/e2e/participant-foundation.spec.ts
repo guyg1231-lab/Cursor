@@ -73,16 +73,19 @@ test.describe('participant foundation', () => {
 
   test('events page offers a non-admin CTA to propose something new', async ({ page }) => {
     await page.goto('/events');
-    await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
+    const actionRail = page.getByTestId('participant-page-actions');
+    await expect(actionRail).toBeVisible();
+    await expect(actionRail.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
   });
 
   test('mobile discovery sheet can show attendee-circle count for a published event', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const mobileBrowseEventId = '11111111-1111-4111-8111-111111111111';
 
     await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
       const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
       expect(payload).toEqual({
-        event_ids: ['playwright-map-event'],
+        event_ids: [mobileBrowseEventId],
       });
 
       await route.fulfill({
@@ -90,7 +93,7 @@ test.describe('participant foundation', () => {
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            event_id: 'playwright-map-event',
+            event_id: mobileBrowseEventId,
             attendee_count: 4,
           },
         ]),
@@ -103,7 +106,7 @@ test.describe('participant foundation', () => {
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            id: 'playwright-map-event',
+            id: mobileBrowseEventId,
             title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
             description: 'מפגש אינטימי וחם לערב קטן בעיר.',
             city: 'תל אביב',
@@ -128,7 +131,13 @@ test.describe('participant foundation', () => {
     await page.goto('/events');
     const discoveryGrid = page.getByTestId('events-discovery-grid');
     await expect(discoveryGrid).toBeVisible();
-    await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+    const summaryCard = discoveryGrid.getByTestId('event-summary-card').first();
+    await expect(summaryCard).toBeVisible();
+    await expect(summaryCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(summaryCard.getByTestId('event-summary-card-action')).toHaveAttribute(
+      'href',
+      `/events/${mobileBrowseEventId}`,
+    );
     await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
     await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
     await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
@@ -136,11 +145,12 @@ test.describe('participant foundation', () => {
 
   test('desktop discovery card keeps attendee-circle signal for a published event', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
+    const desktopBrowseEventId = '22222222-2222-4222-8222-222222222222';
 
     await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
       const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
       expect(payload).toEqual({
-        event_ids: ['playwright-desktop-event'],
+        event_ids: [desktopBrowseEventId],
       });
 
       await route.fulfill({
@@ -148,7 +158,7 @@ test.describe('participant foundation', () => {
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            event_id: 'playwright-desktop-event',
+            event_id: desktopBrowseEventId,
             attendee_count: 4,
           },
         ]),
@@ -161,7 +171,7 @@ test.describe('participant foundation', () => {
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            id: 'playwright-desktop-event',
+            id: desktopBrowseEventId,
             title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
             description: 'מפגש אינטימי וחם לערב קטן בעיר.',
             city: 'תל אביב',
@@ -186,7 +196,13 @@ test.describe('participant foundation', () => {
     await page.goto('/events');
     const discoveryGrid = page.getByTestId('events-discovery-grid');
     await expect(discoveryGrid).toBeVisible();
-    await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+    const summaryCard = discoveryGrid.getByTestId('event-summary-card').first();
+    await expect(summaryCard).toBeVisible();
+    await expect(summaryCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(summaryCard.getByTestId('event-summary-card-action')).toHaveAttribute(
+      'href',
+      `/events/${desktopBrowseEventId}`,
+    );
     await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
     await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
     await expect(page.getByTestId('desktop-event-discovery-list')).toHaveCount(0);
