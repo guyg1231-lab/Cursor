@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteErrorState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
@@ -34,8 +35,7 @@ import {
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
-import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
-import { formatEventDate } from '@/features/events/formatters';
+import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
 import type {
   EventRegistrationRow,
   MatchingResponseRow,
@@ -118,29 +118,17 @@ function ApplyEventIdentityCard({
   subtitle: string;
 }) {
   return (
-    <Card className={tokens.card.accent}>
-      <CardHeader className="space-y-4">
-        <div className="space-y-2 text-start">
-          <p className={tokens.typography.eyebrow}>המפגש שאליו הגעת</p>
-          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">{event.title}</CardTitle>
-          <p className="text-sm leading-7 text-foreground/80">{subtitle}</p>
-        </div>
-        {event.social_signal?.attendee_count ? (
-          <EventAttendeeCircles
-            count={event.social_signal.attendee_count}
-            label={`${event.social_signal.attendee_count} כבר מתחילים ליצור את החדר הזה`}
-            className="justify-start"
-          />
-        ) : null}
-      </CardHeader>
-      <CardContent className="space-y-3 text-start text-sm leading-7 text-foreground/85">
-        <div className={tokens.card.inner + ' space-y-2 p-4'}>
-          <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
-          <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
-          <p><strong className="text-foreground">רמז למיקום:</strong> {event.venue_hint ?? 'יישלח בהמשך אם צריך'}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <EventIdentityHero
+      event={event}
+      eyebrow="המפגש שאליו הגעת"
+      subtitle={subtitle}
+      socialLabel={
+        event.social_signal?.attendee_count
+          ? `${event.social_signal.attendee_count} כבר מתחילים ליצור את החדר הזה`
+          : undefined
+      }
+      socialDetail="החדר כבר מתחיל להיבנות"
+    />
   );
 }
 
@@ -485,6 +473,10 @@ export function ApplyPage() {
     return <EventNotFound />;
   }
 
+  if (eventId && eventId !== event.id) {
+    return <Navigate to={`/events/${event.id}/apply`} replace />;
+  }
+
   if (!user) {
     return (
       <PageShell
@@ -496,12 +488,17 @@ export function ApplyPage() {
             event={event}
             subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. אחרי התחברות אפשר לחזור לכאן ולהמשיך בדיוק מאותה נקודה."
           />
-          <Card className={tokens.card.surface}>
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to="/events">חזרה למפגשים</Link>
+            </Button>
+            <Button asChild variant="primary">
+              <Link to="/auth">להתחברות כדי להמשיך</Link>
+            </Button>
+          </PageActionBar>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
               <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
-              <Button asChild variant="outline">
-                <Link to="/events">חזרה למפגשים</Link>
-              </Button>
             </CardContent>
           </Card>
         </div>
@@ -529,12 +526,34 @@ export function ApplyPage() {
                 : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש עצמו.'
             }
           />
+          <PageActionBar variant="participant">
+            {!offerExpired ? (
+              <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
+                {isConfirmingSpot ? 'שומר/ת...' : 'אישור המקום הזמני'}
+              </Button>
+            ) : null}
+            {!offerExpired ? (
+              <Button
+                variant="outline"
+                disabled={!canConfirmSpot || isDecliningSpot || isConfirmingSpot}
+                onClick={() => void handleDeclineTemporarySpot()}
+              >
+                {isDecliningSpot ? 'מעדכן/ת...' : 'לא אוכל להגיע'}
+              </Button>
+            ) : null}
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/dashboard">לאזור האישי</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title={panel.title}
             body={panel.body}
             footer={panel.footer ? <p>{panel.footer}</p> : undefined}
           />
-          <Card className={tokens.card.surface}>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 text-sm text-muted-foreground pt-6">
               <div className={tokens.card.inner + ' p-4 space-y-2'}>
                 <p><strong className="text-foreground">מפגש:</strong> {event.title}</p>
@@ -598,23 +617,23 @@ export function ApplyPage() {
             event={event}
             subtitle="זהו הסטטוס העדכני של ההרשמה שלך למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
           />
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+            <Button asChild variant="primary">
+              <Link to="/events">לכל המפגשים</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title={blockingPanel.title}
             body={blockingPanel.body}
             footer={blockingPanel.footer ? <p>{blockingPanel.footer}</p> : undefined}
           />
-          <Card className={tokens.card.surface}>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-3 py-6 text-sm text-muted-foreground">
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               <p>ברגע שיהיה שינוי בסטטוס, זה יופיע כאן ובהמשך גם בדשבורד.</p>
-              <div className="flex gap-3 pt-2">
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-                <Button asChild variant="primary">
-                  <Link to="/events">לכל המפגשים</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
@@ -638,13 +657,15 @@ export function ApplyPage() {
             event={event}
             subtitle="ההגשה סגורה כרגע, אבל פרטי המפגש נשארים כאן כדי שתהיה תמונה מלאה וברורה."
           />
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to="/events">חזרה לכל המפגשים</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title="ההגשות למפגש הזה סגורות כרגע"
             body="אפשר לחזור לרשימת המפגשים ולבדוק אם יש מפגש אחר שפתוח להגשה."
           />
-          <Button asChild variant="outline">
-            <Link to="/events">חזרה לכל המפגשים</Link>
-          </Button>
         </div>
       </PageShell>
     );
@@ -658,20 +679,21 @@ export function ApplyPage() {
             event={event}
             subtitle="לפני ששולחים הגשה, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
           />
+          <PageActionBar variant="participant">
+            <Button asChild variant="primary">
+              <Link to="/questionnaire">להשלמת הפרופיל</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title="צריך להשלים את השאלון לפני ההגשה"
             body="כדי שנוכל לשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל."
           />
-          <Card className={tokens.card.surface}>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-              <div className="flex gap-3 pt-2">
-                <Button asChild variant="primary">
-                  <Link to="/questionnaire">להשלמת הפרופיל</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-              </div>
+              <p>ברגע שהשאלון יושלם, אפשר לחזור לכאן וההגשה עצמה תישאר בהקשר הנכון של המפגש.</p>
             </CardContent>
           </Card>
         </div>
@@ -684,12 +706,20 @@ export function ApplyPage() {
       title="הגשה למפגש"
       subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך נשמר מקום זמני."
     >
+      <PageActionBar variant="participant">
+        <Button asChild variant="outline">
+          <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/dashboard">לאזור האישי</Link>
+        </Button>
+      </PageActionBar>
       <ApplyEventIdentityCard
         event={event}
         subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את התחושה של מי כבר מתחיל לבנות את החדר."
       />
 
-      <Card className={tokens.card.accent}>
+      <Card data-testid="participant-surface-panel" className={tokens.card.accent}>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמתחילים</CardTitle>
         </CardHeader>
@@ -703,16 +733,26 @@ export function ApplyPage() {
            * work requires symmetry, extract a shared ReapplyHeader (badge + prose) —
            * do not adopt ApplicationStatusPanel here without a UX review.
            */}
-          {existingApplication && canReapplyToEvent(existingApplication.status) ? (
+          <div className={tokens.card.inner + ' space-y-2 p-4'}>
+            <p className={tokens.typography.eyebrow}>מה קורה במסך הזה</p>
+            <p>זהו עמוד ההגשה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
+          </div>
+          <div className={tokens.card.inner + ' space-y-2 p-4'}>
+            <p className={tokens.typography.eyebrow}>אחרי השליחה</p>
             <p>
-              הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
-              שליחה עכשיו תפתח אותה מחדש כ-הגשה ממתינה.
+              הסטטוס שלך יישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי
+              להגיב אליו בזמן.
             </p>
+          </div>
+          {existingApplication && canReapplyToEvent(existingApplication.status) ? (
+            <div className={tokens.card.inner + ' space-y-2 p-4'}>
+              <p className={tokens.typography.eyebrow}>הגשה קודמת</p>
+              <p>
+                הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
+                שליחה עכשיו תפתח אותה מחדש כ-הגשה ממתינה.
+              </p>
+            </div>
           ) : null}
-          <p>זהו עמוד ההגשה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
-          <p>
-            אחרי ההגשה הסטטוס שלך יישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי להגיב אליו בזמן.
-          </p>
         </CardContent>
       </Card>
 
@@ -738,7 +778,7 @@ export function ApplyPage() {
         </div>
       ) : null}
 
-      <Card className={tokens.card.surface}>
+      <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
         </CardHeader>
@@ -799,11 +839,16 @@ export function ApplyPage() {
           {savedMessage ? <p className="text-sm text-primary">{savedMessage}</p> : null}
           {submitError ? <RouteErrorState title="לא הצלחנו לשמור את ההגשה" body={submitError} /> : null}
 
-          <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={saveDraft} disabled={isSubmitting}>
+          <div className="grid gap-3 sm:flex sm:flex-wrap">
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={saveDraft} disabled={isSubmitting}>
               שמירת טיוטה
             </Button>
-            <Button variant="primary" disabled={!canSubmit || isSubmitting} onClick={() => void handleSubmit()}>
+            <Button
+              variant="primary"
+              className="w-full sm:w-auto"
+              disabled={!canSubmit || isSubmitting}
+              onClick={() => void handleSubmit()}
+            >
               {isSubmitting ? 'שולח/ת...' : 'שליחת הגשה'}
             </Button>
           </div>

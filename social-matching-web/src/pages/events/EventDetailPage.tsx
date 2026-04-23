@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteErrorState } from '@/components/shared/RouteState';
-import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import { getVisibleEventById } from '@/features/events/api';
-import { formatEventDate, formatVisibleEventRegistrationState } from '@/features/events/formatters';
+import {
+  formatEventCapacityLabel,
+  formatEventDate,
+  formatVisibleEventRegistrationState,
+} from '@/features/events/formatters';
 import type { VisibleEvent } from '@/features/events/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { getExistingApplication } from '@/features/applications/api';
@@ -23,9 +26,8 @@ import {
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { EventNotFound } from '@/components/participant/EventNotFound';
-import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
+import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
 import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
-import { cn } from '@/lib/utils';
 
 export function EventDetailPage() {
   const { eventId } = useParams();
@@ -120,19 +122,26 @@ export function EventDetailPage() {
     return <EventNotFound />;
   }
 
+  if (eventId && eventId !== event.id) {
+    return <Navigate to={`/events/${event.id}`} replace />;
+  }
+
   const hasApplication = !!application;
   const awaitingResponse = application ? isAwaitingParticipantResponse(application.status) : false;
   const offerExpired = application ? isOfferExpired(application) : false;
   const applicationPanelContent = application ? resolveApplicationPanelContent(application) : null;
   const registrationState = formatVisibleEventRegistrationState(event);
-  const capacityLabel = event.max_capacity ? `עד ${event.max_capacity} אנשים` : 'קבוצה קטנה';
+  const capacityLabel = formatEventCapacityLabel(event);
   const detailSubtitle = event.is_registration_open
     ? 'כל הפרטים כדי להבין את האווירה, הזמן והתהליך לפני שמגישים.'
     : 'ההגשה אולי סגורה כרגע, אבל כל הפרטים נשארים כאן כדי לאפשר החלטה רגועה וברורה.';
+  const shellSubtitle = event.is_registration_open
+    ? 'כאן רואים את הקצב, האזור והתהליך, בלי לעבור דרך מסך צפוף מדי.'
+    : 'גם אחרי סגירת ההגשה, העמוד נשאר קריא וברור כדי שלא יהיה סוף מת.';
 
   return (
-    <PageShell title={event.title} subtitle={detailSubtitle}>
-      <PageActionBar>
+    <PageShell title="פרטי המפגש" subtitle={shellSubtitle}>
+      <PageActionBar variant="participant">
         <Button asChild variant="outline">
           <Link to="/events">חזרה לכל המפגשים</Link>
         </Button>
@@ -159,112 +168,125 @@ export function EventDetailPage() {
         )}
       </PageActionBar>
 
-      <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-        <Card className={tokens.card.accent}>
-          <CardHeader className="space-y-4">
-            <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
-              <StatusBadge label={registrationState.label} tone={registrationState.tone} />
-              <StatusBadge label={capacityLabel} tone="muted" />
-            </div>
-            <div className="space-y-2">
-              <CardTitle className={cn(tokens.typography.sectionTitle, 'text-center leading-tight sm:text-start')}>
-                {event.title}
-              </CardTitle>
-              <p className="text-center text-foreground/80 sm:text-start">{detailSubtitle}</p>
-            </div>
-            {event.social_signal?.attendee_count ? (
-              <EventAttendeeCircles
-                count={event.social_signal.attendee_count}
-                className="justify-center sm:justify-start"
-              />
-            ) : null}
-          </CardHeader>
-          <CardContent className="space-y-4 text-start text-sm leading-7 text-foreground/85">
-            {event.description ? (
-              <div className={tokens.card.inner + ' p-4 space-y-2'}>
-                <p className={tokens.typography.eyebrow}>מה האווירה?</p>
-                <p className="text-foreground/85">{event.description}</p>
-              </div>
-            ) : null}
-            <div className={tokens.card.inner + ' p-4 space-y-2'}>
-              <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
-              <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
-              <p><strong className="text-foreground">רמז למיקום:</strong> {event.venue_hint ?? 'יישלח בהמשך אם צריך'}</p>
-              <p><strong className="text-foreground">קיבולת:</strong> {event.max_capacity ?? 'קבוצה קטנה'}</p>
-              <p><strong className="text-foreground">דדליין להגשה:</strong> {event.registration_deadline ? formatEventDate(event.registration_deadline) : 'אין כרגע'}</p>
-            </div>
-
-            <p>
-              אחרי ההגשה נשמור את הסטטוס שלך למפגש הזה, ונעדכן אותך כאן אם יישמר עבורך מקום זמני שדורש תגובה.
-            </p>
-            <p>לפני אישור מקום סופי נעבור על כל הגשה באופן אנושי ונעדכן כאן מה קורה בהמשך.</p>
-
-            {application && applicationPanelContent ? (
+      <div className="grid gap-4 md:grid-cols-[1.12fr_0.88fr]">
+        <div className="space-y-4">
+          <EventIdentityHero
+            event={event}
+            eyebrow="המפגש שפתוח לפניך"
+            subtitle={detailSubtitle}
+            socialDetail="הערב מתחיל לקבל צורה"
+            badges={
               <>
-                <div className="mb-2">
-                  <StatusBadge
-                    label={formatApplicationStatusShort(application.status)}
-                    tone={resolveApplicationBadgeTone(application.status)}
-                  />
-                </div>
-                <ApplicationStatusPanel
-                  title={applicationPanelContent.title}
-                  body={applicationPanelContent.body}
-                  footer={applicationPanelContent.footer ? <p>{applicationPanelContent.footer}</p> : undefined}
-                />
+                <StatusBadge label={registrationState.label} tone={registrationState.tone} />
+                <StatusBadge label={capacityLabel} tone="muted" />
               </>
-            ) : !event.is_registration_open ? (
-              <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm text-muted-foreground">
-                ההגשות למפגש הזה אינן פתוחות כרגע.
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+            }
+          />
 
-        <Card className={tokens.card.surface}>
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה חשוב לדעת?</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
-            <div className={tokens.card.inner + ' p-4 space-y-2'}>
-              {event.is_registration_open ? (
-                <>
-                  <p className="font-medium text-foreground">
-                    {event.registration_deadline
-                      ? `ההגשה פתוחה כרגע עד ${formatEventDate(event.registration_deadline)}.`
-                      : 'ההגשה פתוחה כרגע.'}
-                  </p>
-                  <p>זה עדיין מסלול קטן ומסונן, לא הרשמה אוטומטית או שוק רועש.</p>
-                </>
-              ) : (
-                <>
-                  <p className="font-medium text-foreground">
-                    ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.
-                  </p>
-                  <p>העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.</p>
-                </>
-              )}
+          {application && applicationPanelContent ? (
+            <div className="space-y-2">
+              <StatusBadge
+                label={formatApplicationStatusShort(application.status)}
+                tone={resolveApplicationBadgeTone(application.status)}
+              />
+              <ApplicationStatusPanel
+                title={applicationPanelContent.title}
+                body={applicationPanelContent.body}
+                footer={applicationPanelContent.footer ? <p>{applicationPanelContent.footer}</p> : undefined}
+              />
             </div>
-            <p>• במסך הזה מוצגים גם אירועים פומביים שעדיין פתוחים וגם אירועים פומביים שכבר נסגרו להגשה.</p>
-            <p>• הכתובת המדויקת נשלחת רק אחרי שיש התאמה, כדי לשמור על תחושת אינטימיות ובטיחות.</p>
-            <p>• לפני אישור מקום סופי עוברים על כל הגשה בצורה אנושית ולא רק טכנית.</p>
-          </CardContent>
-        </Card>
+          ) : !event.is_registration_open ? (
+            <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+              <CardContent className="space-y-2 py-6 text-sm leading-7 text-muted-foreground">
+                <p className="font-medium text-foreground">ההגשות למפגש הזה אינן פתוחות כרגע.</p>
+                <p>העמוד נשאר פתוח כדי לאפשר הבנה רגועה של הערב הזה גם אחרי שהחלון נסגר.</p>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {event.description ? (
+            <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold tracking-[-0.015em]">איך הערב הזה מרגיש?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
+                <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                  <p className="text-foreground/85">{event.description}</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                    <p className={tokens.typography.eyebrow}>מה קורה אחרי ההגשה</p>
+                    <p>הסטטוס שלך נשמר למפגש הזה, ואם ייפתח עבורך מקום זמני נחזור לכאן עם דדליין ברור.</p>
+                  </div>
+                  <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                    <p className={tokens.typography.eyebrow}>איך מחליטים</p>
+                    <p>לפני אישור מקום סופי עוברים על כל הגשה באופן אנושי, כדי לשמור על קבוצה מדויקת ונעימה.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+
+        <div className="space-y-4">
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה חשוב לדעת?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
+              <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                <p className={tokens.typography.eyebrow}>חלון ההגשה</p>
+                {event.is_registration_open ? (
+                  <>
+                    <p className="font-medium text-foreground">
+                      {event.registration_deadline
+                        ? `ההגשה פתוחה כרגע עד ${formatEventDate(event.registration_deadline)}.`
+                        : 'ההגשה פתוחה כרגע.'}
+                    </p>
+                    <p>זה עדיין מסלול קטן ומסונן, לא הרשמה אוטומטית ולא שוק רועש.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-foreground">
+                      ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.
+                    </p>
+                    <p>העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.</p>
+                  </>
+                )}
+              </div>
+              <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                <p className={tokens.typography.eyebrow}>מיקום ופרטיות</p>
+                <p>הכתובת המדויקת נשלחת רק אחרי שיש התאמה, כדי לשמור על תחושת אינטימיות ובטיחות.</p>
+              </div>
+              <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                <p className={tokens.typography.eyebrow}>מי עובר על ההגשות</p>
+                <p>לפני אישור מקום סופי בודקים כל הגשה בצורה אנושית, ולא רק טכנית.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה קורה אחרי שמגישים?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                'שומרים את ההגשה שלך למפגש הספציפי הזה.',
+                'בודקים התאמה באופן אנושי, כדי שהקבוצה תישאר מדויקת ורגועה.',
+                'אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.',
+                'אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.',
+              ].map((step, index) => (
+                <div key={step} className="flex items-start gap-3 rounded-[24px] border border-border/60 bg-background/60 p-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm leading-7 text-muted-foreground">{step}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      <SectionDivider />
-
-      <Card className={tokens.card.surface}>
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה קורה אחרי שמגישים?</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
-          <p>1. שומרים את ההגשה שלך למפגש הספציפי הזה.</p>
-          <p>2. בודקים התאמה באופן אנושי, כדי שהקבוצה תישאר מדויקת ורגועה.</p>
-          <p>3. אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.</p>
-          <p>4. אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.</p>
-        </CardContent>
-      </Card>
     </PageShell>
   );
 }
