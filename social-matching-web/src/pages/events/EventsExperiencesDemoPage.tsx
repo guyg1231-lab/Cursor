@@ -109,6 +109,7 @@ function DemoSection({
   shelfClassName,
   sectionClassName,
   density,
+  emphasis,
   testId,
 }: {
   title: string;
@@ -117,7 +118,8 @@ function DemoSection({
   gridClassName: string;
   shelfClassName?: string;
   sectionClassName?: string;
-  density: 'balanced' | 'tight';
+  density: 'balanced' | 'editorial';
+  emphasis?: 'selected' | 'explore';
   testId: string;
 }) {
   return (
@@ -128,11 +130,16 @@ function DemoSection({
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-2xl font-semibold tracking-[-0.03em] text-foreground">{title}</h2>
             <span className="rounded-full border border-border/70 bg-card/88 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
-              {density === 'balanced' ? 'יותר נושם' : 'יותר מהודק'}
+              {density === 'balanced' ? 'צפוף מאוזן' : 'editorial רגוע'}
             </span>
-            {density === 'balanced' ? (
+            {emphasis === 'selected' ? (
               <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
                 נבחר להמשך
+              </span>
+            ) : null}
+            {emphasis === 'explore' ? (
+              <span className="rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
+                כיוון רגוע לבדיקה
               </span>
             ) : null}
           </div>
@@ -158,35 +165,38 @@ function DemoSection({
   );
 }
 
-function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'balanced' | 'tight' }) {
-  const isTight = density === 'tight';
+function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'balanced' | 'editorial' }) {
+  const isEditorial = density === 'editorial';
 
   return (
     <Card
       data-testid="experience-demo-card"
       className={cn(
-        'group flex h-full min-w-0 flex-col overflow-hidden rounded-[28px] border border-border/65 bg-card/98 shadow-[0_24px_42px_-32px_hsl(var(--foreground)/0.26),0_12px_20px_-18px_hsl(var(--foreground)/0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_52px_-30px_hsl(var(--foreground)/0.28),0_16px_28px_-20px_hsl(var(--foreground)/0.12)]',
+        'group flex h-full min-w-0 flex-col overflow-hidden border border-border/65 bg-card/98 transition duration-300 hover:-translate-y-0.5',
+        isEditorial
+          ? 'rounded-[32px] shadow-[0_28px_52px_-34px_hsl(var(--foreground)/0.22),0_14px_24px_-18px_hsl(var(--foreground)/0.08)] hover:shadow-[0_34px_60px_-32px_hsl(var(--foreground)/0.24),0_18px_30px_-20px_hsl(var(--foreground)/0.1)]'
+          : 'rounded-[28px] shadow-[0_24px_42px_-32px_hsl(var(--foreground)/0.26),0_12px_20px_-18px_hsl(var(--foreground)/0.08)] hover:shadow-[0_28px_52px_-30px_hsl(var(--foreground)/0.28),0_16px_28px_-20px_hsl(var(--foreground)/0.12)]',
       )}
     >
       <div
         className={cn(
           'relative overflow-hidden border-b border-border/55 bg-gradient-to-br',
           event.tintClassName,
-          isTight ? 'px-3 pb-3 pt-3' : 'px-4 pb-4 pt-4',
+          isEditorial ? 'px-5 pb-5 pt-5' : 'px-4 pb-4 pt-4',
         )}
       >
-        <div className={cn('absolute inset-x-6 top-0 rounded-full bg-white/55 blur-2xl', isTight ? 'h-14' : 'h-20')} />
-        <div className={cn('relative flex flex-col justify-between', isTight ? 'min-h-[118px]' : 'min-h-[138px]')}>
+        <div className={cn('absolute inset-x-6 top-0 rounded-full bg-white/55 blur-2xl', isEditorial ? 'h-24' : 'h-20')} />
+        <div className={cn('relative flex flex-col justify-between', isEditorial ? 'min-h-[154px]' : 'min-h-[138px]')}>
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-1.5">
                 <StatusBadge label={event.mood} tone="muted" />
-                {!isTight ? <StatusBadge label={event.capacity} tone="warning" /> : null}
+                <StatusBadge label={event.capacity} tone="warning" />
               </div>
               <p
                 className={cn(
-                  'max-w-[18ch] overflow-hidden text-foreground/78',
-                  isTight ? 'min-h-[3.75rem] text-[12px] leading-5' : 'min-h-[3.75rem] text-xs leading-5',
+                  'overflow-hidden text-foreground/78',
+                  isEditorial ? 'max-w-[28ch] min-h-[3.75rem] text-[13px] leading-6' : 'max-w-[18ch] min-h-[3.75rem] text-xs leading-5',
                 )}
               >
                 {event.hostNote}
@@ -195,7 +205,7 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
             <div
               className={cn(
                 'flex shrink-0 items-center justify-center rounded-[22px] border border-white/65 bg-white/82 shadow-[0_12px_20px_-16px_hsl(var(--foreground)/0.4)]',
-                isTight ? 'h-12 w-12 text-2xl' : 'h-14 w-14 text-[1.9rem]',
+                isEditorial ? 'h-16 w-16 text-[2rem]' : 'h-14 w-14 text-[1.9rem]',
               )}
             >
               <span aria-hidden="true">{event.emoji}</span>
@@ -212,12 +222,12 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
         </div>
       </div>
 
-      <CardContent className={cn('flex flex-1 flex-col', isTight ? 'space-y-3 p-3' : 'space-y-3.5 p-4')}>
+      <CardContent className={cn('flex flex-1 flex-col', isEditorial ? 'space-y-4 p-5' : 'space-y-3.5 p-4')}>
         <div className="space-y-1.5">
           <h3
             className={cn(
               'font-semibold tracking-[-0.025em] text-foreground',
-              isTight ? 'text-[1.02rem] leading-5' : 'text-[1.22rem] leading-6',
+              isEditorial ? 'text-[1.45rem] leading-7' : 'text-[1.22rem] leading-6',
             )}
           >
             {event.title}
@@ -225,46 +235,46 @@ function ExperienceDemoCard({ event, density }: { event: DemoEvent; density: 'ba
           <p
             className={cn(
               'overflow-hidden text-foreground/78',
-              isTight ? 'min-h-[3.75rem] text-[12px] leading-5' : 'min-h-[5.25rem] text-sm leading-6',
+              isEditorial ? 'min-h-[4.5rem] text-[15px] leading-7' : 'min-h-[5.25rem] text-sm leading-6',
             )}
           >
             {event.vibe}
           </p>
         </div>
 
-        {!isTight ? (
-          <div className={cn(tokens.card.inner, 'space-y-2 p-3')}>
-            <div className="grid grid-cols-2 gap-2 text-start">
-              <div className="space-y-1">
-                <p className={tokens.typography.eyebrow}>מתי</p>
-                <p className="text-sm leading-5 text-foreground">{event.when}</p>
-              </div>
-              <div className="space-y-1">
-                <p className={tokens.typography.eyebrow}>איפה</p>
-                <p className="text-sm leading-5 text-foreground">{event.where}</p>
-              </div>
+        <div className={cn(tokens.card.inner, isEditorial ? 'space-y-2.5 p-4' : 'space-y-2 p-3')}>
+          <div className="grid grid-cols-2 gap-2 text-start">
+            <div className="space-y-1">
+              <p className={tokens.typography.eyebrow}>מתי</p>
+              <p className={cn('text-foreground', isEditorial ? 'text-[15px] leading-6' : 'text-sm leading-5')}>{event.when}</p>
+            </div>
+            <div className="space-y-1">
+              <p className={tokens.typography.eyebrow}>איפה</p>
+              <p className={cn('text-foreground', isEditorial ? 'text-[15px] leading-6' : 'text-sm leading-5')}>{event.where}</p>
             </div>
           </div>
-        ) : (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-full border border-border/65 bg-background/75 px-2.5 py-1 text-[11px] font-medium text-foreground/72">
-              {event.capacity}
+        </div>
+
+        {isEditorial ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-border/60 bg-background/78 px-3 py-1 text-[12px] font-medium text-foreground/72">
+              חדר קטן עם שיחה נינוחה
             </span>
-            <span className="rounded-full border border-border/55 bg-background/70 px-2.5 py-1 text-[11px] text-foreground/66">
-              חדר קטן וחברתי
+            <span className="rounded-full border border-border/55 bg-background/72 px-3 py-1 text-[12px] text-foreground/68">
+              מתאים לפתיחה רגועה
             </span>
           </div>
-        )}
+        ) : null}
 
-        <div className={cn('mt-auto space-y-2 border-t border-border/55', isTight ? 'pt-2.5' : 'pt-3')}>
+        <div className={cn('mt-auto space-y-2 border-t border-border/55', isEditorial ? 'pt-3.5' : 'pt-3')}>
           <EventAttendeeCircles
             count={event.attendees}
             label={`${event.attendees} כבר בפנים`}
             detail={event.socialDetail}
             density="compact"
           />
-          <Button type="button" variant="primary" size={isTight ? 'sm' : 'default'} className="w-full">
-            {isTight ? 'לצפייה' : 'לפרטי הערב'}
+          <Button type="button" variant="primary" size={isEditorial ? 'lg' : 'default'} className="w-full">
+            {isEditorial ? 'לפתוח את הערב' : 'לפרטי הערב'}
           </Button>
         </div>
       </CardContent>
@@ -276,7 +286,7 @@ export function EventsExperiencesDemoPage() {
   return (
     <PageShell
       title="השוואת מדף אירועים"
-      subtitle="שתי גרסאות לאותה משפחת גלישה: אחת מאוזנת עם 4 בשורה, ואחת מהודקת עם 6 בשורה, קרוב יותר לשפת המדף שבחרנו."
+      subtitle="שתי גרסאות לאותה משפחת גלישה: אחת מאוזנת עם 4 בשורה, ואחת רגועה יותר עם 3 בשורה, כדי לבדוק מדף פרימיום נינוח יותר."
       heroAlign="center"
     >
       <div className="mx-auto w-full max-w-[1580px] space-y-10">
@@ -291,13 +301,13 @@ export function EventsExperiencesDemoPage() {
             עברית-ראשונה, חם, רגוע, פרימיום
           </span>
           <span className="rounded-full border border-border/70 bg-card/84 px-4 py-2 text-[12px] font-medium text-foreground/74 shadow-sm">
-            4 מול 6 בשורה באותה משפחה
+            4 מול 3 בשורה באותה משפחה
           </span>
         </div>
 
         <div className="mx-auto rounded-[28px] border border-border/65 bg-card/78 p-4 text-center shadow-[0_22px_42px_-34px_hsl(var(--foreground)/0.2)] md:hidden">
           <p className={tokens.typography.eyebrow}>במובייל</p>
-          <p className="mt-1 text-sm leading-6 text-foreground/78">אנחנו לא משווים כאן 4 מול 6 בשורה. במובייל בודקים רק את גרסת ה-fallback האופקית.</p>
+          <p className="mt-1 text-sm leading-6 text-foreground/78">אנחנו לא משווים כאן 4 מול 3 בשורה. במובייל בודקים רק את גרסת ה-fallback האופקית.</p>
         </div>
 
         <div className="mx-auto hidden max-w-[1180px] gap-3 md:grid md:grid-cols-3">
@@ -311,7 +321,7 @@ export function EventsExperiencesDemoPage() {
           </div>
           <div className={tokens.card.inner + ' p-4'}>
             <p className={tokens.typography.eyebrow}>מה משתנה</p>
-            <p className="mt-1 text-sm leading-6 text-foreground/80">ב-6 בשורה ההיררכיה קצרה ומהירה יותר, עם תחושת מדף מהודקת יותר.</p>
+            <p className="mt-1 text-sm leading-6 text-foreground/80">ב-3 בשורה הכרטיסים נושמים יותר, מקבלים נוכחות editorial ובודקים feel רגוע יותר.</p>
           </div>
         </div>
 
@@ -323,18 +333,20 @@ export function EventsExperiencesDemoPage() {
           shelfClassName="max-w-[1340px]"
           sectionClassName="hidden md:block"
           density="balanced"
+          emphasis="selected"
           testId="experiences-demo-grid-4"
         />
 
         <DemoSection
-          title="6 בשורה"
-          subtitle="גרסה מהודקת"
-          description="אותה משפחה, רק מהירה ומהודקת יותר: כרטיסים קצרים יותר, CTA קטן יותר, והצגה שמתקרבת יותר למדף צפוף בסגנון ההשראות."
-          gridClassName="xl:grid-cols-6 md:grid-cols-3"
-          shelfClassName="max-w-[1680px]"
+          title="3 בשורה"
+          subtitle="גרסה רגועה"
+          description="אותה משפחה, אבל עם יותר נוכחות לכל אירוע: כרטיסים רחבים יותר, טיפוגרפיה גדולה יותר ותחושת shelf רגועה ו-premium יותר."
+          gridClassName="xl:grid-cols-3"
+          shelfClassName="max-w-[1320px]"
           sectionClassName="hidden md:block"
-          density="tight"
-          testId="experiences-demo-grid-6"
+          density="editorial"
+          emphasis="explore"
+          testId="experiences-demo-grid-3"
         />
 
         <section className="mx-auto max-w-[1180px] space-y-4">
