@@ -191,8 +191,11 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
     if (result) {
       return result;
     }
-  } catch {
-    // Fall through to cached/seeded fallback below.
+  } catch (error) {
+    if (cached) {
+      return withSocialSignals(cached);
+    }
+    throw error;
   }
 
   return withSocialSignals(cached ?? INITIAL_EVENTS);

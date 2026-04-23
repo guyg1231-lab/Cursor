@@ -14,6 +14,21 @@ export const tokens = {
     card: 'p-5 sm:p-6',
     content: 'space-y-6',
   },
+  participant: {
+    shell: {
+      chrome: 'relative z-10',
+      content: 'container py-8 md:py-12 space-y-5 md:space-y-6',
+      hero: 'max-w-3xl space-y-3',
+    },
+    actionRail:
+      'mb-1 flex flex-wrap items-center gap-3 rounded-[28px] border border-border/60 bg-background/72 p-2.5 shadow-soft backdrop-blur-md',
+    routeState:
+      'border-border/60 bg-card/88 shadow-soft-lg backdrop-blur-md',
+    panel:
+      'rounded-[30px] border border-border/60 bg-card/88 text-card-foreground shadow-soft backdrop-blur-md',
+    panelInner:
+      'rounded-[26px] border border-border/40 bg-background/55 backdrop-blur-sm',
+  },
   typography: {
     hero: 'text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-foreground',
     sectionTitle: 'text-2xl md:text-4xl font-semibold tracking-[-0.015em] text-foreground',
@@ -24,15 +39,15 @@ export const tokens = {
   },
   card: {
     surface:
-      'rounded-3xl border border-border/60 bg-card/80 backdrop-blur-md shadow-soft transition-all duration-300 ease-out',
+      'rounded-[30px] border border-border/60 bg-card/88 backdrop-blur-md shadow-soft transition-all duration-300 ease-out',
     accent:
       'rounded-3xl border border-primary/10 bg-gradient-to-br from-[hsl(var(--accent-lavender)/0.8)] via-card/95 to-[hsl(var(--accent-periwinkle)/0.6)] shadow-soft-lg transition-all duration-300 ease-out',
     inner:
-      'rounded-[28px] border border-primary/10 bg-background/30 backdrop-blur-sm',
+      'rounded-[26px] border border-border/40 bg-background/55 backdrop-blur-sm',
   },
   button: {
-    primary: 'rounded-full',
-    secondary: 'rounded-full',
+    primary: 'rounded-full shadow-sm',
+    secondary: 'rounded-full shadow-sm',
     ghost: 'rounded-full',
   },
   /** Semantic pill styles for `StatusBadge` — uses theme CSS variables (see `index.css`). */

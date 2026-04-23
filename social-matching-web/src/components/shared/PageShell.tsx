@@ -31,6 +31,7 @@ export function PageShell({
 
   return (
     <div
+      data-testid="participant-page-shell"
       className={cn(
         'min-h-screen relative overflow-x-hidden',
         mode === 'gradient' ? 'bg-[hsl(var(--background))]' : 'bg-[hsl(var(--background))]',
@@ -74,11 +75,11 @@ export function PageShell({
         />
       )}
 
-      <div className="relative z-10">
+      <div className={tokens.participant.shell.chrome}>
         <AppHeader transparent={headerTransparent} actions={headerActions} />
-        <main id="main-content" className="container py-10 md:py-14 space-y-6">
+        <main id="main-content" className={tokens.participant.shell.content}>
           {title || subtitle ? (
-            <div className={cn('space-y-2 max-w-3xl', heroAlignClassName)}>
+            <div data-testid="participant-page-hero" className={cn(tokens.participant.shell.hero, heroAlignClassName)}>
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
               {subtitle ? <p className="text-base md:text-lg leading-8 text-foreground/80">{subtitle}</p> : null}
             </div>

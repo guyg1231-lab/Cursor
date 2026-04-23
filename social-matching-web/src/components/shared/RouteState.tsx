@@ -19,9 +19,9 @@ type RouteLoadingStateProps = {
 
 function RouteStateCard({ title, body, tone = 'default', action }: RouteStateCardProps) {
   return (
-    <Card className={tokens.card.surface}>
+    <Card data-testid="participant-route-state" className={tokens.participant.routeState}>
       <CardContent
-        className={`space-y-2 py-8 text-sm ${
+        className={`space-y-2 ${tokens.participant.panelInner} px-6 py-8 text-sm ${
           tone === 'danger' ? 'text-destructive' : 'text-muted-foreground'
         }`}
       >

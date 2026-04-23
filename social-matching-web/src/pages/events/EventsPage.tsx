@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
@@ -46,11 +47,11 @@ export function EventsPage() {
       subtitle="יותר מפגשים באותו מסך, בקצב רגוע ועם דרך ברורה להבין אם זה מתאים."
       heroAlign="center"
     >
-      <div className="flex flex-wrap gap-3">
+      <PageActionBar variant="participant">
         <Button asChild variant="outline">
           <Link to="/events/propose">להציע מפגש חדש</Link>
         </Button>
-      </div>
+      </PageActionBar>
       {isLoading ? (
         <RouteLoadingState />
       ) : error ? (
