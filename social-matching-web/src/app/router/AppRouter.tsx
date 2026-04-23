@@ -4,6 +4,7 @@ import { PrivacyPage } from '@/pages/legal/PrivacyPage';
 import { TermsPage } from '@/pages/legal/TermsPage';
 import { EventsPage } from '@/pages/events/EventsPage';
 import { EventDetailPage } from '@/pages/events/EventDetailPage';
+import { EventsExperiencesDemoPage } from '@/pages/events/EventsExperiencesDemoPage';
 import { QuestionnairePage } from '@/pages/questionnaire/QuestionnairePage';
 import { ApplyPage } from '@/pages/apply/ApplyPage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
@@ -36,6 +37,7 @@ export function AppRouter() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/gathering/:eventId" element={<GatheringPage />} />
       <Route path="/events" element={<EventsPage />} />
+      <Route path="/events/demo-experiences" element={<EventsExperiencesDemoPage />} />
       <Route
         path="/events/propose"
         element={
