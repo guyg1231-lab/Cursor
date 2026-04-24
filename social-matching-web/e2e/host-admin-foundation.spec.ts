@@ -29,6 +29,7 @@ test.describe('host/admin MVP-critical workflows', () => {
       await page.goto(`/admin/events/${ENV.EVENT_ID}`);
       await expect(page.getByTestId('admin-event-lifecycle-actions')).toBeVisible();
       await expect(page.getByRole('heading', { name: 'פעולות מחזור חיים' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'הקצאת קבוצה' })).toBeVisible();
     } finally {
       await ctx.close();
     }

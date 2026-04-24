@@ -75,6 +75,13 @@ function bucketForStatus(status: AdminApplicantReview['status']): DashboardStatu
   return 'other';
 }
 
+function compareSelectionOrder(a: AdminApplicantReview, b: AdminApplicantReview) {
+  const rankA = a.selection_rank ?? Number.POSITIVE_INFINITY;
+  const rankB = b.selection_rank ?? Number.POSITIVE_INFINITY;
+  if (rankA !== rankB) return rankA - rankB;
+  return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+}
+
 async function copyText(text: string) {
   try {
     await navigator.clipboard.writeText(text);
@@ -140,6 +147,26 @@ export function OperatorEventDashboardPage() {
     [applicants],
   );
 
+  const latestSelectionBatchId = useMemo(() => {
+    const latest = applicants.find((a) => a.selection_batch_id != null);
+    return latest?.selection_batch_id ?? null;
+  }, [applicants]);
+
+  const latestSelectionBatch = useMemo(() => {
+    if (!latestSelectionBatchId) return null;
+    const batchApplicants = applicants.filter((a) => a.selection_batch_id === latestSelectionBatchId);
+    const selected = batchApplicants
+      .filter((a) => a.selection_outcome === 'selected')
+      .slice()
+      .sort(compareSelectionOrder);
+    const waitlist = batchApplicants
+      .filter((a) => a.selection_outcome === 'waitlist')
+      .slice()
+      .sort(compareSelectionOrder);
+
+    return { batchApplicants, selected, waitlist };
+  }, [applicants, latestSelectionBatchId]);
+
   const expiredOfferCount = useMemo(
     () => applicants.filter((a) => isAwaitingParticipantResponse(a.status) && isOfferExpired(a)).length,
     [applicants],
@@ -204,7 +231,7 @@ export function OperatorEventDashboardPage() {
       const out = await recordEventSelectionOutputForOperator(eventId, selected, waitlist);
       await refresh();
       setActionMessage(
-        `הבחירה נשמרה. אצווה ${out.selection_batch_id ?? '—'} · נבחרו: ${out.selected_count}, המתנה: ${out.waitlist_count}.`,
+        `הקצאת הקבוצה נשמרה. אצווה ${out.selection_batch_id ?? '—'} · נבחרו: ${out.selected_count}, המתנה: ${out.waitlist_count}.`,
       );
     } catch (e) {
       setActionError(e instanceof AdminSelectionActionError ? e.message : 'שמירת הבחירה נכשלה.');
@@ -273,6 +300,60 @@ export function OperatorEventDashboardPage() {
             </CardContent>
           </Card>
 
+          <Card className={tokens.card.surface}>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold tracking-[-0.015em]">הקצאת קבוצה</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
+              {latestSelectionBatch ? (
+                <>
+                  <p>
+                    זו הקבוצה האחרונה שנשמרה לאירוע הזה. נבחרו:{' '}
+                    <strong className="text-foreground">{latestSelectionBatch.selected.length}</strong> · המתנה:{' '}
+                    <strong className="text-foreground">{latestSelectionBatch.waitlist.length}</strong>
+                  </p>
+                  <p className="font-mono text-xs break-all text-foreground/75">
+                    אצווה: {latestSelectionBatchId}
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                      <p className="font-medium text-foreground">נבחרו לקבוצה</p>
+                      {latestSelectionBatch.selected.length > 0 ? (
+                        <ul className="space-y-1 text-xs text-foreground/80">
+                          {latestSelectionBatch.selected.map((a) => (
+                            <li key={a.id}>
+                              {a.profile?.full_name || a.profile?.email || a.user_id}
+                              <span className="text-muted-foreground"> · {a.id}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs">אין כרגע נבחרים באצווה הזו.</p>
+                      )}
+                    </div>
+                    <div className={tokens.card.inner + ' space-y-2 p-4'}>
+                      <p className="font-medium text-foreground">רשימת המתנה</p>
+                      {latestSelectionBatch.waitlist.length > 0 ? (
+                        <ul className="space-y-1 text-xs text-foreground/80">
+                          {latestSelectionBatch.waitlist.map((a) => (
+                            <li key={a.id}>
+                              {a.profile?.full_name || a.profile?.email || a.user_id}
+                              <span className="text-muted-foreground"> · {a.id}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs">אין כרגע רשימת המתנה באצווה הזו.</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p>עדיין לא נשמרה הקצאת קבוצה. כאן תופיע תמונת החדר ברגע שתישמר בחירה.</p>
+              )}
+            </CardContent>
+          </Card>
+
           <section
             data-testid="admin-event-lifecycle-actions"
             aria-labelledby="admin-event-lifecycle-actions-heading"
@@ -289,7 +370,7 @@ export function OperatorEventDashboardPage() {
 
             <Card className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold tracking-[-0.015em]">בחירה מתוזמרת (RPC)</CardTitle>
+                <CardTitle className="text-lg font-semibold tracking-[-0.015em]">בחירת קבוצה מתוזמרת (RPC)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
@@ -303,11 +384,11 @@ export function OperatorEventDashboardPage() {
                     onClick={() => void copyText(pendingAndWaitlistIds.join(', '))}
                     disabled={pendingAndWaitlistIds.length === 0}
                   >
-                    העתקת כל מזהי ממתין + רשימת המתנה
+                    העתקת כל מזהי קבוצה + המתנה
                   </Button>
                 </div>
                 <label className="block space-y-1">
-                  <span className="text-foreground">מזהי הרשמה לנבחרים (Selected)</span>
+                  <span className="text-foreground">מזהי הרשמה לנבחרי הקבוצה (Selected)</span>
                   <textarea
                     className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
                     value={selectedRaw}
@@ -330,7 +411,7 @@ export function OperatorEventDashboardPage() {
                   disabled={isSavingSelection}
                   onClick={() => void handleSelectionSave()}
                 >
-                  {isSavingSelection ? 'שומרים...' : 'שמירת בחירה'}
+                  {isSavingSelection ? 'שומרים...' : 'שמירת הקצאת קבוצה'}
                 </Button>
               </CardContent>
             </Card>
@@ -396,7 +477,7 @@ export function OperatorEventDashboardPage() {
                             </p>
                             {a.selection_batch_id ? (
                               <p className="text-xs">
-                                selection: {a.selection_outcome ?? '—'} rank {a.selection_rank ?? '—'}
+                                הקצאה: {a.selection_outcome ?? '—'} · דרגה {a.selection_rank ?? '—'}
                               </p>
                             ) : null}
                           </div>
