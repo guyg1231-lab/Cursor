@@ -75,7 +75,12 @@ DRY_RUN=1 npm run ops:sync-vercel-vite-env
 
 **Concrete refs in this repo (non-secret):** production frontend is shaped around project ref `nshgmuqlivuhlimwdwhe`; local/staging examples use `huzcvjyyyuudchnrosvx`. If Production hosting still bakes in the staging host, you will see intermittent auth issues and misleading smoke results — fix Vercel **Production** `VITE_*` values, then trigger a **new production deploy** (env changes do not rewrite an already-built `dist/`).
 
-After deploy, confirm the live bundle (not only Vercel’s env screen):
+After deploy, confirm the live bundle (not only Vercel’s env screen). To compare **staging vs prod SPA text** baked into JS (detects old prod builds vs newer staging):
+
+```bash
+cd social-matching-web
+npm run ops:compare-staging-prod-spa-bundles
+```
 
 ```bash
 cd social-matching-web
