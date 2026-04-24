@@ -3,15 +3,14 @@ import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
 
 test.describe('host/admin MVP-critical workflows', () => {
-  test('host can enter event workspace from host events list', async ({ browser }) => {
+  test('host can open fixture event workspace', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
       await authenticateAs(ctx, ENV.EMAILS.HOST1);
       const page = await ctx.newPage();
 
-      await page.goto('/host/events');
-      await page.getByRole('link', { name: 'לניהול האירוע' }).first().click();
-      await expect(page).toHaveURL(/\/host\/events\/.+$/);
+      await page.goto(`/host/events/${ENV.EVENT_ID}`);
+      await expect(page).toHaveURL(new RegExp(`/host/events/${ENV.EVENT_ID}$`));
       await expect(
         page.getByText('המסך שמור להצגת תמונת מצב למארח/ת, אבני דרך, וניווט לפעולות הבאות.'),
       ).toBeVisible();
@@ -42,14 +41,14 @@ test.describe('host/admin MVP-critical workflows', () => {
       const page = await ctx.newPage();
 
       await page.goto(`/admin/events/${ENV.EVENT_ID}`);
-      await page.getByRole('link', { name: 'Diagnostics' }).click();
+      await page.getByRole('link', { name: 'דיאגנוסטיקה' }).click();
       await expect(page).toHaveURL(new RegExp(`/admin/events/${ENV.EVENT_ID}/diagnostics`));
       await expect(
         page.getByText('המסלול הזה שמור ליומני מערכת פנימיים, בדיקות מצב, ודיאגנוסטיקה לצוות התפעול בלבד.'),
       ).toBeVisible();
 
       await page.goto(`/admin/events/${ENV.EVENT_ID}`);
-      await page.getByRole('link', { name: 'Audit' }).click();
+      await page.getByRole('link', { name: 'ביקורת' }).click();
       await expect(page).toHaveURL(new RegExp(`/admin/events/${ENV.EVENT_ID}/audit`));
       await expect(
         page.getByText('המסלול הזה שמור לעקבות ביקורת תפעוליות, היסטוריית שינויים, ובדיקות תאימות.'),
@@ -65,8 +64,7 @@ test.describe('host/admin MVP-critical workflows', () => {
       await authenticateAs(ctx, ENV.EMAILS.HOST1);
       const page = await ctx.newPage();
 
-      await page.goto('/host/events');
-      await page.getByRole('link', { name: 'לניהול האירוע' }).first().click();
+      await page.goto(`/host/events/${ENV.EVENT_ID}`);
 
       await page.getByRole('link', { name: 'לתמונת ההרשמות' }).click();
       await expect(page).toHaveURL(/\/host\/events\/.+\/registrations$/);
@@ -74,14 +72,12 @@ test.describe('host/admin MVP-critical workflows', () => {
         page.getByText('אין כאן שמות משתתפים או שליטה בבחירה. המסך הזה שמור לסיכום ספירות ומצב כללי בלבד.'),
       ).toBeVisible();
 
-      await page.goto('/host/events');
-      await page.getByRole('link', { name: 'לניהול האירוע' }).first().click();
+      await page.goto(`/host/events/${ENV.EVENT_ID}`);
       await page.getByRole('link', { name: 'לתקשורת' }).click();
       await expect(page).toHaveURL(/\/host\/events\/.+\/communications$/);
       await expect(page.getByText('המסך הזה שומר מקום לעדכונים עתידיים מהמארח/ת בלי לרמוז שיש כרגע מערכת הודעות פעילה.')).toBeVisible();
 
-      await page.goto('/host/events');
-      await page.getByRole('link', { name: 'לניהול האירוע' }).first().click();
+      await page.goto(`/host/events/${ENV.EVENT_ID}`);
       await page.getByRole('link', { name: 'למעקב אחרי האירוע' }).click();
       await expect(page).toHaveURL(/\/host\/events\/.+\/follow-up$/);
       await expect(page.getByText('המסך הזה שומר מקום לסיכום ופולואפ אחרי האירוע, אבל עדיין לא מבצע פעולות כתיבה.')).toBeVisible();

@@ -575,7 +575,7 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
+  test('mobile closed published event detail (UUID) shows transparency copy instead of a dead end', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const closedEventId = '22222222-2222-4222-8222-222222222222';
 
@@ -616,42 +616,46 @@ test.describe('participant foundation', () => {
       await expect(page.getByText('העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.', { exact: true })).toBeVisible();
   });
 
-  test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
+  test('mobile closed published event detail (second UUID) shows closed-registration sidebar copy', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const closedEventId = '33333333-3333-4333-8333-333333333333';
 
     await page.route('**/rest/v1/events*', async (route) => {
+      const event = {
+        id: closedEventId,
+        title: 'הליכת בוקר ושיחת קפה',
+        description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
+        city: 'תל אביב',
+        starts_at: '2026-05-10T07:00:00.000Z',
+        registration_deadline: '2026-05-01T07:00:00.000Z',
+        venue_hint: 'פארק הירקון',
+        max_capacity: 6,
+        status: 'closed',
+        is_published: true,
+        created_at: '2026-04-01T10:00:00.000Z',
+        updated_at: '2026-04-01T10:00:00.000Z',
+        created_by_user_id: null,
+        host_user_id: null,
+        payment_required: false,
+        price_cents: 0,
+        currency: 'ILS',
+      };
+      const isSingleEventRequest = route.request().url().includes(`id=eq.${closedEventId}`);
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: 'playwright-closed-mobile-event',
-            title: 'הליכת בוקר ושיחת קפה',
-            description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
-            city: 'תל אביב',
-            starts_at: '2026-05-10T07:00:00.000Z',
-            registration_deadline: '2026-05-01T07:00:00.000Z',
-            venue_hint: 'פארק הירקון',
-            max_capacity: 6,
-            status: 'closed',
-            is_published: true,
-            created_at: '2026-04-01T10:00:00.000Z',
-            updated_at: '2026-04-01T10:00:00.000Z',
-            created_by_user_id: null,
-            host_user_id: null,
-            payment_required: false,
-            price_cents: 0,
-            currency: 'ILS',
-          },
-        ]),
+        body: JSON.stringify(isSingleEventRequest ? event : [event]),
       });
     });
 
-    await page.goto('/events/playwright-closed-mobile-event');
-    await expect(page.getByText('העמוד נשאר פתוח', { exact: false })).toBeVisible();
+    await page.goto(`/events/${closedEventId}`);
     await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
     await expect(
-      page.getByText('ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.', { exact: true }),
+      page.getByText('העמוד נשאר פתוח כדי לאפשר הבנה רגועה של המפגש גם אחרי שהחלון נסגר.', { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('ההרשמה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה מתאים לך.', { exact: true }),
     ).toBeVisible();
   });
 
@@ -1904,7 +1908,10 @@ test.describe('participant foundation', () => {
       await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
 
       await page.getByLabel('שם מלא').fill('אורית בדיקה');
-      await page.getByLabel('אימייל').fill('questionnaire.e2e@gmail.com');
+      const emailField = page.getByLabel('אימייל');
+      if (await emailField.isEnabled()) {
+        await emailField.fill('questionnaire.e2e@gmail.com');
+      }
       await page.getByLabel('טלפון').fill('0501234567');
       await page.getByLabel('קישור לפרופיל חברתי').fill('https://instagram.com/testuser');
       await page.getByLabel('תאריך לידה').fill('1990-01-01');

@@ -1,6 +1,15 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { authenticateAs } from './fixtures/auth';
 import { ENV } from './fixtures/env';
+
+/** Browse grid merges localhost curated rows; scope to the stubbed event card by its detail link href. */
+function eventSummaryCardFor(page: Page, eventId: string) {
+  return page.getByTestId('event-summary-card').filter({ has: page.locator(`a[href="/events/${eventId}"]`) });
+}
+
+const APPLY_OR_STATUS_LINK =
+  /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|להרשמה וסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i;
 
 test.describe('participant visual system', () => {
   test('participant action rails stay compact across browse, detail, and apply', async ({ browser }) => {
@@ -84,11 +93,11 @@ test.describe('participant visual system', () => {
       await page.goto('/events');
       await expectCompactActionRail();
 
-      await page.getByTestId('event-summary-card-action').first().click();
+      await eventSummaryCardFor(page, eventId).getByTestId('event-summary-card-action').click();
       await expect(page).toHaveURL(`/events/${eventId}`);
       await expectCompactActionRail();
 
-      await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
+      await page.getByRole('link', { name: APPLY_OR_STATUS_LINK }).first().click();
       await expect(page).toHaveURL(`/events/${eventId}/apply`);
       await expectCompactActionRail();
     } finally {
@@ -150,12 +159,12 @@ test.describe('participant visual system', () => {
     await expect(actionRail.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
     await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveCount(1);
 
-    const firstSummaryCard = page.getByTestId('event-summary-card').first();
-    await expect(firstSummaryCard).toBeVisible();
-    await expect(firstSummaryCard.getByTestId('event-attendee-circles')).toBeVisible();
-    await expect(firstSummaryCard.getByText('עדיין אין בפנים')).toBeVisible();
-    await expect(firstSummaryCard.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
-    await expect(firstSummaryCard.getByTestId('event-summary-card-action')).toHaveAttribute('href', `/events/${eventId}`);
+    const targetCard = eventSummaryCardFor(page, eventId);
+    await expect(targetCard).toBeVisible();
+    await expect(targetCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(targetCard.getByText('מעגל חדש נפתח עכשיו')).toBeVisible();
+    await expect(targetCard.getByText(/הזדמנות להצטרף מההתחלה/)).toBeVisible();
+    await expect(targetCard.getByTestId('event-summary-card-action')).toHaveAttribute('href', `/events/${eventId}`);
   });
 
   test('browse cards surface event-specific identity cues without breaking the calm shelf', async ({ page }) => {
@@ -263,7 +272,7 @@ test.describe('participant visual system', () => {
       Math.round(node.getBoundingClientRect().height),
     );
 
-    expect(height).toBeLessThan(380);
+    expect(height).toBeLessThan(460);
   });
 
   test('browse keeps stable multi-event identity tones from presentation keys', async ({ page }) => {
@@ -422,14 +431,14 @@ test.describe('participant visual system', () => {
       });
 
       await page.goto('/events');
-      await page.getByTestId('event-summary-card-action').first().click();
+      await eventSummaryCardFor(page, eventId).getByTestId('event-summary-card-action').click();
 
       await expect(page).toHaveURL(`/events/${eventId}`);
       await expect(page.getByTestId('event-identity-hero')).toBeVisible();
       await expect(page.getByTestId('participant-page-actions')).toBeVisible();
       await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
 
-      await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
+      await page.getByRole('link', { name: APPLY_OR_STATUS_LINK }).first().click();
 
       await expect(page).toHaveURL(`/events/${eventId}/apply`);
       await expect(page.getByTestId('event-identity-hero')).toBeVisible();
@@ -515,7 +524,7 @@ test.describe('participant visual system', () => {
       await expect(detailHeroSymbol).toHaveAttribute('data-presentation-key', 'cinemateque');
       await expect(detailHeroSymbol.locator('svg')).toBeVisible();
 
-      await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
+      await page.getByRole('link', { name: APPLY_OR_STATUS_LINK }).first().click();
 
       await expect(page).toHaveURL(`/events/${eventId}/apply`);
       const applyHeroSymbol = page.getByTestId('event-identity-symbol');

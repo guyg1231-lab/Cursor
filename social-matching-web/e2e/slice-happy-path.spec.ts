@@ -18,7 +18,7 @@ test.describe('Circles vertical slice - happy path', () => {
       try {
         const page = await ctx.newPage();
         await page.goto('/events');
-        await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toBeVisible();
+        await expect(page.getByRole('link', { name: 'לפרטים ולהרשמה' }).first()).toBeVisible();
       } finally {
         await ctx.close();
       }
@@ -99,7 +99,7 @@ test.describe('Circles vertical slice - happy path', () => {
         const markBtn = page.getByRole('button', { name: 'סימון הגעה' });
         await expect(markBtn).toBeEnabled();
         await markBtn.click();
-        await expect(page.getByText('סומנו כ-attended')).toBeVisible();
+        await expect(page.getByText('כל 4 ההרשמות סומנו כהגיעו.', { exact: true })).toBeVisible();
       } finally {
         await ctx.close();
       }
