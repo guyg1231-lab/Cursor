@@ -56,7 +56,7 @@ export function formatVisibleEventRegistrationState(event: VisibleEvent): {
 }
 
 export function formatMobileEventWindowLabel(event: VisibleEvent) {
-  const areaHint = event.venue_hint?.trim() ?? event.city;
+  const areaHint = formatEventAreaHint(event);
   const dateLabel = formatEventDate(event.starts_at);
 
   if (event.is_registration_open) {
@@ -64,6 +64,21 @@ export function formatMobileEventWindowLabel(event: VisibleEvent) {
   }
 
   return `${dateLabel} · ${areaHint} · ההגשה סגורה כרגע`;
+}
+
+export function formatEventAreaHint(event: VisibleEvent) {
+  return event.venue_hint?.trim() ?? event.city;
+}
+
+export function formatEventCapacityLabel(event: VisibleEvent) {
+  return event.max_capacity ? `עד ${event.max_capacity} אנשים` : 'קבוצה קטנה';
+}
+
+export function formatEventAtmosphereSnippet(description: string | null | undefined, max = 88) {
+  const trimmed = description?.trim() ?? '';
+  if (!trimmed) return '';
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trimEnd()}…`;
 }
 
 export function toDateTimeLocalValue(value: string | null) {
