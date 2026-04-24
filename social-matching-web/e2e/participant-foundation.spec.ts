@@ -262,7 +262,7 @@ test.describe('participant foundation', () => {
     await page.goto('/events');
 
     await expect(page.getByRole('link', { name: 'אירועים' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'שאלון' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'פרופיל' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'דשבורד' })).toBeVisible();
     await expect(page.getByText('Light')).toBeVisible();
     await expect(page.getByText('EN')).toBeVisible();
@@ -308,7 +308,7 @@ test.describe('participant foundation', () => {
 
     await page.goto('/events');
 
-    await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+    await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
     await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
     if (!releaseEventsRequest) {
@@ -966,7 +966,7 @@ test.describe('participant foundation', () => {
       const page = await ctx.newPage();
 
       await page.goto('/dashboard');
-      await expect(page.getByRole('link', { name: 'לשאלון הפרופיל' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להשלמת הפרופיל' })).toBeVisible();
       await expect(
         page.getByRole('heading', { level: 3, name: /לפני ההגשה הבאה/i }),
       ).toBeVisible();
@@ -1750,10 +1750,10 @@ test.describe('participant foundation', () => {
 
   test('questionnaire: anonymous visitor sees Hebrew sign-in banner with link to /auth', async ({ page }) => {
     await page.goto('/questionnaire');
-    await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
-    await expect(page.getByText('רוצים לשמור את התשובות בחשבון?', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
+    await expect(page.getByText('רוצים לשמור את הפרופיל בחשבון?', { exact: true })).toBeVisible();
     await expect(
-      page.getByText('אפשר למלא את השאלון גם בלי להתחבר', { exact: false }),
+      page.getByText('אפשר למלא את הפרופיל גם בלי להתחבר', { exact: false }),
     ).toBeVisible();
     const cta = page.getByRole('link', { name: 'להתחברות' });
     await expect(cta).toBeVisible();
@@ -1766,7 +1766,7 @@ test.describe('participant foundation', () => {
     const page = await ctx.newPage();
     try {
       await page.goto('/questionnaire');
-      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
 
       const fullNameInput = page.getByLabel('שם מלא');
       if ((await fullNameInput.inputValue()) === '') {
@@ -1863,7 +1863,7 @@ test.describe('participant foundation', () => {
       });
 
       await page.goto('/questionnaire');
-      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
 
       await page.getByLabel('שם מלא').fill('אורית בדיקה');
       await page.getByLabel('אימייל').fill('questionnaire.e2e@gmail.com');
@@ -1893,8 +1893,8 @@ test.describe('participant foundation', () => {
 
       await page.getByRole('button', { name: 'שמירת פרופיל' }).click();
 
-      await expect(page.getByText('הפרופיל נשמר. מה הלאה?', { exact: true })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveAttribute('href', '/events');
+      await expect(page.getByText('הפרופיל נשמר', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לעיון במפגשים' })).toHaveAttribute('href', '/events');
       await expect(page.getByRole('link', { name: 'לאזור האישי' })).toHaveAttribute('href', '/dashboard');
     } finally {
       await ctx.close();

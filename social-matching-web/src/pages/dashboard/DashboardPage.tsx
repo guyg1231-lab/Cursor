@@ -98,7 +98,7 @@ export function DashboardPage() {
             <p>הפרופיל עוזר לנו להתאים אותך למעגלים ולמפגשים שמתאימים לך.</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="outline">
-                <Link to="/questionnaire">לשאלון הפרופיל</Link>
+                <Link to="/questionnaire">להשלמת הפרופיל</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link to="/events/propose">להציע מפגש חדש</Link>

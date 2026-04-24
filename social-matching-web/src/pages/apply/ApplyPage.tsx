@@ -120,14 +120,14 @@ function ApplyEventIdentityCard({
   return (
     <EventIdentityHero
       event={event}
-      eyebrow="המפגש שאליו הגעת"
+      eyebrow="הכוונה למפגש הזה"
       subtitle={subtitle}
       socialLabel={
         event.social_signal?.attendee_count
-          ? `${event.social_signal.attendee_count} כבר מתחילים ליצור את החדר הזה`
+          ? `${event.social_signal.attendee_count} כבר מתחילים לבנות את החדר הזה`
           : undefined
       }
-      socialDetail="החדר כבר מתחיל להיבנות"
+      socialDetail="החדר נבנה סביב המפגש הזה"
     />
   );
 }
@@ -456,7 +456,7 @@ export function ApplyPage() {
 
   if (pageLoading) {
     return (
-      <PageShell title="הגשת מועמדות למפגש" subtitle="טוענים את פרטי ההגשה...">
+      <PageShell title="הגשה למפגש" subtitle="טוענים את הכוונה למפגש הזה...">
         <Card className={tokens.card.surface}>
           <CardContent className="py-10 text-sm text-muted-foreground">טוענים...</CardContent>
         </Card>
@@ -466,7 +466,7 @@ export function ApplyPage() {
 
   if (error) {
     return (
-      <PageShell title="הגשת מועמדות למפגש" subtitle="לא הצלחנו לטעון את הדף כרגע.">
+      <PageShell title="הגשה למפגש" subtitle="לא הצלחנו לטעון את הכוונה למפגש כרגע.">
         <RouteErrorState title="לא הצלחנו לטעון את פרטי ההגשה" body={error} />
       </PageShell>
     );
@@ -483,13 +483,13 @@ export function ApplyPage() {
   if (!user) {
     return (
       <PageShell
-        title="כדי להגיש מועמדות צריך להתחבר"
-        subtitle="עמוד זה מרכז את ההגשה והסטטוס למפגש, ולכן צריך להתחבר כדי להמשיך."
+        title="כדי לשלוח כוונה למפגש צריך להתחבר"
+        subtitle="העמוד הזה מרכז את הכוונה והסטטוס של המפגש הזה, ולכן צריך להתחבר כדי להמשיך."
       >
         <div className="space-y-4">
           <ApplyEventIdentityCard
             event={event}
-            subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. אחרי התחברות אפשר לחזור לכאן ולהמשיך בדיוק מאותה נקודה."
+            subtitle="כאן שולחים כוונה למפגש עצמו, ואפשר לחזור בדיוק לאותה נקודה אחרי התחברות."
           />
           <PageActionBar variant="participant">
             <Button asChild variant="outline">
@@ -513,7 +513,7 @@ export function ApplyPage() {
     const panel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
-        title="סטטוס ההרשמה – מקום זמני"
+        title="סטטוס הכוונה למפגש – מקום זמני"
         subtitle={
           offerExpired
             ? 'המקום הזמני כבר לא מחכה לתגובה, אבל נציג כאן בבירור מה קרה.'
@@ -525,8 +525,8 @@ export function ApplyPage() {
             event={event}
             subtitle={
               offerExpired
-                ? 'המקום הזמני כבר לא מחכה לתגובה, אבל כל פרטי המפגש נשארים כאן כדי לשמור על רצף ברור.'
-                : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש עצמו.'
+                ? 'המקום הזמני כבר לא מחכה לתגובה, אבל ההקשר של המפגש נשאר כאן ברור ומסודר.'
+                : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש הזה.'
             }
           />
           <PageActionBar variant="participant">
@@ -585,17 +585,17 @@ export function ApplyPage() {
     const blockingPanel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
-        title="סטטוס ההרשמה"
+        title="סטטוס ההגשה למפגש"
         subtitle={
           confirmedParticipation
-            ? 'לא צריך לשלוח שוב טופס. זהו הסטטוס העדכני של ההרשמה שלך.'
+            ? 'לא צריך לשלוח שוב את הכוונה למפגש הזה. זהו הסטטוס העדכני שלך.'
             : 'לא נפתח שוב טופס חדש לאותו מפגש. במקום זה נציג את הסטטוס הקיים שלך.'
         }
       >
         <div className="space-y-4">
           <ApplyEventIdentityCard
             event={event}
-            subtitle="זהו הסטטוס העדכני של ההרשמה שלך למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
+            subtitle="זהו הסטטוס העדכני של ההגשה למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
           />
           <PageActionBar variant="participant">
             <Button asChild variant="outline">
@@ -631,7 +631,7 @@ export function ApplyPage() {
 
   if (!event.is_registration_open) {
     return (
-      <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח להגשות חדשות.">
+      <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח לכוונות חדשות.">
         <div className="space-y-4">
           <ApplyEventIdentityCard
             event={event}
@@ -653,11 +653,11 @@ export function ApplyPage() {
 
   if (!questionnaireReady) {
     return (
-      <PageShell title="הגשה למפגש – פרופיל חסר" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
+      <PageShell title="הגשה למפגש" subtitle="כדי לשמור את הכוונה למפגש הזה נכון, צריך קודם להשלים את הבסיס האישי.">
         <div className="space-y-4">
           <ApplyEventIdentityCard
             event={event}
-            subtitle="לפני ששולחים הגשה, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
+            subtitle="לפני ששולחים כוונה למפגש, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
           />
           <PageActionBar variant="participant">
             <Button asChild variant="primary">
@@ -668,12 +668,12 @@ export function ApplyPage() {
             </Button>
           </PageActionBar>
           <ApplicationStatusPanel
-            title="צריך להשלים את השאלון לפני ההגשה"
-            body="כדי שנוכל לשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל."
+            title="צריך להשלים קודם את הבסיס האישי"
+            body="כדי שנוכל לשמור את הכוונה למפגש נכון, צריך להשלים קודם את הבסיס האישי."
           />
           <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-              <p>ברגע שהשאלון יושלם, אפשר לחזור לכאן וההגשה עצמה תישאר בהקשר הנכון של המפגש.</p>
+              <p>ברגע שהבסיס האישי יושלם, אפשר לחזור לכאן ולהמשיך בדיוק עם הכוונה למפגש הזה.</p>
             </CardContent>
           </Card>
         </div>
@@ -684,7 +684,7 @@ export function ApplyPage() {
   return (
     <PageShell
       title="הגשה למפגש"
-        subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך ייפתח מקום זמני."
+      subtitle="זה העמוד שבו מנסחים כוונה למפגש, חוזרים לסטטוס, ומגיבים אם בהמשך ייפתח מקום זמני."
     >
       <PageActionBar variant="participant">
         <Button asChild variant="outline">
@@ -696,12 +696,12 @@ export function ApplyPage() {
       </PageActionBar>
       <ApplyEventIdentityCard
         event={event}
-        subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את ההקשר של המפגש."
+        subtitle="זהו עמוד הכוונה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את ההקשר של המפגש."
       />
 
       <Card data-testid="participant-surface-panel" className={tokens.card.accent}>
         <CardHeader>
-          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמתחילים</CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמנסחים כוונה</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-foreground/85 leading-7">
           {/**
@@ -715,12 +715,12 @@ export function ApplyPage() {
            */}
           <div className={tokens.card.inner + ' space-y-2 p-4'}>
             <p className={tokens.typography.eyebrow}>מה קורה במסך הזה</p>
-            <p>זהו עמוד ההגשה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
+            <p>זהו עמוד הכוונה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
           </div>
           <div className={tokens.card.inner + ' space-y-2 p-4'}>
             <p className={tokens.typography.eyebrow}>אחרי השליחה</p>
             <p>
-              הסטטוס שלך יישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי
+              ההגשה שלך תישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי
               להגיב אליו בזמן.
             </p>
           </div>
@@ -728,7 +728,7 @@ export function ApplyPage() {
             <div className={tokens.card.inner + ' space-y-2 p-4'}>
               <p className={tokens.typography.eyebrow}>הגשה קודמת</p>
               <p>
-                הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
+                הייתה לך כבר כוונה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
                 שליחה עכשיו תפתח אותה מחדש כהגשה ממתינה.
               </p>
             </div>
@@ -741,8 +741,8 @@ export function ApplyPage() {
           <SectionDivider />
           <SubmittedAnswersSummary
             answers={persistedApplicationAnswers}
-            title="ההגשה הקודמת שלך"
-            subtitle="אלה הפרטים האחרונים שנשמרו על ההגשה למפגש הזה. אם תרצה או תרצי להגיש מחדש, הטופס למטה יתחיל מהמידע הזה אלא אם קיימת טיוטה מקומית חדשה יותר."
+            title="הכוונה הקודמת שלך"
+            subtitle="אלה הפרטים האחרונים שנשמרו על הכוונה למפגש הזה. אם תרצה או תרצי להגיש מחדש, הטופס למטה יתחיל מהמידע הזה אלא אם קיימת טיוטה מקומית חדשה יותר."
           />
         </>
       ) : null}
@@ -760,21 +760,21 @@ export function ApplyPage() {
 
       <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטי הכוונה למפגש</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
             <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
               <p className={tokens.typography.eyebrow}>איך זה מרגיש</p>
               <p>
-                זהו טופס קצר וממוקד. המטרה היא להבין למה דווקא המפגש הזה מתאים לך, בלי להפוך את ההגשה
-                למסך כבד.
+                זהו טופס קצר וממוקד למפגש הזה. המטרה היא להבין מה מחבר אותך דווקא לחדר הזה, בלי להפוך
+                את זה למסך כבד.
               </p>
             </div>
             <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
               <p className={tokens.typography.eyebrow}>תהליך</p>
               <p>
-                ההגשה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי. אם ייפתח מקום זמני, נחזור למסך
+                הכוונה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי. אם ייפתח מקום זמני, נחזור למסך
                 הזה עם צעד ברור להמשך.
               </p>
             </div>
@@ -806,7 +806,7 @@ export function ApplyPage() {
             </div>
 
             <div className={fieldShellClassName}>
-              <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לקבוצה?</label>
+              <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לחדר הזה?</label>
               <select
                 value={whatYouBring}
                 onChange={(e) => setWhatYouBring(e.target.value)}
@@ -823,7 +823,7 @@ export function ApplyPage() {
           </div>
 
           <div className={fieldShellClassName}>
-            <label className="text-sm font-medium text-foreground">יש משהו שחשוב למארגן לדעת?</label>
+            <label className="text-sm font-medium text-foreground">יש משהו שחשוב למארגן של המפגש הזה לדעת?</label>
             <textarea
               value={hostNote}
               onChange={(e) => setHostNote(e.target.value)}

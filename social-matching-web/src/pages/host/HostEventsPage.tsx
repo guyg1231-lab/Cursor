@@ -297,9 +297,9 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">עוד רגע אפשר לפתוח בקשת אירוע</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <p>בשלב הזה רק משתמשים עם פרופיל ושאלון מוכנים יכולים לפתוח טיוטת אירוע חדשה.</p>
+            <p>בשלב הזה רק משתמשים עם בסיס פרופיל מוכן יכולים לפתוח טיוטת אירוע חדשה.</p>
             <Button asChild variant="primary">
-              <Link to="/questionnaire">להשלמת השאלון</Link>
+              <Link to="/questionnaire">להשלמת הפרופיל</Link>
             </Button>
           </CardContent>
         </Card>

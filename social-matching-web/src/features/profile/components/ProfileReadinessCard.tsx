@@ -24,14 +24,14 @@ export function ProfileReadinessCard({ ready, isLoading }: { ready: boolean; isL
         <CardTitle className="text-xl">מוכנות להגשה</CardTitle>
         <StatusBadge label={ready ? 'מוכן להגשה' : 'לא מוכן להגשה'} tone={ready ? 'default' : 'muted'} />
       </CardHeader>
-      <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
         {ready ? (
           <p>מוכנים להגיש למפגשים</p>
         ) : (
           <>
-            <p>כדי להגיש למפגשים צריך להשלים את שאלון הפרופיל.</p>
+            <p>כדי להגיש למפגשים צריך להשלים קודם את בסיס הפרופיל.</p>
             <Button asChild variant="primary">
-              <Link to="/questionnaire">השלם את השאלון</Link>
+              <Link to="/questionnaire">השלם את הפרופיל</Link>
             </Button>
           </>
         )}

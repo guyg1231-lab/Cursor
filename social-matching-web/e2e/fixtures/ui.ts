@@ -36,8 +36,8 @@ export async function submitApplicationViaUi(
 
   const whyJoinInput = page.locator('label:has-text("למה דווקא המפגש הזה מעניין אותך?") + textarea');
   const desiredOutcomeSelect = page.locator('label:has-text("מה היית רוצה לקבל מהמפגש הזה?") + select');
-  const whatYouBringSelect = page.locator('label:has-text("מה היית רוצה להביא לקבוצה?") + select');
-  const hostNoteInput = page.locator('label:has-text("יש משהו שחשוב למארגן לדעת?") + textarea');
+  const whatYouBringSelect = page.locator('label:has-text("מה היית רוצה להביא לחדר הזה?") + select');
+  const hostNoteInput = page.locator('label:has-text("יש משהו שחשוב למארגן של המפגש הזה לדעת?") + textarea');
 
   await expect(whyJoinInput).toBeVisible();
   await whyJoinInput.fill(whyJoin);
