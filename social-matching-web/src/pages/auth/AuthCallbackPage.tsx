@@ -30,7 +30,7 @@ export function AuthCallbackPage() {
 
   if (isLoading || user) {
     return (
-      <PageShell title="משלימים את ההתחברות" subtitle="עוד רגע נחזיר אותך להמשך בדיוק מהמקום שבו עצרת.">
+      <PageShell title="משלימים את ההתחברות" subtitle="עוד רגע מסיימים את האימות.">
         <Card className={tokens.card.surface}>
           <CardContent className="py-10 text-sm text-muted-foreground">מאמתים את הסשן ומכינים את ההמשך...</CardContent>
         </Card>
@@ -43,7 +43,7 @@ export function AuthCallbackPage() {
       <div className="space-y-4">
         <RouteErrorState
           title="לא הצלחנו להשלים את ההתחברות"
-          body="אם הקוד לא עבד או שפג תוקפו, אפשר לבקש קוד חדש ולחזור לאותו יעד."
+          body="אם הקוד לא עבד או שפג תוקפו, אפשר לבקש קוד חדש ממסך ההתחברות."
         />
         <Card className={tokens.card.surface}>
           <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed py-6">

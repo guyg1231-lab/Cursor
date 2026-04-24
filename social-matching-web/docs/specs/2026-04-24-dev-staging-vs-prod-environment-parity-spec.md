@@ -112,7 +112,7 @@
 | **Git → Vercel** | הריפו `guyg1231-lab/Cursor` מחובר; **Root Directory** בפרויקט הסטייג׳ = **שורש הריפו** (`.`) — `vercel.json` בשורש כבר מריץ `npm --prefix social-matching-web`. תיקיית `social-matching-web` כפולה שברה `vercel deploy` מהתת־תיקייה. קובץ **`.vercelignore`** בשורש מצמצם העלאה (לא מעלה למשל `circles-connect-human/`). |
 | **Auth (staging DB)** | `supabase/config.toml` (פרויקט מקושר ל־staging) + `npm run ops:push-staging-supabase-config` מעדכנים Site URL / Redirect URLs ב־Supabase |
 
-**תווית הסביבה בכותרת (`STAGING` / `PROD` / `DEV`):** נגזרת מ־**מזהה פרויקט Supabase** (`VITE_SUPABASE_PROJECT_ID` או host מ־`VITE_SUPABASE_URL`), לא מ־`import.meta.env.MODE` של Vite — אחרי `vite build` ה־MODE הוא `production` גם בדיפלוי ל־`social-matching-web-staging.vercel.app`, ולכן שימוש ב־MODE לבד היה מציג בטעות `PROD` למרות DB סטייג׳. ראו `src/lib/deployEnvBadge.ts`.
+**תווית סביבה בכותרת:** הוסרה מהמוצר (2026-04-24) — לא מציגים למשתמשי קצה מזהה פרויקט Supabase או `PROD`/`STAGING`. לאימות איזה DB ה־bundle משתמש: `npm run ops:verify-staging-deploy-supabase` / `npm run ops:verify-deploy-supabase` (משווים host ב־`VITE_SUPABASE_URL` ל־ref הצפוי).
 
 **לוקאל (DEV) מסונכרן לסטייג׳:** אותם `VITE_*` כמו ב־`.env.staging.local` או `npm run dev:staging` — אותו DB כמו האתר הסטייג׳.
 
@@ -484,7 +484,7 @@ select exists(
 1. **גרסת דיפלוי שונה** — סטייג׳ ופרוד לא על אותו build. אימות מהיר: שם קובץ ה־chunk הראשי ב־HTML (`/assets/index-*.js`) שונה בין האתרים → כמעט בוודאות build שונה.  
    **כלי בריפו:** `npm run ops:compare-staging-prod-spa-bundles` — מדפיס את נתיב ה־JS הראשי לכל דומיין ומחפש מחרוזות־בדיקה (עברית) בתוך ה־JS; אפשר להרחיב עם `BUNDLE_PROBES=a,b,c`.
 2. **שפת ממשק** — למשל `themeLight` בעברית הוא «בהיר»; באנגלית «Light». אם בהשוואה פתחת שפה שונה בכל אתר — ייראו הבדלים גם בלי שינוי קוד.
-3. **`returnTo` / יעד אחרי התחברות** — השורה «היעד שנשמר…» מציגה את `effectiveReturnTo` מה־URL (`?returnTo=`) או מ־`sessionStorage` (ראו `src/lib/authReturnTo.ts`, `AuthPage.tsx`). זה **לא** קשור ל־staging/prod כסביבה — זה **מצב דפדפן וניווט** באותו רגע.
+3. **`returnTo` אחרי התחברות** — הזרימה עדיין משתמשת ב־`?returnTo=` וב־`sessionStorage` (`src/lib/authReturnTo.ts`, `AuthPage.tsx`) כדי להחזיר למסך שממנו נכנסו ל־`/auth`, **בלי** להציג למשתמש את הנתיב במסך האימות (2026-04-24).
 
 **מצב נוכחי (אומת בסקריפט, 2026-04-24; לבדוק שוב אחרי דיפלוי פרוד מ־`main`):** ב־`src/locales/he.ts` התווית ל־`/questionnaire` היא **`navQuestionnaire: 'פרופיל'`**. אם ב־bundle ה־**חי** של פרוד עדיין מופיע **«שאלון»** או עותק Auth ישן — כמעט בוודאות **פרוד לא על הקומיט האחרון**; להפעיל Production deploy מ־`main` (או הברנץ’ המחובר לפרויקט הפרוד) ואז להריץ שוב `ops:compare-staging-prod-spa-bundles` עם `BUNDLE_PROBES` לפי הצורך.
 
@@ -504,9 +504,10 @@ select exists(
 | גרסה | תאריך | שינוי |
 |--------|--------|--------|
 | 1.0 | 2026-04-24 | יצירה ראשונה לפי סאב־אייגנטים + אימות DB |
-| 1.1 | 2026-04-24 | Git ל־Vercel סטייג׳; `config.toml` + `config push` ל־Auth סטייג׳; סקריפטים `ops:verify-staging-deploy-supabase` / `ops:push-staging-supabase-config`; תווית כותרת לפי ref Supabase (`deployEnvBadge`) |
+| 1.1 | 2026-04-24 | Git ל־Vercel סטייג׳; `config.toml` + `config push` ל־Auth סטייג׳; סקריפטים `ops:verify-staging-deploy-supabase` / `ops:push-staging-supabase-config`; (תווית כותרת לפי ref — הוסרה ב־1.7) |
 | 1.2 | 2026-04-24 | סעיף 12: פערים מאומתים (MCP + bundle + מיגרציות + Edge + תיעוד); עדכון סעיף 6, סעיף 10 (CI); מספור מעקב → 13 |
 | 1.3 | 2026-04-24 | סעיפים 12ח–12י: מלאי מלא (טבלאות/views/פונקציות/טריגרים/enums/RLS/pg_extension/advisors), מיפוי `.rpc`; 12ו מעודכן לרשימת חתימות; 12י = גבולות כיסוי |
 | 1.4 | 2026-04-24 | סעיף 12יא (מוצר/עותק UI, returnTo); סקריפט `ops:compare-staging-prod-spa-bundles` |
 | 1.5 | 2026-04-24 | פרומוט סטייג׳→פרוד: `docs/ops/promote-staging-to-prod.md`, `npm run ops:pre-promote-prod`; קישור מתהליך קידום §1ג |
 | 1.6 | 2026-04-24 | סעיף 12: עדכון אחרי יישור סטייג׳ (§8, טבלאות 9/9, RPC, RLS, enums); 12יב `db push`; 12ו/12ח/12ט/12יא; סעיף 12ז (E2E) |
+| 1.7 | 2026-04-24 | הוסר תג סביבה מה־header; הוסרו מסך Auth טקסטים על יעד שמור / רמז אימייל; עדכון סעיף §1 Vercel staging (תווית) |

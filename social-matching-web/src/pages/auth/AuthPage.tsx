@@ -282,7 +282,7 @@ export function AuthPage() {
   return (
     <PageShell
       title="כניסה לאזור האישי"
-      subtitle="נשלח קוד חד-פעמי למייל, ואחרי האימות נחזיר אותך בדיוק למקום שממנו רצית להמשיך."
+      subtitle="נשלח קוד חד-פעמי למייל, ואחרי האימות תוכלו להמשיך."
     >
       {submitError && step === 'email' ? (
         <div className="mb-4">
@@ -297,14 +297,8 @@ export function AuthPage() {
           <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
             <p>
               בלי סיסמה קבועה: נשלח מייל עם קוד קצר לזיהוי. מזינים את הקוד כאן וממשיכים
-              ישירות ליעד ששמרנו עבורך.
+              הלאה.
             </p>
-
-            {effectiveReturnTo ? (
-              <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm">
-                היעד שנשמר אחרי ההתחברות: <span className="font-mono text-xs">{effectiveReturnTo}</span>
-              </div>
-            ) : null}
 
             {step === 'sent' ? (
               <div className="space-y-3">
@@ -377,11 +371,7 @@ export function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
                     placeholder=""
-                    aria-describedby="auth-email-hint"
                   />
-                  <p id="auth-email-hint" className="text-xs text-muted-foreground">
-                    כתובת שאליה יגיע קוד קצר לאימות (לא קישור בלבד).
-                  </p>
                 </div>
 
                 <Button type="submit" variant="primary" disabled={loadingPhase !== null}>
@@ -399,7 +389,7 @@ export function AuthPage() {
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             <p>1. מזינים אימייל ומקבלים במייל קוד לאימות.</p>
             <p>2. מזינים את הקוד כאן ומאמתים.</p>
-            <p>3. אחרי האימות חוזרים ליעד ששמרנו (הגשה, דשבורד וכו׳).</p>
+            <p>3. אחרי האימות חוזרים לדף שממנו התחלתם (הגשה, דשבורד וכו׳).</p>
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>
             </Button>

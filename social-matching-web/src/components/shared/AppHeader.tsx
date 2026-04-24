@@ -8,11 +8,6 @@ import { cn } from '@/lib/utils';
 import { useThemeMode } from '@/hooks/useTheme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  dataEnvironmentBadgeLabel,
-  resolveSupabaseProjectRefFromEnv,
-} from '@/lib/deployEnvBadge';
-
 interface AppHeaderProps {
   actions?: React.ReactNode;
   logoSize?: 'sm' | 'md';
@@ -37,10 +32,6 @@ export function AppHeader({
   const { theme, toggleTheme } = useThemeMode();
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
-  const viteMode = (import.meta.env.MODE || '').toLowerCase();
-  const projectRef = resolveSupabaseProjectRefFromEnv();
-  const showEnvBadge = viteMode !== 'production' || !!projectRef;
-  const envLabel = dataEnvironmentBadgeLabel(projectRef, import.meta.env.MODE || '');
 
   const navLinkClassName = 'rounded-full px-3 text-muted-foreground hover:text-foreground';
   const trayClassName =
@@ -112,15 +103,6 @@ export function AppHeader({
         </div>
 
         <div className={cn('flex items-center gap-1.5', trayClassName)}>
-          {showEnvBadge ? (
-            <span
-              data-testid="env-badge"
-              className="rounded-full border border-border/70 bg-background/80 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-muted-foreground"
-              title={projectRef ? `Supabase project: ${projectRef}` : 'Supabase project ref not set'}
-            >
-              {envLabel}{projectRef ? ` · ${projectRef}` : ''}
-            </span>
-          ) : null}
           {user ? (
             <Button
               type="button"
