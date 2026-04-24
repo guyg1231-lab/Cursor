@@ -33,6 +33,7 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
+import { PostEventFeedbackCard } from '@/features/applications/components/PostEventFeedbackCard';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
 import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
@@ -297,6 +298,10 @@ export function ApplyPage() {
   const offerExpired = existingApplication ? isOfferExpired(existingApplication) : false;
   const canConfirmSpot = existingApplication ? canConfirmTemporarySpot(existingApplication) : false;
   const confirmedParticipation = existingApplication ? isConfirmedParticipation(existingApplication.status) : false;
+  const completedEventFeedbackStatus =
+    existingApplication?.status === 'attended' || existingApplication?.status === 'no_show'
+      ? existingApplication.status
+      : null;
   const fieldShellClassName = tokens.card.inner + ' space-y-2.5 p-4';
   const textInputClassName =
     'w-full rounded-[22px] border border-border/70 bg-card/94 px-4 py-3 text-sm text-foreground shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_18px_-16px_hsl(var(--foreground)/0.18)] outline-none transition focus:border-primary/35 focus:ring-2 focus:ring-primary/10';
@@ -613,6 +618,13 @@ export function ApplyPage() {
             body={blockingPanel.body}
             footer={blockingPanel.footer ? <p>{blockingPanel.footer}</p> : undefined}
           />
+          {completedEventFeedbackStatus && user ? (
+            <PostEventFeedbackCard
+              eventId={event.id}
+              userId={user.id}
+              completedStatus={completedEventFeedbackStatus}
+            />
+          ) : null}
           <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-3 py-6 text-sm text-muted-foreground">
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
