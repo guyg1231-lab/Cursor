@@ -8,13 +8,14 @@ It is inspired by the style in `circles-connect-human/docs`, but adapted to this
 - Primary audience: adults ages 20-40.
 - Life context assumption: busy schedule, limited social energy, high preference for meaningful time.
 - Copy goal: help users quickly decide "Is this for me?" and "What happens next?"
-- Tone range: warm and clear enough for younger adults (20s) while staying grounded and mature for 30s-40s.
+- Tone range: warm, clear, and naturally flowing for people in their 20s and 30s, while staying grounded and respectful for early 40s.
 
 ## Core Voice
 - Warm, human, and intentional.
 - Clear and practical: every message should help users know what to do next.
 - Respectful and trust-aware, especially around matching and gathering flows.
 - Calm confidence, not corporate wording and not hype wording.
+- Sound like a smart, warm peer, not an institution.
 
 ## Writing Principles
 - Prefer invitation language over interrogation language.
@@ -42,6 +43,16 @@ It is inspired by the style in `circles-connect-human/docs`, but adapted to this
 - Preserve the same tone and emotional intent from Hebrew.
 - Prefer product-native English phrasing over word-for-word conversion.
 - Avoid startup-jargon English ("platform", "revolutionary", "best-in-class") in participant-facing copy.
+
+## Good Voice Examples
+- "A small gathering that feels easy to join."
+- "Tell us a little about the kind of room you want."
+- "You’re one step away from your next gathering."
+
+## Too Stiff Examples
+- "Complete the onboarding process to continue."
+- "Submit your profile for review."
+- "This platform facilitates curated experiences."
 
 ## UI Copy Rules
 - Titles: concise, intention-revealing.

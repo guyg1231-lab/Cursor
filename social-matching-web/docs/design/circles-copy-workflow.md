@@ -34,7 +34,7 @@ Keep copy quality and tone consistent across all product surfaces (participant, 
 - If tone conflicts are found, follow `circles-language-guidelines.md` as source of truth.
 
 ## Definition Of Done
-- Section text is clear and audience-fit (30-40 adults).
+- Section text is clear and audience-fit (20-40 adults).
 - HE and EN are both complete and equivalent in intent.
 - No forbidden wording patterns are present.
 - No hardcoded strings remain in updated surfaces.

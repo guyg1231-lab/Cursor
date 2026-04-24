@@ -3,14 +3,14 @@
 Use this checklist before shipping any new or updated user-facing copy.
 
 ## 1) Message Clarity
-- Can a 30-40 user understand what this section offers in under 3 seconds?
+- Can a 20-40 user understand what this section offers in under 3 seconds?
 - Does the text answer at least one of: what is this, who is this for, what happens next?
 - Is each sentence carrying one idea only?
 
-## 2) Audience Fit (Ages 30-40)
-- Does the tone feel mature and human, not trendy or performative?
+## 2) Audience Fit (Ages 20-40)
+- Does the tone feel warm, human, and naturally flowing, not trendy or performative?
 - Does the language respect limited time and emotional bandwidth?
-- Does it avoid hype and overpromises?
+- Does it avoid hype, overpromises, and stiff institutional wording?
 
 ## 3) Circles Value Fit
 - Does the copy mention shared experiences, real gatherings, or real connections where relevant?
