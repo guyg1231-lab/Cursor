@@ -28,13 +28,8 @@ const LOCKED_FALLBACK_EVENTS: EventRow[] = INITIAL_EVENTS.slice(0, 4);
 const CURATED_DEV_EVENT_TITLES = new Set(LOCKED_FALLBACK_EVENTS.map((event) => event.title));
 const CURATED_DEV_EVENT_BY_TITLE = new Map(LOCKED_FALLBACK_EVENTS.map((event) => [event.title, event]));
 
-const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
-
-function looksLikeUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
 const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = {
+  ...getLegacyEventSlugToTitleMap(),
   'initial-tel-aviv-circle': 'מעגל היכרות תל אביב',
   'initial-jerusalem-circle': 'מעגל ירושלים - עומק ושיח',
 };
