@@ -27,6 +27,7 @@ import { ApplicationStatusPanel } from '@/features/applications/components/Appli
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { EventNotFound } from '@/components/participant/EventNotFound';
 import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
+import { EventGroupContextCard } from '@/features/events/components/EventGroupContextCard';
 import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 
 export function EventDetailPage() {
@@ -180,6 +181,8 @@ export function EventDetailPage() {
               </>
             }
           />
+
+          <EventGroupContextCard event={event} />
 
           {application && applicationPanelContent ? (
             <div className="space-y-2">

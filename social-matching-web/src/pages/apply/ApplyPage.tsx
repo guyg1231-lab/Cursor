@@ -36,6 +36,7 @@ import { ApplicationStatusPanel } from '@/features/applications/components/Appli
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
 import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
+import { EventGroupContextCard } from '@/features/events/components/EventGroupContextCard';
 import type {
   EventRegistrationRow,
   MatchingResponseRow,
@@ -529,6 +530,7 @@ export function ApplyPage() {
                 : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש הזה.'
             }
           />
+          <EventGroupContextCard event={event} />
           <PageActionBar variant="participant">
             {!offerExpired ? (
               <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
@@ -597,6 +599,7 @@ export function ApplyPage() {
             event={event}
             subtitle="זהו הסטטוס העדכני של ההגשה למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
           />
+          <EventGroupContextCard event={event} />
           <PageActionBar variant="participant">
             <Button asChild variant="outline">
               <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
@@ -659,6 +662,7 @@ export function ApplyPage() {
             event={event}
             subtitle="לפני ששולחים כוונה למפגש, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
           />
+          <EventGroupContextCard event={event} />
           <PageActionBar variant="participant">
             <Button asChild variant="primary">
               <Link to="/questionnaire">להשלמת הפרופיל</Link>
@@ -698,6 +702,7 @@ export function ApplyPage() {
         event={event}
         subtitle="זהו עמוד הכוונה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את ההקשר של המפגש."
       />
+      <EventGroupContextCard event={event} />
 
       <Card data-testid="participant-surface-panel" className={tokens.card.accent}>
         <CardHeader>

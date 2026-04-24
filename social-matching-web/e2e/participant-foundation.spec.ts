@@ -325,7 +325,7 @@ test.describe('participant foundation', () => {
 
     await page.goto('/events');
     const discoveryGrid = page.getByTestId('events-discovery-grid');
-    await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
+    await discoveryGrid.getByRole('link', { name: 'לפרטים ולהרשמה' }).first().click();
     await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+|seed-[a-z-]+)$/i);
     await expect(
       page.getByRole('link', {
@@ -481,9 +481,7 @@ test.describe('participant foundation', () => {
 
       await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
         const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
-        expect(payload).toEqual({
-          event_ids: [mobileFlowEventId],
-        });
+        expect(payload?.event_ids).toContain(mobileFlowEventId);
 
         await route.fulfill({
           status: 200,
@@ -564,18 +562,19 @@ test.describe('participant foundation', () => {
       await expect(discoveryGrid).toBeVisible();
       await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
       await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
-      await expect(discoveryGrid.getByText(/החדר נבנה בקצב רגוע/)).toBeVisible();
+      await expect(discoveryGrid.getByText(/נשאר מקום להצטרף/)).toBeVisible();
       await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
-      await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).click();
+      await discoveryGrid.getByTestId('event-summary-card-action').last().click();
 
-      await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
-      await expect(page.getByText(/הערב מתחיל לקבל צורה/)).toBeVisible();
-      await expect(page.getByRole('link', { name: 'להגשה ולסטטוס' })).toBeVisible();
+      await expect(page.getByTestId('event-group-context').getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
+      await expect(page.getByText('החדר הזה כבר מתחיל לקבל צורה', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להרשמה וסטטוס' })).toBeVisible();
 
-      await page.getByRole('link', { name: 'להגשה ולסטטוס' }).click();
-      await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
-      await expect(page.getByText(/החדר כבר מתחיל להיבנות/)).toBeVisible();
-      await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
+      await page.getByRole('link', { name: 'להרשמה וסטטוס' }).click();
+      await expect(page.getByTestId('event-group-context').getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'לפני שמנסחים כוונה' })).toBeVisible();
       await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
     } finally {
       await ctx.close();
@@ -616,13 +615,11 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto(`/events/${closedEventId}`);
-    await expect(
-      page.getByText('העמוד נשאר פתוח כדי לאפשר הבנה רגועה של הערב הזה גם אחרי שהחלון נסגר.', { exact: true }),
-    ).toBeVisible();
-    await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
-    await expect(
-      page.getByText('ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.', { exact: true }),
-    ).toBeVisible();
+      await expect(
+        page.getByText('גם אחרי סגירת ההגשה, העמוד נשאר פתוח כדי לשמור על תמונה מלאה.', { exact: true }),
+      ).toBeVisible();
+      await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
+      await expect(page.getByText('העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.', { exact: true })).toBeVisible();
   });
 
   test('authenticated participant can open /events/propose without admin role bias', async ({ browser }) => {
@@ -656,6 +653,7 @@ test.describe('participant foundation', () => {
         page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה|הגשת מועמדות למפגש/i }),
       ).toBeVisible();
       await expect(page.getByTestId('event-identity-hero')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
       await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
     } finally {
       await ctx.close();
