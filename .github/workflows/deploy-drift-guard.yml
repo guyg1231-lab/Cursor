@@ -1,0 +1,40 @@
+name: Deploy Drift Guard
+
+on:
+  pull_request:
+    paths:
+      - "vercel.json"
+      - "social-matching-web/**"
+      - ".github/workflows/deploy-drift-guard.yml"
+  push:
+    branches: ["main", "master"]
+    paths:
+      - "vercel.json"
+      - "social-matching-web/**"
+      - ".github/workflows/deploy-drift-guard.yml"
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: social-matching-web/package-lock.json
+
+      - name: Install app dependencies
+        run: npm --prefix social-matching-web ci
+
+      - name: Verify root Vercel config delegation
+        run: npm --prefix social-matching-web run ops:verify-monorepo-vercel-root-config
+
+      - name: Typecheck
+        run: npm --prefix social-matching-web run typecheck
+
+      - name: Build
+        run: npm --prefix social-matching-web run build
