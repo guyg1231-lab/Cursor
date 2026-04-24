@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/dev/assert-browser-env.mjs",
+    "predev": "node scripts/dev/assert-browser-env.mjs --mode=development",
     "dev": "vite",
-    "dev:staging": "node scripts/dev/assert-browser-env.mjs && vite --mode staging",
+    "dev:staging": "node scripts/dev/assert-browser-env.mjs --mode=staging && vite --mode staging",
     "build": "tsc -b && vite build",
     "build:staging": "tsc -b && vite build --mode staging",
     "preview": "node scripts/dev/check-dist-supabase.mjs && vite preview",

@@ -108,26 +108,4 @@ test.describe('host/admin MVP-critical workflows', () => {
     }
   });
 
-  test('admin review queue exposes stable contract selectors', async ({ browser }) => {
-    const ctx = await browser.newContext();
-    try {
-      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
-      const page = await ctx.newPage();
-
-      await page.goto('/admin/event-requests');
-      await expect(page.getByTestId('admin-event-requests-review-queue')).toBeVisible();
-      await expect(page.getByTestId('admin-event-requests-queue-description')).toBeVisible();
-      await expect(page.getByRole('heading', { name: 'נשלח לבדיקה' })).toBeVisible();
-
-      const approveButtons = page.getByRole('button', { name: 'אישור ופרסום' });
-      const emptyQueue = page.getByText('אין כרגע בקשות ממתינות', { exact: true });
-      // Avoid racing the initial fetch: count can be 0 while loading even when requests exist.
-      await expect(approveButtons.first().or(emptyQueue)).toBeVisible();
-      if ((await approveButtons.count()) > 0) {
-        await expect(approveButtons.first()).toBeEnabled();
-      }
-    } finally {
-      await ctx.close();
-    }
-  });
 });

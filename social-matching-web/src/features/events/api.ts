@@ -25,6 +25,7 @@ function isRegistrationOpen(event: EventRow) {
 
 const INITIAL_EVENTS: EventRow[] = buildCuratedInitialEvents(nowIso, isoDaysFromNow);
 const LOCKED_FALLBACK_EVENTS: EventRow[] = INITIAL_EVENTS.slice(0, 4);
+const CURATED_DEV_EVENT_TITLES = new Set(LOCKED_FALLBACK_EVENTS.map((event) => event.title));
 
 const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
 
@@ -143,6 +144,24 @@ function sanitizeLiveBrowseRows(events: EventRow[]) {
   return LOCKED_FALLBACK_EVENTS;
 }
 
+function shouldInjectCuratedDevEvents() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
+function mergeCuratedDevEvents(events: EventRow[]) {
+  if (!shouldInjectCuratedDevEvents()) return events;
+
+  const hasAnyCuratedTitle = events.some((event) => CURATED_DEV_EVENT_TITLES.has(event.title));
+  if (hasAnyCuratedTitle) return events;
+
+  const byId = new Map<string, EventRow>();
+  for (const event of LOCKED_FALLBACK_EVENTS) byId.set(event.id, event);
+  for (const event of events) byId.set(event.id, event);
+  return [...byId.values()];
+}
+
 async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
   const { data, error } = await supabase
     .from('events')
@@ -155,7 +174,7 @@ async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
     throw error;
   }
 
-  const rows = sanitizeLiveBrowseRows(data ?? []);
+  const rows = mergeCuratedDevEvents(sanitizeLiveBrowseRows(data ?? []));
   writeCachedVisibleEvents(rows);
   return withSocialSignals(rows);
 }
