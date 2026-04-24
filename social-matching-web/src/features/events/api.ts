@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { safeSessionStorage } from '@/lib/safeStorage';
 import type { EventRow, VisibleEvent } from '@/features/events/types';
+import { buildCuratedInitialEvents, getLegacyEventSlugToTitleMap } from '@/features/events/presentation';
 
 const VISIBLE_EVENTS_CACHE_KEY = 'social_matching_visible_events_v1';
 const VISIBLE_EVENTS_REQUEST_TIMEOUT_MS = 1_500;
@@ -22,51 +23,9 @@ function isRegistrationOpen(event: EventRow) {
   return true;
 }
 
-const INITIAL_EVENTS: EventRow[] = [
-  {
-    id: 'initial-tel-aviv-circle',
-    title: 'מעגל היכרות תל אביב',
-    description: 'מפגש קטן בסלון אינטימי עם שיחה מונחית וחיבור בין אנשים שחושבים דומה.',
-    city: 'תל אביב',
-    starts_at: isoDaysFromNow(10),
-    registration_deadline: isoDaysFromNow(7),
-    venue_hint: 'פלורנטין, כתובת מלאה תישלח אחרי התאמה',
-    max_capacity: 8,
-    status: 'active',
-    is_published: true,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-    created_by_user_id: null,
-    host_user_id: null,
-    payment_required: false,
-    price_cents: 0,
-    currency: 'ILS',
-  },
-  {
-    id: 'initial-jerusalem-circle',
-    title: 'מעגל ירושלים - עומק ושיח',
-    description: 'שיח פתוח עם קבוצה קטנה סביב נושאי חיים, קהילה ומשמעות.',
-    city: 'ירושלים',
-    starts_at: isoDaysFromNow(16),
-    registration_deadline: isoDaysFromNow(13),
-    venue_hint: 'מרכז העיר, מיקום מדויק יישלח לנרשמים',
-    max_capacity: 6,
-    status: 'active',
-    is_published: true,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-    created_by_user_id: null,
-    host_user_id: null,
-    payment_required: false,
-    price_cents: 0,
-    currency: 'ILS',
-  },
-];
+const INITIAL_EVENTS: EventRow[] = buildCuratedInitialEvents(nowIso, isoDaysFromNow);
 
-const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = {
-  'initial-tel-aviv-circle': 'מעגל היכרות תל אביב',
-  'initial-jerusalem-circle': 'מעגל ירושלים - עומק ושיח',
-};
+const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
 
 function looksLikeUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);

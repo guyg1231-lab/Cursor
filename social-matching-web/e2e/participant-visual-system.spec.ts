@@ -158,6 +158,61 @@ test.describe('participant visual system', () => {
     await expect(firstSummaryCard.getByTestId('event-summary-card-action')).toHaveAttribute('href', `/events/${eventId}`);
   });
 
+  test('browse cards surface event-specific identity cues without breaking the calm shelf', async ({ page }) => {
+    const eventId = '99999999-9999-4999-8999-999999999991';
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            event_id: eventId,
+            attendee_count: 4,
+          },
+        ]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: eventId,
+            title: 'פיקניק בפארק',
+            description: 'שמיכה גדולה, פירות קיץ ושיחה פתוחה עם אנשים שבאים בנחת.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'פארק הירקון',
+            max_capacity: 12,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const firstSummaryCard = page.getByTestId('event-summary-card').first();
+    const symbol = firstSummaryCard.getByTestId('event-presentation-symbol');
+
+    await expect(symbol).toBeVisible();
+    await expect(symbol).toContainText('🧺');
+    await expect(symbol).toHaveAttribute('data-presentation-key', 'picnic');
+    await expect(firstSummaryCard.getByText('אחר צהריים רגוע')).toBeVisible();
+  });
+
   test('browse cards stay compact enough to avoid tall empty shelves on desktop', async ({ page }) => {
     const eventId = '88888888-8888-4888-8888-888888888888';
 
@@ -208,7 +263,7 @@ test.describe('participant visual system', () => {
       Math.round(node.getBoundingClientRect().height),
     );
 
-    expect(height).toBeLessThan(360);
+    expect(height).toBeLessThan(380);
   });
 
   test('detail and apply keep participant continuity semantics across the flow', async ({ browser }) => {
@@ -294,6 +349,93 @@ test.describe('participant visual system', () => {
       await expect(page.getByTestId('event-identity-hero')).toBeVisible();
       await expect(page.getByTestId('participant-page-actions')).toBeVisible();
       await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('detail and apply reuse the same event identity across the participant flow', async ({ browser }) => {
+    const eventId = '99999999-9999-4999-8999-999999999992';
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              event_id: eventId,
+              attendee_count: 5,
+            },
+          ]),
+        });
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        const event = {
+          id: eventId,
+          title: 'ערב סרט והרצאה בסינמטק',
+          description: 'הקרנה עם הקדמה קצרה ושיחה טובה אחרי, למי שאוהב תרבות עם עומק.',
+          city: 'תל אביב',
+          starts_at: '2026-05-08T17:30:00.000Z',
+          registration_deadline: '2026-05-05T17:30:00.000Z',
+          venue_hint: 'סינמטק תל אביב',
+          max_capacity: 16,
+          status: 'active',
+          is_published: true,
+          created_at: '2026-04-01T10:00:00.000Z',
+          updated_at: '2026-04-01T10:00:00.000Z',
+          created_by_user_id: null,
+          host_user_id: null,
+          payment_required: false,
+          price_cents: 0,
+          currency: 'ILS',
+        };
+        const isSingleEventRequest = route.request().url().includes(`id=eq.${eventId}`);
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(isSingleEventRequest ? event : [event]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'participant-visual-cinema-response',
+              user_id: 'participant-visual-cinema-user',
+              birth_date: '1995-05-05',
+              social_link: 'https://example.com/p1',
+            },
+          ]),
+        });
+      });
+
+      await page.goto(`/events/${eventId}`);
+      const detailHeroSymbol = page.getByTestId('event-identity-symbol');
+      await expect(detailHeroSymbol).toBeVisible();
+      await expect(detailHeroSymbol).toContainText('🎬');
+      await expect(detailHeroSymbol).toHaveAttribute('data-presentation-key', 'cinemateque');
+
+      await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
+
+      await expect(page).toHaveURL(`/events/${eventId}/apply`);
+      const applyHeroSymbol = page.getByTestId('event-identity-symbol');
+      await expect(applyHeroSymbol).toBeVisible();
+      await expect(applyHeroSymbol).toContainText('🎬');
+      await expect(applyHeroSymbol).toHaveAttribute('data-presentation-key', 'cinemateque');
     } finally {
       await ctx.close();
     }

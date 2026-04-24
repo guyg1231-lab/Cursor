@@ -49,44 +49,49 @@ export function EventsPage() {
       subtitle="לראות יותר אפשרויות באותו מדף, ולפתוח את מה שמרגיש נכון."
       heroAlign="start"
     >
-      <div className="mx-auto w-full max-w-[1380px] space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            {!isLoading && !error ? (
-              <span className="rounded-full border border-border/70 bg-card/92 px-3 py-1.5 text-[11px] font-medium text-foreground/72 shadow-sm">
-                {events.length} אירועים פתוחים
+      <div className="mx-auto -mt-3 w-full max-w-[1380px] space-y-5">
+        <section className="rounded-[38px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.96)_0%,hsl(var(--background)/0.94)_100%)] p-4 shadow-[0_30px_70px_-42px_hsl(var(--foreground)/0.22)] sm:p-5 xl:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {!isLoading && !error ? (
+                <span className="rounded-full border border-border/70 bg-card/92 px-3 py-1.5 text-[11px] font-medium text-foreground/72 shadow-sm">
+                  {events.length} אירועים פתוחים
+                </span>
+              ) : null}
+              <span className="rounded-full border border-primary/15 bg-primary/8 px-3 py-1.5 text-[11px] font-medium text-primary/90 shadow-sm">
+                מדף ממורכז
               </span>
-            ) : null}
-            <span className="rounded-full border border-primary/15 bg-primary/8 px-3 py-1.5 text-[11px] font-medium text-primary/90 shadow-sm">
-              דפדוף רגוע
-            </span>
+            </div>
+
+            <PageActionBar variant="participant">
+              <Button asChild variant="outline">
+                <Link to="/events/propose">להציע מפגש חדש</Link>
+              </Button>
+            </PageActionBar>
           </div>
 
-          <PageActionBar variant="participant">
-            <Button asChild variant="outline">
-              <Link to="/events/propose">להציע מפגש חדש</Link>
-            </Button>
-          </PageActionBar>
-        </div>
-        {isLoading ? (
-          <RouteLoadingState />
-        ) : error ? (
-          <RouteErrorState title="שגיאת טעינה" body={error} />
-        ) : events.length === 0 ? (
-          <RouteEmptyState
-            title="אין כרגע מפגשים פתוחים"
-            body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
-          />
-        ) : (
-          <div
-            data-testid="events-discovery-grid"
-            className={`grid items-start gap-4 md:grid-cols-2 ${wideDesktopGridClassName}`}
-          >
-            {events.map((event) => (
-              <EventSummaryCard key={event.id} event={event} />
-            ))}
+          <div className="mt-4">
+            {isLoading ? (
+              <RouteLoadingState />
+            ) : error ? (
+              <RouteErrorState title="שגיאת טעינה" body={error} />
+            ) : events.length === 0 ? (
+              <RouteEmptyState
+                title="אין כרגע מפגשים פתוחים"
+                body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
+              />
+            ) : (
+              <div
+                data-testid="events-discovery-grid"
+                className={`grid items-start gap-4 md:grid-cols-2 ${wideDesktopGridClassName}`}
+              >
+                {events.map((event) => (
+                  <EventSummaryCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </section>
       </div>
     </PageShell>
   );

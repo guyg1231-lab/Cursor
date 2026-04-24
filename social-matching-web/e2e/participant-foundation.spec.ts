@@ -51,7 +51,7 @@ test.describe('participant foundation', () => {
     await expect(cards).toHaveCount(6);
 
     const sectionTop = await grid.evaluate((node) => Math.round(node.getBoundingClientRect().top));
-    expect(sectionTop).toBeLessThan(320);
+    expect(sectionTop).toBeLessThan(340);
 
     const layout = await cards.evaluateAll((nodes) =>
       nodes.map((node) => {
