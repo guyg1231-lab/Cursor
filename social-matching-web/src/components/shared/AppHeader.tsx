@@ -8,6 +8,10 @@ import { cn } from '@/lib/utils';
 import { useThemeMode } from '@/hooks/useTheme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  dataEnvironmentBadgeLabel,
+  resolveSupabaseProjectRefFromEnv,
+} from '@/lib/deployEnvBadge';
 
 interface AppHeaderProps {
   actions?: React.ReactNode;
@@ -33,10 +37,10 @@ export function AppHeader({
   const { theme, toggleTheme } = useThemeMode();
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
-  const envMode = (import.meta.env.MODE || '').toLowerCase();
-  const projectRef = (import.meta.env.VITE_SUPABASE_PROJECT_ID || '').trim();
-  const showEnvBadge = envMode !== 'production' || !!projectRef;
-  const envLabel = envMode === 'production' ? 'PROD' : envMode === 'staging' ? 'STAGING' : 'DEV';
+  const viteMode = (import.meta.env.MODE || '').toLowerCase();
+  const projectRef = resolveSupabaseProjectRefFromEnv();
+  const showEnvBadge = viteMode !== 'production' || !!projectRef;
+  const envLabel = dataEnvironmentBadgeLabel(projectRef, import.meta.env.MODE || '');
 
   const navLinkClassName = 'rounded-full px-3 text-muted-foreground hover:text-foreground';
   const trayClassName =

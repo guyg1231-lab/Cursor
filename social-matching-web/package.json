@@ -22,6 +22,8 @@
     "ops:grant-admin-by-email": "node scripts/ops/grant-admin-by-email.mjs",
     "ops:verify-monorepo-vercel-root-config": "node scripts/ops/verify-monorepo-vercel-root-config.mjs",
     "ops:verify-deploy-supabase": "node scripts/ops/verify-deployed-supabase-project.mjs --url \"${VERIFY_DEPLOY_URL:-https://social-matching-web.vercel.app}\" --expect-ref \"${VERIFY_EXPECT_SUPABASE_REF:-nshgmuqlivuhlimwdwhe}\"",
+    "ops:verify-staging-deploy-supabase": "node scripts/ops/verify-deployed-supabase-project.mjs --url \"https://social-matching-web-staging.vercel.app\" --expect-ref \"huzcvjyyyuudchnrosvx\"",
+    "ops:push-staging-supabase-config": "supabase config push --yes",
     "ops:prebuilt-prod-deploy": "node scripts/ops/prebuilt-prod-deploy.mjs",
     "ops:production-browser-smoke": "node scripts/ops/production-browser-smoke.mjs"
   },

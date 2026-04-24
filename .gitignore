@@ -13,3 +13,4 @@ sotrim_algo_OLD.py
 .worktrees/
 social-matching-web/.playwright-cli/
 social-matching-web/docs/inspiration/
+.vercel

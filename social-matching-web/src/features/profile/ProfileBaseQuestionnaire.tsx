@@ -331,6 +331,7 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
   const { language } = useLanguage();
   const { user } = useAuth();
   const text = copy[language];
+  const lockedEmail = user?.email?.trim().toLowerCase() ?? '';
 
   const [form, setForm] = useState<FormState>(readDraft);
   const [stepIndex, setStepIndex] = useState(0);
@@ -363,7 +364,7 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
           setForm((prev) => ({
             ...prev,
             full_name: data.full_name ?? prev.full_name,
-            email: data.email ?? prev.email,
+            email: lockedEmail || data.email || prev.email,
             phone: data.phone ?? prev.phone,
             social_link: data.social_link ?? prev.social_link,
             birth_date: data.birth_date ?? prev.birth_date,
@@ -388,7 +389,12 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
     return () => {
       active = false;
     };
-  }, [loadedRemote, text.loadRemoteError, user]);
+  }, [loadedRemote, lockedEmail, text.loadRemoteError, user]);
+
+  useEffect(() => {
+    if (!lockedEmail) return;
+    setForm((prev) => (prev.email === lockedEmail ? prev : { ...prev, email: lockedEmail }));
+  }, [lockedEmail]);
 
   const sections = useMemo(
     () => [
@@ -499,11 +505,13 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
               ? 'linkedin'
               : 'other';
 
+      const persistedEmail = lockedEmail || form.email;
+
       await supabase
         .from('profiles')
         .update({
           full_name: form.full_name,
-          email: form.email,
+          email: persistedEmail,
           phone: normalizePhone(form.phone),
           preferred_language: language,
           questionnaire_draft: null,
@@ -514,7 +522,7 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
         {
           user_id: user.id,
           full_name: form.full_name,
-          email: form.email,
+          email: persistedEmail,
           phone: normalizePhone(form.phone),
           social_link: form.social_link,
           social_link_platform,
@@ -622,6 +630,8 @@ export function ProfileBaseQuestionnaire({ onLoadError, onSaved }: ProfileBaseQu
                   type="email"
                   value={form.email}
                   onChange={(e) => updateField('email', e.target.value)}
+                  readOnly={Boolean(lockedEmail)}
+                  disabled={Boolean(lockedEmail)}
                   className="w-full rounded-full border border-input bg-background/30 px-4 py-3 text-sm outline-none"
                   placeholder={text.placeholders.email}
                 />
