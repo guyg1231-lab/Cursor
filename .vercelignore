@@ -1,0 +1,9 @@
+# Keep Vercel uploads small — root vercel.json only builds social-matching-web.
+circles-connect-human/**
+Bloom's Fork/**
+Bloom-main/**
+.worktrees/**
+**/.git/**
+.venv/**
+**/node_modules/**
+social-matching-web/node_modules/**

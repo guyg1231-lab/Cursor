@@ -107,7 +107,7 @@
 | **שם פרויקט ב־Vercel** | `social-matching-web-staging` |
 | **כתובת ייצור (alias)** | https://social-matching-web-staging.vercel.app |
 | **Supabase** | `huzcvjyyyuudchnrosvx` (אומת ב־bundle עם `npm run ops:verify-staging-deploy-supabase`) |
-| **Git → Vercel** | הריפו `guyg1231-lab/Cursor` מחובר; **Root Directory** בפרויקט הסטייג׳ = `social-matching-web` |
+| **Git → Vercel** | הריפו `guyg1231-lab/Cursor` מחובר; **Root Directory** בפרויקט הסטייג׳ = **שורש הריפו** (`.`) — `vercel.json` בשורש כבר מריץ `npm --prefix social-matching-web`. תיקיית `social-matching-web` כפולה שברה `vercel deploy` מהתת־תיקייה. קובץ **`.vercelignore`** בשורש מצמצם העלאה (לא מעלה למשל `circles-connect-human/`). |
 | **Auth (staging DB)** | `supabase/config.toml` (פרויקט מקושר ל־staging) + `npm run ops:push-staging-supabase-config` מעדכנים Site URL / Redirect URLs ב־Supabase |
 
 **תווית הסביבה בכותרת (`STAGING` / `PROD` / `DEV`):** נגזרת מ־**מזהה פרויקט Supabase** (`VITE_SUPABASE_PROJECT_ID` או host מ־`VITE_SUPABASE_URL`), לא מ־`import.meta.env.MODE` של Vite — אחרי `vite build` ה־MODE הוא `production` גם בדיפלוי ל־`social-matching-web-staging.vercel.app`, ולכן שימוש ב־MODE לבד היה מציג בטעות `PROD` למרות DB סטייג׳. ראו `src/lib/deployEnvBadge.ts`.
