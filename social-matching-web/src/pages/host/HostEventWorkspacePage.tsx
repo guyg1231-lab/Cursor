@@ -9,7 +9,7 @@ export function HostEventWorkspacePage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="מרחב ניהול מארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
+    <PageShell title="מרחב ניהול מארח/ת" subtitle={`אירוע ${eventId ?? 'לא זמין'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
           <Link to="/host/events">חזרה לאירועי מארחים</Link>
@@ -27,7 +27,7 @@ export function HostEventWorkspacePage() {
 
       <SectionHeader
         title="מרחב ניהול מארח/ת"
-        description="שמורה להשלמת יישום עתידי."
+        description="יושלם בהמשך."
       />
 
       <PlaceholderPanel

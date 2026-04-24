@@ -41,29 +41,44 @@ export function formatVisibleEventRegistrationState(event: VisibleEvent): {
   if (event.is_registration_open) {
     if (event.registration_deadline) {
       return {
-        label: `להגשה עד ${formatEventDate(event.registration_deadline)}`,
+        label: `הרשמה עד ${formatEventDate(event.registration_deadline)}`,
         tone: 'warning',
       };
     }
-    return { label: 'פתוח להגשה', tone: 'default' };
+    return { label: 'פתוח להרשמה', tone: 'default' };
   }
 
   if (event.status === 'completed') {
     return { label: 'המפגש כבר הסתיים', tone: 'muted' };
   }
 
-  return { label: 'ההגשה סגורה כרגע', tone: 'muted' };
+  return { label: 'ההרשמה סגורה כרגע', tone: 'muted' };
 }
 
 export function formatMobileEventWindowLabel(event: VisibleEvent) {
-  const areaHint = event.venue_hint?.trim() ?? event.city;
+  const areaHint = formatEventAreaHint(event);
   const dateLabel = formatEventDate(event.starts_at);
 
   if (event.is_registration_open) {
     return `${dateLabel} · ${areaHint}`;
   }
 
-  return `${dateLabel} · ${areaHint} · ההגשה סגורה כרגע`;
+  return `${dateLabel} · ${areaHint} · ההרשמה סגורה כרגע`;
+}
+
+export function formatEventAreaHint(event: VisibleEvent) {
+  return event.venue_hint?.trim() ?? event.city;
+}
+
+export function formatEventCapacityLabel(event: VisibleEvent) {
+  return event.max_capacity ? `עד ${event.max_capacity} אנשים` : 'קבוצה קטנה';
+}
+
+export function formatEventAtmosphereSnippet(description: string | null | undefined, max = 88) {
+  const trimmed = description?.trim() ?? '';
+  if (!trimmed) return '';
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trimEnd()}…`;
 }
 
 export function toDateTimeLocalValue(value: string | null) {

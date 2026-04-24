@@ -277,7 +277,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
   return (
     <PageShell
       title="בקשת אירוע"
-      subtitle="כאן אפשר לבנות טיוטת אירוע פרטית, לשמור אותה לעצמך, ורק כשמרגיש מוכן לשלוח אותה לבדיקה מנהלית."
+      subtitle="פותחים טיוטת אירוע, שומרים, ושולחים לבדיקה כשמוכן."
     >
       {isLoading || isEligibilityLoading ? (
         <Card className={tokens.card.surface}>
@@ -297,9 +297,9 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">עוד רגע אפשר לפתוח בקשת אירוע</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <p>בשלב הזה רק משתמשים עם פרופיל ושאלון מוכנים יכולים לפתוח טיוטת אירוע חדשה.</p>
+            <p>בשלב הזה רק משתמשים עם בסיס פרופיל מוכן יכולים לפתוח טיוטת אירוע חדשה.</p>
             <Button asChild variant="primary">
-              <Link to="/questionnaire">להשלמת השאלון</Link>
+              <Link to="/questionnaire">להשלמת הפרופיל</Link>
             </Button>
           </CardContent>
         </Card>
@@ -403,7 +403,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           dir="ltr"
                           className="break-all rounded-2xl border border-border bg-background/60 px-3 py-2 font-mono text-sm text-foreground"
                         >
-                          {`${window.location.origin}/gathering/${event.id}`}
+                          {`${window.location.origin}/events/${event.id}`}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -411,7 +411,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                             variant="primary"
                             onClick={() => {
                               void navigator.clipboard.writeText(
-                                `${window.location.origin}/gathering/${event.id}`,
+                                `${window.location.origin}/events/${event.id}`,
                               );
                             }}
                           >
@@ -420,7 +420,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           <Button
                             type="button"
                             variant="outline"
-                            onClick={() => navigate(`/gathering/${event.id}`)}
+                            onClick={() => navigate(`/events/${event.id}`)}
                           >
                             פתיחת הקישור
                           </Button>
@@ -559,8 +559,8 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
               </div>
 
               <div className={tokens.card.inner + ' p-4 space-y-2 text-sm text-muted-foreground'}>
-                <p>בבלוק הזה המערכת שומרת טיוטה פרטית, ואז מעבירה אותה לסטטוס "נשלח לבדיקת מנהל".</p>
-                <p>אחרי אישור מנהל, האירוע מתפרסם דרך החוזה הקיים `active + is_published`, והמארח/ת הראשי/ת נקבע/ת לפי יוצר/ת הבקשה.</p>
+                <p>המערכת שומרת קודם טיוטה פרטית, ואז מעבירה את הבקשה לסטטוס "נשלח לבדיקת מנהל".</p>
+                <p>אחרי אישור, האירוע מתפרסם בסטטוס `active + is_published`, והמארח/ת נקבע/ת לפי יוצר/ת הבקשה.</p>
               </div>
 
               {actionMessage ? <p className="text-sm text-primary">{actionMessage}</p> : null}

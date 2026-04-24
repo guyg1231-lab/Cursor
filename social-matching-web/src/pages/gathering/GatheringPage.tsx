@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { EventNotFound } from '@/components/participant/EventNotFound';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildAuthPath } from '@/lib/authReturnTo';
 import { getVisibleEventById } from '@/features/events/api';
-import { formatEventDate } from '@/features/events/formatters';
+import { formatEventAreaHint, formatEventCapacityLabel, formatEventDate } from '@/features/events/formatters';
 import type { VisibleEvent } from '@/features/events/types';
 import { getExistingApplication } from '@/features/applications/api';
 import { waitForSupabaseSessionUser } from '@/lib/waitForSupabaseSession';
 import type { EventRegistrationRow } from '@/features/applications/types';
 import {
-  formatApplicationStatusShort,
-  formatLifecycleDateTime,
+  canReapplyToEvent,
+  isAwaitingParticipantResponse,
   isOfferExpired,
 } from '@/features/applications/status';
+import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
+import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 
 export function GatheringPage() {
   const { eventId } = useParams();
@@ -113,9 +116,9 @@ export function GatheringPage() {
   return (
     <PageShell
       title={event.title}
-      subtitle="כאן רואים מה קורה אחרי ההגשה, ומה הצעד הבא אם נשמר עבורך מקום או סטטוס מעודכן."
+      subtitle="זהו מסך מעקב קצר מקישור ישיר. להגשה ולסטטוס המלא משתמשים במסלול האירוע הראשי."
     >
-      <PageActionBar>
+      <PageActionBar variant="participant">
         <Button asChild variant="primary">
           <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
         </Button>
@@ -123,51 +126,62 @@ export function GatheringPage() {
           <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/dashboard">לאזור האישי</Link>
+          <Link to="/events">חזרה לאירועים</Link>
         </Button>
       </PageActionBar>
-      <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-        <Card className={tokens.card.accent}>
-          <CardHeader className="space-y-3">
-            <CardTitle className="text-2xl md:text-3xl leading-tight">{event.title}</CardTitle>
-            {trimmedDescription ? (
-              <p className="text-base leading-relaxed text-foreground/90 whitespace-pre-line">
-                {trimmedDescription}
-              </p>
-            ) : null}
-          </CardHeader>
-          <CardContent className="space-y-5 text-sm text-foreground/85 leading-relaxed">
-            <div className={tokens.card.inner + ' p-4 space-y-2'}>
-              <p><strong className="text-foreground">מתי:</strong> {formatEventDate(event.starts_at)}</p>
-              <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
-              <p><strong className="text-foreground">רמז למיקום:</strong> {event.venue_hint ?? 'יישלח בהמשך'}</p>
-              <p><strong className="text-foreground">קיבולת:</strong> {event.max_capacity ?? 'קבוצה קטנה'}</p>
-              <p>
-                <strong className="text-foreground">דדליין להגשה:</strong>{' '}
-                {event.registration_deadline ? formatEventDate(event.registration_deadline) : 'אין כרגע'}
+      <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
+        <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+          <CardContent className="space-y-4 py-6 text-sm leading-7 text-muted-foreground">
+            <div className={tokens.card.inner + ' space-y-2 p-4'}>
+              <p className={tokens.typography.eyebrow}>קישור ישיר למפגש</p>
+              {trimmedDescription ? <p className="text-foreground/85">{trimmedDescription}</p> : null}
+              <p className="text-foreground/85">
+                המידע המלא והפעולות נשמרים במסלול הראשי: פרטי אירוע ולאחר מכן עמוד ההגשה והסטטוס.
               </p>
             </div>
 
-            <div className="pt-4 border-t border-border/40">
-              <StatusPanel
-                user={!!user}
-                event={event}
-                registration={registration}
-                applyHref={`/events/${event.id}/apply`}
-                signInHref={buildAuthPath(returnTo)}
-              />
+            <div className={tokens.card.inner + ' grid gap-3 p-4 sm:grid-cols-2'}>
+              <div className="space-y-1">
+                <p className={tokens.typography.eyebrow}>מתי</p>
+                <p className="text-foreground">{formatEventDate(event.starts_at)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className={tokens.typography.eyebrow}>איפה בערך</p>
+                <p className="text-foreground">{formatEventAreaHint(event)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className={tokens.typography.eyebrow}>קבוצה</p>
+                <p className="text-foreground">{formatEventCapacityLabel(event)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className={tokens.typography.eyebrow}>חלון הגשה</p>
+                <p className="text-foreground">
+                  {event.registration_deadline ? `עד ${formatEventDate(event.registration_deadline)}` : 'פתוח כרגע'}
+                </p>
+              </div>
             </div>
+
+            <BridgeStatusPanel
+              user={!!user}
+              event={event}
+              registration={registration}
+              applyHref={`/events/${event.id}/apply`}
+              signInHref={buildAuthPath(returnTo)}
+            />
           </CardContent>
         </Card>
 
-        <Card className={tokens.card.surface}>
-          <CardHeader>
-            <CardTitle className="text-xl">מתי משתמשים בעמוד הזה?</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-            <p>1. להגשה ראשונה או לצפייה מלאה בסטטוס משתמשים בעמוד ההגשה הראשי.</p>
-            <p>2. כאן אפשר לחזור כדי לראות מה קרה אחרי ההגשה ולענות אם נשמר עבורך מקום זמני.</p>
-            <p>3. פרטי המפגש נשארים זמינים גם מכאן, בלי לפתוח מסלול הגשה נוסף.</p>
+        <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+          <CardContent className="space-y-3 py-6 text-sm leading-7 text-muted-foreground">
+            <p className={tokens.typography.eyebrow}>מה הכי נכון לעשות מכאן</p>
+            <p>1. להגשה ראשונה ולסטטוס מלא נכנסים לעמוד ההגשה הראשי של האירוע.</p>
+            <p>2. אם נשמר עבורך מקום זמני, התגובה עצמה מתבצעת במסלול הראשי.</p>
+            <p>3. בעמוד הזה נשארת תמונת מצב קצרה למי שהגיע מקישור ישיר.</p>
+            <div className="pt-2">
+              <Button asChild variant="outline" className="w-full">
+                <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -175,7 +189,7 @@ export function GatheringPage() {
   );
 }
 
-function StatusPanel(props: {
+function BridgeStatusPanel(props: {
   user: boolean;
   event: VisibleEvent;
   registration: EventRegistrationRow | null;
@@ -186,11 +200,9 @@ function StatusPanel(props: {
 
   if (!user) {
     return (
-      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-3">
-        <p className="font-medium text-foreground">כדי לראות סטטוס או להגיב צריך להיכנס לחשבון</p>
-        <p className="text-muted-foreground">
-          ההגשה הראשונה מתבצעת בעמוד ההגשה הראשי. אחרי ההתחברות נחזיר אותך למסך הזה אם הגעת לכאן כדי לבדוק סטטוס.
-        </p>
+      <div className={tokens.card.inner + ' space-y-3 p-4'}>
+        <p className="font-medium text-foreground">כדי לראות סטטוס אישי צריך כניסה לחשבון</p>
+        <p>אחרי ההתחברות אפשר להמשיך ישירות לעמוד ההגשה והסטטוס הראשי של האירוע.</p>
         <Button asChild variant="primary">
           <Link to={signInHref}>להיכנס להגשה ולסטטוס</Link>
         </Button>
@@ -201,9 +213,9 @@ function StatusPanel(props: {
   if (!registration) {
     if (!event.is_registration_open) {
       return (
-        <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm text-muted-foreground space-y-3">
-          <p className="font-medium text-foreground">אין כרגע הגשה שמחוברת למפגש הזה</p>
-          <p>ההגשות למפגש הזה אינן פתוחות כרגע, ולכן אין מה לנהל מכאן בשלב הזה.</p>
+        <div className={tokens.card.inner + ' space-y-3 p-4'}>
+          <p className="font-medium text-foreground">אין כרגע הגשה פעילה למפגש הזה</p>
+          <p>חלון ההגשה סגור כרגע. אפשר לעבור לפרטי המפגש ולהמשיך לעקוב משם.</p>
           <Button asChild variant="outline">
             <Link to={`/events/${event.id}`}>לפרטי המפגש</Link>
           </Button>
@@ -212,11 +224,9 @@ function StatusPanel(props: {
     }
 
     return (
-      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-3">
-        <p className="font-medium text-foreground">להגשה ראשונה משתמשים בעמוד ההגשה הראשי</p>
-        <p className="text-muted-foreground">
-          כאן חוזרים אחרי שהוגשה בקשה, או כשצריך להגיב על מקום זמני. כדי להתחיל את ההגשה למפגש הזה, עברו לעמוד ההגשה והסטטוס.
-        </p>
+      <div className={tokens.card.inner + ' space-y-3 p-4'}>
+        <p className="font-medium text-foreground">להגשה ראשונה משתמשים במסלול הראשי</p>
+        <p>כדי להתחיל, עברו לעמוד ההגשה והסטטוס של האירוע.</p>
         <Button asChild variant="primary">
           <Link to={applyHref}>להגשה ולסטטוס</Link>
         </Button>
@@ -224,84 +234,20 @@ function StatusPanel(props: {
     );
   }
 
-  const status = registration.status;
+  const panel = resolveApplicationPanelContent(registration);
+  const awaitingResponse = isAwaitingParticipantResponse(registration.status);
+  const offerExpired = isOfferExpired(registration);
+  const showApplyCta = awaitingResponse || canReapplyToEvent(registration.status);
 
-  if (status === 'pending') {
-    return (
-      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-2">
-        <p className="font-medium text-foreground">הבקשה שלך נשמרה</p>
-        <p className="text-muted-foreground">
-          נחזור אליך כשיש מקום במפגש הזה. אין מה לעשות כרגע מהצד שלך.
-        </p>
-      </div>
-    );
-  }
-
-  if (status === 'awaiting_response') {
-    const expired = isOfferExpired(registration);
-    return (
-      <div className="rounded-3xl border border-primary/20 bg-background/30 p-4 text-sm space-y-3">
-        <p className="font-medium text-foreground">
-          {expired ? 'חלון התגובה נסגר' : 'נשמר עבורך מקום במפגש'}
-        </p>
-        <p className="text-muted-foreground">
-          {expired
-            ? `הדדליין לתגובה עבר${registration.expires_at ? ` ב-${formatLifecycleDateTime(registration.expires_at)}` : ''}.`
-            : `צריך להגיב עד ${formatLifecycleDateTime(registration.expires_at)}.`}
-        </p>
-        <p className="text-muted-foreground">התגובה עצמה מתבצעת בעמוד ההגשה והסטטוס הראשי.</p>
-        <Button asChild variant="primary">
-          <Link to={applyHref}>להגשה ולסטטוס</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  if (status === 'confirmed' || status === 'approved') {
-    return (
-      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-2">
-        <p className="font-medium text-foreground">המקום שלך במפגש שמור</p>
-        <p className="text-muted-foreground">
-          נתראה ב-{formatEventDate(event.starts_at)}. נשלח פרטי מיקום סופיים לפני המפגש.
-        </p>
-      </div>
-    );
-  }
-
-  if (status === 'attended') {
-    return (
-      <div className="rounded-3xl border border-primary/10 bg-background/30 p-4 text-sm space-y-2">
-        <p className="font-medium text-foreground">תודה שהצטרפת למפגש</p>
-        <p className="text-muted-foreground">ההשתתפות שלך נרשמה.</p>
-      </div>
-    );
-  }
-
-  if (status === 'rejected') {
-    return (
-      <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm space-y-2">
-        <p className="font-medium text-foreground">הפעם זה לא יצא</p>
-        <p className="text-muted-foreground">לא נמצא לך מקום במפגש הזה. נשמח לראות אותך במפגש אחר.</p>
-      </div>
-    );
-  }
-
-  const submittedAnswers = parseAnswers(registration.application_answers);
   return (
-    <div className="rounded-3xl border border-border bg-background/30 p-4 text-sm space-y-2">
-      <p className="font-medium text-foreground">הסטטוס הנוכחי שלך: {formatApplicationStatusShort(status)}</p>
-      {submittedAnswers ? (
-        <p className="text-muted-foreground">
-          הגשת ב-{new Date(submittedAnswers.submitted_at).toLocaleString('he-IL')}.
-        </p>
+    <div className="space-y-3">
+      <StatusBadge label={panel.title} tone={resolveApplicationBadgeTone(registration.status)} />
+      <ApplicationStatusPanel title={panel.title} body={panel.body} footer={panel.footer ? <p>{panel.footer}</p> : undefined} />
+      {showApplyCta ? (
+        <Button asChild variant={awaitingResponse && !offerExpired ? 'primary' : 'outline'}>
+          <Link to={applyHref}>{awaitingResponse && !offerExpired ? 'למקום הזמני ולתגובה' : 'להגשה ולסטטוס'}</Link>
+        </Button>
       ) : null}
     </div>
   );
-}
-
-function parseAnswers(value: unknown): { submitted_at: string } | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  const record = value as Record<string, unknown>;
-  if (typeof record.submitted_at !== 'string') return null;
-  return { submitted_at: record.submitted_at };
 }

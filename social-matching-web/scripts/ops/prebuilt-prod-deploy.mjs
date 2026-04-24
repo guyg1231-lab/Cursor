@@ -50,4 +50,12 @@ execFileSync('npx', ['--yes', 'vercel@latest', 'deploy', '--prebuilt', '--prod',
   env,
   stdio: 'inherit',
 });
-console.log('Done. Run: npm run ops:verify-deploy-supabase');
+execFileSync('npm', ['run', 'ops:verify-deploy-supabase'], {
+  cwd: root,
+  env: {
+    ...env,
+    VERIFY_EXPECT_SUPABASE_REF: ref,
+  },
+  stdio: 'inherit',
+});
+console.log('Done. Prebuilt deploy + deployed bundle verification passed.');

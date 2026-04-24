@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteEmptyState, RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { listVisibleEvents } from '@/features/events/api';
 import { EventSummaryCard } from '@/features/events/components/EventSummaryCard';
 import type { VisibleEvent } from '@/features/events/types';
-import { tokens } from '@/lib/design-tokens';
 
 /**
  * Discovery page: lists active published events. Each card links to the
@@ -18,6 +18,8 @@ export function EventsPage() {
   const [events, setEvents] = useState<VisibleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const wideDesktopGridClassName =
+    events.length >= 4 ? 'xl:grid-cols-4' : events.length === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2';
 
   useEffect(() => {
     let stale = false;
@@ -43,30 +45,49 @@ export function EventsPage() {
 
   return (
     <PageShell
-      title="מפגשים פתוחים"
-      subtitle="כל המפגשים שפתוחים עכשיו. כניסה ישירה לעמוד ההרשמה של המפגש."
+      title="אירועים"
+      subtitle="אירועים ומפגשים לאנשים בגילאי 20-40 סביב חוויות משותפות וחיבורים אמיתיים."
+      heroAlign="start"
     >
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="outline">
-          <Link to="/events/propose">להציע מפגש חדש</Link>
-        </Button>
+      <div className="mx-auto -mt-4 w-full max-w-[1380px] space-y-5">
+        <section className="rounded-[38px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.96)_0%,hsl(var(--background)/0.94)_100%)] p-4 shadow-[0_30px_70px_-42px_hsl(var(--foreground)/0.22)] sm:p-5 xl:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-primary/15 bg-primary/8 px-3 py-1.5 text-[11px] font-medium text-primary/90 shadow-sm">
+                מפגשים לקהילת 20-40
+              </span>
+            </div>
+
+            <PageActionBar variant="participant">
+              <Button asChild variant="outline">
+                <Link to="/events/propose">להציע מפגש חדש</Link>
+              </Button>
+            </PageActionBar>
+          </div>
+
+          <div className="mt-4">
+            {isLoading ? (
+              <RouteLoadingState />
+            ) : error ? (
+              <RouteErrorState title="שגיאת טעינה" body={error} />
+            ) : events.length === 0 ? (
+              <RouteEmptyState
+                title="אין כרגע מפגשים פתוחים"
+                body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
+              />
+            ) : (
+              <div
+                data-testid="events-discovery-grid"
+                className={`grid items-start gap-4 md:grid-cols-2 ${wideDesktopGridClassName}`}
+              >
+                {events.map((event) => (
+                  <EventSummaryCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
-      {isLoading ? (
-        <RouteLoadingState />
-      ) : error ? (
-        <RouteErrorState title="שגיאת טעינה" body={error} />
-      ) : events.length === 0 ? (
-        <RouteEmptyState
-          title="אין כרגע מפגשים פתוחים"
-          body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
-        />
-      ) : (
-        <div className={tokens.spacing.content}>
-          {events.map((event) => (
-            <EventSummaryCard key={event.id} event={event} />
-          ))}
-        </div>
-      )}
     </PageShell>
   );
 }

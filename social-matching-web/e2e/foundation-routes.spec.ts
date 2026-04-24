@@ -23,7 +23,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/dashboard');
 
-      await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+      await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
       await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
       if (!releaseRolesRequest) {
@@ -55,7 +55,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/admin/events/future-event/diagnostics');
 
-      await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+      await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
       await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
       if (!releaseRolesRequest) {
@@ -120,7 +120,7 @@ test.describe('foundation routes', () => {
 
       await expect(page.getByRole('heading', { level: 1, name: 'בקשת אירוע' })).toBeVisible();
       await expect(page.getByRole('heading', { level: 3, name: 'עוד רגע אפשר לפתוח בקשת אירוע' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'להשלמת השאלון' })).toHaveAttribute('href', '/questionnaire');
+      await expect(page.getByRole('link', { name: 'להשלמת הפרופיל' })).toHaveAttribute('href', '/questionnaire');
       await expect(page.getByRole('button', { name: 'טיוטה חדשה' })).toHaveCount(0);
     } finally {
       await ctx.close();
@@ -189,7 +189,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/admin/events/future-event/audit');
       await expect(page.getByRole('link', { name: 'חזרה לדשבורד האירוע' })).toBeVisible();
-      await expect(page.getByText('שמורה להשלמת יישום עתידי.')).toBeVisible();
+      await expect(page.getByText('יושלם בהמשך.', { exact: true })).toBeVisible();
     } finally {
       await ctx.close();
     }

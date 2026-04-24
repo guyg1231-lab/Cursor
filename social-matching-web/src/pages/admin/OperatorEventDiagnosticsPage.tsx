@@ -9,7 +9,7 @@ export function OperatorEventDiagnosticsPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell variant="minimal" title="דיאגנוסטיקה תפעולית" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
+    <PageShell variant="minimal" title="דיאגנוסטיקה תפעולית" subtitle={`אירוע ${eventId ?? 'לא זמין'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
           <Link to={`/admin/events/${eventId ?? ''}`}>חזרה לדשבורד האירוע</Link>
@@ -18,7 +18,7 @@ export function OperatorEventDiagnosticsPage() {
 
       <SectionHeader
         title="דיאגנוסטיקה תפעולית"
-        description="שמורה להשלמת יישום עתידי."
+        description="יושלם בהמשך."
       />
 
       <PlaceholderPanel

@@ -6,7 +6,272 @@ import { withFlippedRegistrationStatus } from './fixtures/registrations';
 import { submitApplicationViaUi } from './fixtures/ui';
 
 test.describe('participant foundation', () => {
+  test('desktop discovery shelf uses a compact 4-across layout on wide screens', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 1400 });
+    const events = Array.from({ length: 6 }, (_, index) => ({
+      id: `4across-event-${index + 1}`,
+      title: `אירוע בדיקה ${index + 1}`,
+      description: 'מפגש קטן ואינטימי עם שיחה רגועה בעיר.',
+      city: 'תל אביב',
+      starts_at: `2026-05-0${(index % 6) + 1}T17:30:00.000Z`,
+      registration_deadline: `2026-04-2${(index % 6) + 1}T17:30:00.000Z`,
+      venue_hint: index % 2 === 0 ? 'נווה צדק' : 'כיכר ביאליק',
+      max_capacity: 8,
+      status: 'active',
+      is_published: true,
+      created_at: '2026-04-01T10:00:00.000Z',
+      updated_at: '2026-04-01T10:00:00.000Z',
+      created_by_user_id: null,
+      host_user_id: null,
+      payment_required: false,
+      price_cents: 0,
+      currency: 'ILS',
+    }));
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(events.map((event, index) => ({ event_id: event.id, attendee_count: 3 + index }))),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(events),
+      });
+    });
+
+    await page.goto('/events');
+
+    const grid = page.getByTestId('events-discovery-grid');
+    const cards = grid.getByTestId('event-summary-card');
+    await expect(cards).toHaveCount(10);
+
+    const sectionTop = await grid.evaluate((node) => Math.round(node.getBoundingClientRect().top));
+    expect(sectionTop).toBeLessThan(340);
+
+    const layout = await cards.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        return {
+          x: Math.round(rect.x),
+          y: Math.round(rect.y),
+          right: Math.round(rect.right),
+          height: Math.round(rect.height),
+        };
+      }),
+    );
+
+    const rowTops = [...new Set(layout.map((card) => card.y))].sort((a, b) => a - b);
+    const firstRow = layout.filter((card) => card.y === rowTops[0]);
+    const secondRow = layout.filter((card) => card.y === rowTops[1]);
+
+    expect(rowTops.length).toBeGreaterThanOrEqual(2);
+    expect(firstRow).toHaveLength(4);
+    expect(secondRow.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(firstRow.map((card) => card.height)).size).toBe(1);
+    expect(Math.min(...firstRow.map((card) => card.x))).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...firstRow.map((card) => card.right))).toBeLessThanOrEqual(1600);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  });
+
+  test('desktop discovery card and CTA feel interactive on hover', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    const eventId = 'hover-event-1';
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ event_id: eventId, attendee_count: 5 }]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: eventId,
+            title: 'אירוע בדיקה להובר',
+            description: 'מפגש קטן עם קצב רגוע ואווירה חמה.',
+            city: 'תל אביב',
+            starts_at: '2026-05-01T17:30:00.000Z',
+            registration_deadline: '2026-04-29T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const card = page.getByTestId('event-summary-card').first();
+    const button = card.getByTestId('event-summary-card-action');
+
+    const beforeCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+    await card.hover();
+    await page.waitForTimeout(120);
+    const afterCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterCard.transform).not.toBe(beforeCard.transform);
+    expect(afterCard.shadow).not.toBe(beforeCard.shadow);
+
+    const beforeButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+    await button.hover();
+    await page.waitForTimeout(120);
+    const afterButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterButton.transform).not.toBe(beforeButton.transform);
+    expect(afterButton.shadow).not.toBe(beforeButton.shadow);
+  });
+
+  test('events shelf filters fixture-like English rows and keeps curated Hebrew fallback', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'fixture-event-1',
+            title: 'AR-slice 1776959485845',
+            description: 'A calm, small gathering for people who prefer depth over small talk.',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-07T19:00:00.000Z',
+            registration_deadline: '2026-04-30T19:00:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+          {
+            id: 'fixture-event-2',
+            title: 'E2E slice fixture',
+            description: 'Fixture event for testing',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-09T10:21:00.000Z',
+            registration_deadline: '2026-05-02T10:21:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const grid = page.getByTestId('events-discovery-grid');
+    await expect(grid.getByRole('heading', { name: 'פיקניק בפארק' })).toBeVisible();
+    await expect(grid.getByRole('heading', { name: 'קפה בכיכר' })).toBeVisible();
+    await expect(grid.getByText('AR-slice 1776959485845')).toHaveCount(0);
+    await expect(grid.getByText('E2E slice fixture')).toHaveCount(0);
+    await expect(grid.getByText('Tel Aviv')).toHaveCount(0);
+  });
+
+  test('events shelf keeps the shared app navigation chrome', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'fixture-event-1',
+            title: 'AR-slice 1776959485845',
+            description: 'A calm, small gathering for people who prefer depth over small talk.',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-07T19:00:00.000Z',
+            registration_deadline: '2026-04-30T19:00:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    await expect(page.getByRole('link', { name: 'אירועים' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'פרופיל' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'דשבורד' })).toBeVisible();
+    await expect(page.getByText(/Light|בהיר/)).toBeVisible();
+    await expect(page.getByText('EN')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'כניסה' })).toBeVisible();
+  });
+
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
     let releaseEventsRequest: (() => void) | null = null;
     const eventsRequestReleased = new Promise<void>((resolve) => {
       releaseEventsRequest = resolve;
@@ -43,7 +308,7 @@ test.describe('participant foundation', () => {
 
     await page.goto('/events');
 
-    await expect(page.getByText('טוענים…', { exact: true })).toBeVisible();
+    await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
     await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
     if (!releaseEventsRequest) {
@@ -51,40 +316,45 @@ test.describe('participant foundation', () => {
     }
     releaseEventsRequest();
 
-    await expect(page.getByText('מפגש בדיקת טעינה', { exact: true })).toBeVisible();
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid.getByRole('heading', { name: 'מפגש בדיקת טעינה' })).toBeVisible();
   });
 
   test('discovery links into canonical event detail before apply', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
     await page.goto('/events');
-    await page.locator(`a[href="/events/${ENV.EVENT_ID}"]`).first().click();
-    await expect(page).toHaveURL(new RegExp(`/events/${ENV.EVENT_ID}`));
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await discoveryGrid.getByRole('link', { name: 'לפרטים ולהרשמה' }).first().click();
+    await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+|seed-[a-z-]+)$/i);
     await expect(
       page.getByRole('link', {
-        name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
+        name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|להרשמה וסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס (ההרשמה|ההגשה)|חזרה למפגשים/i,
       }).first(),
     ).toBeVisible();
   });
 
   test('events page offers a non-admin CTA to propose something new', async ({ page }) => {
     await page.goto('/events');
-    await expect(page.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
+    const actionRail = page.getByTestId('participant-page-actions');
+    await expect(actionRail).toBeVisible();
+    await expect(actionRail.getByRole('link', { name: 'להציע מפגש חדש' })).toHaveAttribute('href', '/events/propose');
   });
 
   test('mobile discovery sheet can show attendee-circle count for a published event', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const mobileBrowseEventId = '11111111-1111-4111-8111-111111111111';
 
     await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
       const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
-      expect(payload).toEqual({
-        event_ids: ['playwright-map-event'],
-      });
+      expect(payload?.event_ids).toContain(mobileBrowseEventId);
 
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            event_id: 'playwright-map-event',
+            event_id: mobileBrowseEventId,
             attendee_count: 4,
           },
         ]),
@@ -97,7 +367,7 @@ test.describe('participant foundation', () => {
         contentType: 'application/json',
         body: JSON.stringify([
           {
-            id: 'playwright-map-event',
+            id: mobileBrowseEventId,
             title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
             description: 'מפגש אינטימי וחם לערב קטן בעיר.',
             city: 'תל אביב',
@@ -120,8 +390,230 @@ test.describe('participant foundation', () => {
     });
 
     await page.goto('/events');
-    await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
-    await expect(page.getByText('4 כבר בפנים', { exact: true })).toBeVisible();
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid).toBeVisible();
+    const summaryCard = discoveryGrid.getByTestId('event-summary-card').filter({ hasText: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט' }).first();
+    await expect(summaryCard).toBeVisible();
+    await expect(summaryCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(summaryCard.getByTestId('event-summary-card-action')).toHaveAttribute(
+      'href',
+      `/events/${mobileBrowseEventId}`,
+    );
+    await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+    await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
+  });
+
+  test('desktop discovery card keeps attendee-circle signal for a published event', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const desktopBrowseEventId = '22222222-2222-4222-8222-222222222222';
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
+      expect(payload?.event_ids).toContain(desktopBrowseEventId);
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            event_id: desktopBrowseEventId,
+            attendee_count: 4,
+          },
+        ]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: desktopBrowseEventId,
+            title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
+            description: 'מפגש אינטימי וחם לערב קטן בעיר.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid).toBeVisible();
+    const summaryCard = discoveryGrid.getByTestId('event-summary-card').filter({ hasText: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט' }).first();
+    await expect(summaryCard).toBeVisible();
+    await expect(summaryCard.getByTestId('event-attendee-circles')).toBeVisible();
+    await expect(summaryCard.getByTestId('event-summary-card-action')).toHaveAttribute(
+      'href',
+      `/events/${desktopBrowseEventId}`,
+    );
+    await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+    await expect(page.getByTestId('desktop-event-discovery-list')).toHaveCount(0);
+  });
+
+  test('mobile discovery uses the shared dense grid and carries attendee circles into detail/apply', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const mobileFlowEventId = '33333333-3333-4333-8333-333333333333';
+
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.P1);
+      const page = await ctx.newPage();
+
+      await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+        const payload = route.request().postDataJSON() as { event_ids?: string[] } | undefined;
+        expect(payload?.event_ids).toContain(mobileFlowEventId);
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              event_id: mobileFlowEventId,
+              attendee_count: 4,
+            },
+          ]),
+        });
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        const event = {
+          id: mobileFlowEventId,
+          title: 'ארוחת ערב קטנה עם שיחה שנפתחת לאט',
+          description: 'מפגש אינטימי וחם לערב קטן בעיר.',
+          city: 'תל אביב',
+          starts_at: '2026-05-08T17:30:00.000Z',
+          registration_deadline: '2026-05-05T17:30:00.000Z',
+          venue_hint: 'נווה צדק',
+          max_capacity: 8,
+          status: 'active',
+          is_published: true,
+          created_at: '2026-04-01T10:00:00.000Z',
+          updated_at: '2026-04-01T10:00:00.000Z',
+          created_by_user_id: null,
+          host_user_id: null,
+          payment_required: false,
+          price_cents: 0,
+          currency: 'ILS',
+        };
+        const isSingleEventRequest = route.request().url().includes(`id=eq.${mobileFlowEventId}`);
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(isSingleEventRequest ? event : [event]),
+        });
+      });
+      await page.route('**/rest/v1/event_registrations*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+      await page.route('**/rest/v1/matching_responses*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'stubbed-matching-response',
+              user_id: 'stubbed-user',
+              completed_at: new Date().toISOString(),
+              birth_date: '1990-01-01',
+              social_link: 'https://instagram.com/testuser',
+            },
+          ]),
+        });
+      });
+      await page.route('**/rest/v1/profiles*', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              funnel_status: 'ready_for_registration',
+            },
+          ]),
+        });
+      });
+
+      await page.goto('/events');
+
+      const discoveryGrid = page.getByTestId('events-discovery-grid');
+      await expect(discoveryGrid).toBeVisible();
+      await expect(discoveryGrid.getByTestId('event-attendee-circles').first()).toBeVisible();
+      await expect(discoveryGrid.getByText(/4 כבר בפנים/)).toBeVisible();
+      await expect(discoveryGrid.getByText(/נשאר מקום להצטרף/)).toBeVisible();
+      await expect(page.getByTestId('mobile-event-discovery-list')).toHaveCount(0);
+      await discoveryGrid.getByTestId('event-summary-card-action').last().click();
+
+      await expect(page.getByTestId('event-group-context').getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
+      await expect(page.getByText('החדר הזה כבר מתחיל לקבל צורה', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להרשמה וסטטוס' })).toBeVisible();
+
+      await page.getByRole('link', { name: 'להרשמה וסטטוס' }).click();
+      await expect(page.getByTestId('event-group-context').getByTestId('event-attendee-circles')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'לפני שמנסחים כוונה' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const closedEventId = '22222222-2222-4222-8222-222222222222';
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      const event = {
+        id: closedEventId,
+        title: 'הליכת בוקר ושיחת קפה',
+        description: 'מפגש קטן ופתוח לשיחה בדרך אחרת.',
+        city: 'תל אביב',
+        starts_at: '2026-05-10T07:00:00.000Z',
+        registration_deadline: '2026-05-01T07:00:00.000Z',
+        venue_hint: 'פארק הירקון',
+        max_capacity: 6,
+        status: 'closed',
+        is_published: true,
+        created_at: '2026-04-01T10:00:00.000Z',
+        updated_at: '2026-04-01T10:00:00.000Z',
+        created_by_user_id: null,
+        host_user_id: null,
+        payment_required: false,
+        price_cents: 0,
+        currency: 'ILS',
+      };
+      const isSingleEventRequest = route.request().url().includes(`id=eq.${closedEventId}`);
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(isSingleEventRequest ? event : [event]),
+      });
+    });
+
+    await page.goto(`/events/${closedEventId}`);
+      await expect(
+        page.getByText('גם אחרי סגירת ההגשה, העמוד נשאר פתוח כדי לשמור על תמונה מלאה.', { exact: true }),
+      ).toBeVisible();
+      await expect(page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע.', { exact: true })).toBeVisible();
+      await expect(page.getByText('העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.', { exact: true })).toBeVisible();
   });
 
   test('mobile event detail keeps published closed events visible without a dead-end feel', async ({ page }) => {
@@ -193,11 +685,9 @@ test.describe('participant foundation', () => {
       await expect(
         page.getByRole('heading', { level: 1, name: /הגשה למפגש|סטטוס ההרשמה|הגשת מועמדות למפגש/i }),
       ).toBeVisible();
-      const openForm = page.getByRole('heading', { level: 3, name: 'פרטים על ההגשה' });
-      const gatedCopy = page.getByText(
-        /צריך להשלים את הפרופיל|צריך להשלים את השאלון|המקום שלך במפגש נשמר|המפגש כבר הסתיים|כבר קיימת הגשה|ההגשות למפגש הזה סגורות כרגע/i,
-      );
-      await expect(openForm.or(gatedCopy).first()).toBeVisible();
+      await expect(page.getByTestId('event-identity-hero')).toBeVisible();
+      await expect(page.getByTestId('event-group-context')).toBeVisible();
+      await expect(page.getByTestId('participant-surface-panel').first()).toBeVisible();
     } finally {
       await ctx.close();
     }
@@ -230,7 +720,7 @@ test.describe('participant foundation', () => {
 
       await page.goto(`/events/${ENV.EVENT_ID}/apply`);
 
-      await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'פרטי הכוונה למפגש' })).toBeVisible();
       await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
       await expect(page.getByText('אני מבין/ה שהתשלום יישלח רק אם אתקבל/י.')).toHaveCount(0);
       await expect(page.getByText('אם אתקבל/י, אני מתחייב/ת לשלם בזמן כדי לשמור על המקום שלי.')).toHaveCount(0);
@@ -338,7 +828,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('ההגשה שלך נשלחה', { exact: true })).toBeVisible();
           await expect(page.getByText('ההגשה שלך נשמרה ונמצאת כרגע בבדיקה.', { exact: true })).toBeVisible();
         } finally {
@@ -368,7 +858,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('ההגשה ברשימת המתנה', { exact: true })).toBeVisible();
           await expect(
             page.getByText('כרגע אין לך מקום שמור, אבל ההרשמה שלך עדיין נמצאת ברשימת ההמתנה.', { exact: true }),
@@ -400,9 +890,13 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('המפגש כבר הסתיים', { exact: true })).toBeVisible();
           await expect(page.getByText('השתתפת במפגש', { exact: true })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'אחרי המפגש' })).toBeVisible();
+          await expect(
+            page.getByText('איזה סוג מפגש, חוויה או מעגל יתאים לך בפעם הבאה?', { exact: true }),
+          ).toBeVisible();
         } finally {
           await ctx.close();
         }
@@ -430,7 +924,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
           await expect(page.getByText('המקום שלך למפגש הזה כבר שמור.', { exact: true })).toBeVisible();
         } finally {
@@ -460,7 +954,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('המקום שלך במפגש נשמר', { exact: true })).toBeVisible();
           await expect(page.getByText('המקום שלך למפגש הזה כבר שמור.', { exact: true })).toBeVisible();
         } finally {
@@ -490,9 +984,13 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס ההגשה למפגש' })).toBeVisible();
           await expect(page.getByText('המפגש כבר הסתיים', { exact: true })).toBeVisible();
           await expect(page.getByText('סומן/ה כהיעדרות', { exact: true })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'אחרי המפגש' })).toBeVisible();
+          await expect(
+            page.getByText('איזה סוג מפגש, חוויה או מעגל יתאים לך בפעם הבאה?', { exact: true }),
+          ).toBeVisible();
         } finally {
           await ctx.close();
         }
@@ -507,7 +1005,7 @@ test.describe('participant foundation', () => {
       const page = await ctx.newPage();
 
       await page.goto('/dashboard');
-      await expect(page.getByRole('link', { name: 'לשאלון הפרופיל' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להשלמת הפרופיל' })).toBeVisible();
       await expect(
         page.getByRole('heading', { level: 3, name: /לפני ההגשה הבאה/i }),
       ).toBeVisible();
@@ -600,8 +1098,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
-          await expect(page.getByRole('heading', { name: 'ההגשה הקודמת שלך' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'פרטי הכוונה למפגש' })).toBeVisible();
           await expect(page.getByRole('button', { name: 'שליחת הגשה' })).toBeVisible();
           await expect(page.getByText(/אישור תשלום לאחר קבלה/)).toHaveCount(0);
           await expect(page.getByText(/התחייבות להגיע בזמן/)).toHaveCount(0);
@@ -680,7 +1177,7 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/events/${ENV.EVENT_ID}/apply`);
-          await expect(page.getByRole('heading', { name: 'סטטוס ההרשמה' })).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'סטטוס הכוונה למפגש – מקום זמני' })).toBeVisible();
           await expect(page.getByText('חלון התגובה למקום הזמני נסגר', { exact: true })).toBeVisible();
           await expect(page.getByText('המקום הזמני כבר לא ממתין לתגובה.', { exact: true })).toBeVisible();
           await expect(page.getByText(/המועד שעבר:/)).toBeVisible();
@@ -963,14 +1460,59 @@ test.describe('participant foundation', () => {
     try {
       await page.goto(`/gathering/${ENV.EVENT_ID}`);
       await expect(
-        page.getByText('כאן רואים מה קורה אחרי ההגשה, ומה הצעד הבא אם נשמר עבורך מקום או סטטוס מעודכן.'),
+        page.getByText('זהו מסך מעקב קצר מקישור ישיר. להגשה ולסטטוס המלא משתמשים במסלול האירוע הראשי.'),
       ).toBeVisible();
       await expect(page.getByRole('link', { name: 'להגשה ולסטטוס' }).first()).toHaveAttribute(
         'href',
         `/events/${ENV.EVENT_ID}/apply`,
       );
-      await expect(page.getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'לאזור האישי' })).toBeVisible();
+      await expect(page.getByTestId('participant-page-actions').getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'חזרה לאירועים' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('gathering canonicalizes a legacy event identifier to the canonical event id in URL', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    const legacyId = '99999999-9999-4999-8999-999999999999';
+    const canonicalId = ENV.EVENT_ID;
+
+    try {
+      await page.route('**/rest/v1/events**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: canonicalId,
+              title: 'מפגש קנוני',
+              description: 'בדיקת הפניה מזהה ישן למזהה קנוני.',
+              city: 'תל אביב',
+              starts_at: '2026-08-01T18:00:00.000Z',
+              registration_deadline: '2026-07-20T18:00:00.000Z',
+              venue_hint: 'מרכז העיר',
+              max_capacity: 8,
+              status: 'active',
+              is_published: true,
+              created_at: '2026-06-01T10:00:00.000Z',
+              updated_at: '2026-06-01T10:00:00.000Z',
+              created_by_user_id: null,
+              host_user_id: null,
+              payment_required: false,
+              price_cents: 0,
+              currency: 'ILS',
+            },
+          ]),
+        });
+      });
+
+      await page.goto(`/gathering/${legacyId}`);
+      await expect(page).toHaveURL(new RegExp(`/gathering/${canonicalId}$`));
+      await expect(page.getByRole('heading', { name: 'מפגש קנוני' })).toBeVisible();
     } finally {
       await ctx.close();
     }
@@ -1085,9 +1627,9 @@ test.describe('participant foundation', () => {
 
       await page.goto(`/gathering/${ENV.EVENT_ID}`);
 
-      await expect(page.getByText('אין כרגע הגשה שמחוברת למפגש הזה', { exact: true })).toBeVisible();
+      await expect(page.getByText('אין כרגע הגשה פעילה למפגש הזה', { exact: true })).toBeVisible();
       await expect(
-        page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע, ולכן אין מה לנהל מכאן בשלב הזה.', { exact: true }),
+        page.getByText('חלון ההגשה סגור כרגע. אפשר לעבור לפרטי המפגש ולהמשיך לעקוב משם.', { exact: true }),
       ).toBeVisible();
       await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toHaveAttribute(
         'href',
@@ -1118,12 +1660,9 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/gathering/${ENV.EVENT_ID}`);
-          await expect(page.getByText(/הסטטוס הנוכחי שלך/)).toBeVisible({ timeout: 15_000 });
-          // Scope the assertion to the composed status line — catches both the
-          // English-token leak and any mis-mapping that would render a different
-          // Hebrew label in that slot.
+          await expect(page.getByRole('heading', { name: 'ההגשה ברשימת המתנה' })).toBeVisible({ timeout: 15_000 });
           await expect(
-            page.getByText(/הסטטוס הנוכחי שלך:\s*רשימת המתנה/),
+            page.getByText('כרגע אין לך מקום שמור, אבל ההרשמה שלך עדיין נמצאת ברשימת ההמתנה.', { exact: true }),
           ).toBeVisible();
           // Defensive: none of the raw English enum tokens appear anywhere in the
           // rendered body (in case the status slot escapes narrowing later).
@@ -1224,13 +1763,13 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('landing: page body contains no English brand token', async ({ browser }) => {
+  test('landing: page body includes Hebrew brand copy', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {
       const page = await ctx.newPage();
       await page.goto('/');
       const body = await page.locator('body').innerText();
-      expect(body).not.toMatch(/\bCircles\b/);
+      expect(body).toContain('מעגלים לחוויות משותפות.');
     } finally {
       await ctx.close();
     }
@@ -1249,10 +1788,10 @@ test.describe('participant foundation', () => {
 
   test('questionnaire: anonymous visitor sees Hebrew sign-in banner with link to /auth', async ({ page }) => {
     await page.goto('/questionnaire');
-    await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
-    await expect(page.getByText('רוצים לשמור את התשובות בחשבון?', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
+    await expect(page.getByText('רוצים לשמור את הפרופיל בחשבון?', { exact: true })).toBeVisible();
     await expect(
-      page.getByText('אפשר למלא את השאלון גם בלי להתחבר', { exact: false }),
+      page.getByText('אפשר למלא את הפרופיל גם בלי להתחבר', { exact: false }),
     ).toBeVisible();
     const cta = page.getByRole('link', { name: 'להתחברות' });
     await expect(cta).toBeVisible();
@@ -1265,7 +1804,7 @@ test.describe('participant foundation', () => {
     const page = await ctx.newPage();
     try {
       await page.goto('/questionnaire');
-      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
 
       const fullNameInput = page.getByLabel('שם מלא');
       if ((await fullNameInput.inputValue()) === '') {
@@ -1362,7 +1901,7 @@ test.describe('participant foundation', () => {
       });
 
       await page.goto('/questionnaire');
-      await expect(page.getByRole('heading', { level: 1, name: /שאלון/ })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: /בסיס הפרופיל|Profile basics/i })).toBeVisible();
 
       await page.getByLabel('שם מלא').fill('אורית בדיקה');
       await page.getByLabel('אימייל').fill('questionnaire.e2e@gmail.com');
@@ -1392,8 +1931,8 @@ test.describe('participant foundation', () => {
 
       await page.getByRole('button', { name: 'שמירת פרופיל' }).click();
 
-      await expect(page.getByText('הפרופיל נשמר. מה הלאה?', { exact: true })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveAttribute('href', '/events');
+      await expect(page.getByText('הפרופיל נשמר', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'לעיון במפגשים' })).toHaveAttribute('href', '/events');
       await expect(page.getByRole('link', { name: 'לאזור האישי' })).toHaveAttribute('href', '/dashboard');
     } finally {
       await ctx.close();

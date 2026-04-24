@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Fast fail before `npm run dev` / `npm run dev:staging` when no Supabase browser env resolves.
- * Applies the same dotenv preload as `vite.config.ts`, then merges Vite `loadEnv` for `staging`
- * and `development` (covers both `vite` and `vite --mode staging`).
+ * Mode-aware by design:
+ * - development: do NOT preload staging env files
+ * - staging: preload `.env.staging.local` and mirror STAGING_* → VITE_* when needed
  */
 import { config as loadEnvFile } from 'dotenv';
 import { existsSync } from 'node:fs';
@@ -12,8 +13,10 @@ import { loadEnv } from 'vite';
 const root = join(import.meta.dirname, '..', '..');
 const staging = join(root, '.env.staging.local');
 const local = join(root, '.env.local');
+const modeArg = process.argv.find((arg) => arg.startsWith('--mode=')) || '';
+const mode = modeArg.slice('--mode='.length) || 'development';
+const isStagingMode = mode === 'staging';
 
-if (existsSync(staging)) loadEnvFile({ path: staging });
 if (existsSync(local)) loadEnvFile({ path: local, override: true });
 
 function mirrorStagingVarsToViteBrowserEnv() {
@@ -31,12 +34,21 @@ function mirrorStagingVarsToViteBrowserEnv() {
   if (!viteRef && sRef) process.env.VITE_SUPABASE_PROJECT_ID = sRef;
 }
 
-mirrorStagingVarsToViteBrowserEnv();
-
-const merged = {
-  ...loadEnv('staging', root, ''),
-  ...loadEnv('development', root, ''),
+const missingViteBrowserEnv = () => {
+  const url = (process.env.VITE_SUPABASE_URL || '').trim();
+  const key = (
+    (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim()
+    || (process.env.VITE_SUPABASE_ANON_KEY || '').trim()
+  );
+  return !url || !key;
 };
+
+if (isStagingMode || (missingViteBrowserEnv() && existsSync(staging))) {
+  if (existsSync(staging)) loadEnvFile({ path: staging });
+  mirrorStagingVarsToViteBrowserEnv();
+}
+
+const merged = loadEnv(mode, root, '');
 
 const url = (merged.VITE_SUPABASE_URL || '').trim();
 const key = (
@@ -46,8 +58,11 @@ const key = (
 
 if (!url || !key) {
   console.error(
-    'חסרים משתני Supabase לדפדפן. צור את הקובץ `.env.staging.local` (העתק מ־`.env.staging.example`) '
-      + 'והגדר בו VITE_SUPABASE_URL ו־VITE_SUPABASE_PUBLISHABLE_KEY, או הגדר אותם ב־`.env.local` / `.env`.\n'
+    'חסרים משתני Supabase לדפדפן. '
+      + (isStagingMode
+        ? 'צור את הקובץ `.env.staging.local` (העתק מ־`.env.staging.example`) והגדר בו VITE_SUPABASE_URL ו־VITE_SUPABASE_PUBLISHABLE_KEY.'
+        : 'הגדר את VITE_SUPABASE_URL ו־VITE_SUPABASE_PUBLISHABLE_KEY ב־`.env.local` / `.env`.')
+      + '\n'
       + 'אחרי שמירה — הרץ שוב `npm run dev`.',
   );
   process.exit(1);

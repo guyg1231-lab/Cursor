@@ -27,38 +27,38 @@ export function OperatorEventCreatePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user?.id) {
-      setError('You must be signed in.');
+      setError('צריך להתחבר כדי ליצור אירוע.');
       return;
     }
     const t = title.trim();
     if (!t) {
-      setError('Title is required.');
+      setError('כותרת היא שדה חובה.');
       return;
     }
     const startsIso = fromDateTimeLocalValue(startsAtLocal);
     if (!startsIso) {
-      setError('Start date/time is required.');
+      setError('מועד התחלה הוא שדה חובה.');
       return;
     }
     let cap: number | null = null;
     if (maxCapacity.trim()) {
       const n = Number(maxCapacity);
       if (!Number.isInteger(n) || n < 1) {
-        setError('Capacity must be a positive integer or empty.');
+        setError('קיבולת חייבת להיות מספר שלם חיובי או ריק.');
         return;
       }
       cap = n;
     }
     const deadlineIso = deadlineLocal ? fromDateTimeLocalValue(deadlineLocal) : '';
     if (deadlineLocal && !deadlineIso) {
-      setError('Invalid registration deadline.');
+      setError('דדליין ההרשמה לא תקין.');
       return;
     }
     if (deadlineIso) {
       const s = new Date(startsIso).getTime();
       const d = new Date(deadlineIso).getTime();
       if (!Number.isNaN(s) && !Number.isNaN(d) && d >= s) {
-        setError('Registration deadline must be before event start.');
+        setError('דדליין ההרשמה חייב להיות לפני תחילת האירוע.');
         return;
       }
     }
@@ -76,14 +76,14 @@ export function OperatorEventCreatePage() {
       });
       navigate(`/admin/events/${id}`, { replace: true });
     } catch (err) {
-      setError(err instanceof AdminEventRequestActionError ? err.message : 'Create failed.');
+      setError(err instanceof AdminEventRequestActionError ? err.message : 'יצירת האירוע נכשלה.');
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <PageShell variant="minimal" title="Create event" subtitle="Draft insert → admin publish (active + published).">
+    <PageShell variant="minimal" title="יצירת אירוע" subtitle="יצירה מהירה לפרסום מיידי דרך אדמין.">
       <Button asChild variant="outline" size="sm" className="mb-4">
           <Link to="/admin/events">← חזרה לרשימת אירועים</Link>
       </Button>
@@ -137,7 +137,7 @@ export function OperatorEventCreatePage() {
             </label>
             {error ? <RouteErrorState title="לא ניתן ליצור אירוע" body={error} /> : null}
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'יוצרים...' : 'יצירה (טיוטה + פרסום)'}
+              {submitting ? 'יוצרים...' : 'יצירה ופרסום'}
             </Button>
           </form>
         </CardContent>

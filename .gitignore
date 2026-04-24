@@ -8,3 +8,9 @@ circles-connect-human/
 
 # Local scratch / legacy files
 sotrim_algo_OLD.py
+
+# Local worktree/checkpoint artifacts
+.worktrees/
+social-matching-web/.playwright-cli/
+social-matching-web/docs/inspiration/
+.vercel

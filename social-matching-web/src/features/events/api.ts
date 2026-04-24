@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { safeSessionStorage } from '@/lib/safeStorage';
 import type { EventRow, VisibleEvent } from '@/features/events/types';
+import { buildCuratedInitialEvents, getLegacyEventSlugToTitleMap } from '@/features/events/presentation';
 
 const VISIBLE_EVENTS_CACHE_KEY = 'social_matching_visible_events_v1';
 const VISIBLE_EVENTS_REQUEST_TIMEOUT_MS = 1_500;
@@ -22,46 +23,16 @@ function isRegistrationOpen(event: EventRow) {
   return true;
 }
 
-const INITIAL_EVENTS: EventRow[] = [
-  {
-    id: 'initial-tel-aviv-circle',
-    title: 'מעגל היכרות תל אביב',
-    description: 'מפגש קטן בסלון אינטימי עם שיחה מונחית וחיבור בין אנשים שחושבים דומה.',
-    city: 'תל אביב',
-    starts_at: isoDaysFromNow(10),
-    registration_deadline: isoDaysFromNow(7),
-    venue_hint: 'פלורנטין, כתובת מלאה תישלח אחרי התאמה',
-    max_capacity: 8,
-    status: 'active',
-    is_published: true,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-    created_by_user_id: null,
-    host_user_id: null,
-    payment_required: false,
-    price_cents: 0,
-    currency: 'ILS',
-  },
-  {
-    id: 'initial-jerusalem-circle',
-    title: 'מעגל ירושלים - עומק ושיח',
-    description: 'שיח פתוח עם קבוצה קטנה סביב נושאי חיים, קהילה ומשמעות.',
-    city: 'ירושלים',
-    starts_at: isoDaysFromNow(16),
-    registration_deadline: isoDaysFromNow(13),
-    venue_hint: 'מרכז העיר, מיקום מדויק יישלח לנרשמים',
-    max_capacity: 6,
-    status: 'active',
-    is_published: true,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-    created_by_user_id: null,
-    host_user_id: null,
-    payment_required: false,
-    price_cents: 0,
-    currency: 'ILS',
-  },
-];
+const INITIAL_EVENTS: EventRow[] = buildCuratedInitialEvents(nowIso, isoDaysFromNow);
+const LOCKED_FALLBACK_EVENTS: EventRow[] = INITIAL_EVENTS.slice(0, 4);
+const CURATED_DEV_EVENT_TITLES = new Set(LOCKED_FALLBACK_EVENTS.map((event) => event.title));
+const CURATED_DEV_EVENT_BY_TITLE = new Map(LOCKED_FALLBACK_EVENTS.map((event) => [event.title, event]));
+
+const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
+
+function looksLikeUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
 
 const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = {
   'initial-tel-aviv-circle': 'מעגל היכרות תל אביב',
@@ -150,6 +121,73 @@ function writeCachedVisibleEvents(events: EventRow[]) {
   }
 }
 
+function looksFixtureLikeBrowseEvent(event: EventRow) {
+  const normalizedTitle = event.title.trim().toLowerCase();
+  const normalizedCity = event.city.trim().toLowerCase();
+  const normalizedVenue = (event.venue_hint ?? '').trim().toLowerCase();
+  const normalizedDescription = (event.description ?? '').trim().toLowerCase();
+
+  return (
+    normalizedTitle.includes('fixture')
+    || normalizedTitle.includes('slice')
+    || normalizedTitle.startsWith('ar-')
+    || normalizedCity === 'tel aviv'
+    || normalizedVenue === 'tel aviv'
+    || normalizedDescription.includes('a calm, small gathering')
+  );
+}
+
+function sanitizeLiveBrowseRows(events: EventRow[]) {
+  const cleaned = events.filter((event) => !looksFixtureLikeBrowseEvent(event));
+  const removedCount = events.length - cleaned.length;
+  if (removedCount > 0) {
+    console.warn('[events/api] filtered fixture-like rows from live browse data', {
+      receivedCount: events.length,
+      removedCount,
+      keptCount: cleaned.length,
+    });
+  }
+  if (cleaned.length > 0) return cleaned;
+  if (events.length > 0) {
+    console.warn('[events/api] no valid live browse rows after filtering, using locked fallback');
+  }
+  return LOCKED_FALLBACK_EVENTS;
+}
+
+function shouldInjectCuratedDevEvents() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
+function applyCuratedDevCopy(events: EventRow[]) {
+  if (!shouldInjectCuratedDevEvents()) return events;
+  return events.map((event) => {
+    const curated = CURATED_DEV_EVENT_BY_TITLE.get(event.title);
+    if (!curated) return event;
+    return {
+      ...event,
+      // Keep live ids/timestamps/statuses, but enforce curated participant-facing copy on localhost.
+      description: curated.description,
+      presentation_key: curated.presentation_key ?? event.presentation_key,
+    };
+  });
+}
+
+function mergeCuratedDevEvents(events: EventRow[]) {
+  if (!shouldInjectCuratedDevEvents()) return events;
+
+  const withCuratedCopy = applyCuratedDevCopy(events);
+
+  const hasAnyCuratedTitle = withCuratedCopy.some((event) => CURATED_DEV_EVENT_TITLES.has(event.title));
+  if (hasAnyCuratedTitle) return withCuratedCopy;
+
+  const byId = new Map<string, EventRow>();
+  for (const event of LOCKED_FALLBACK_EVENTS) byId.set(event.id, event);
+  for (const event of withCuratedCopy) byId.set(event.id, event);
+  return [...byId.values()];
+}
+
 async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
   const { data, error } = await supabase
     .from('events')
@@ -162,7 +200,7 @@ async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
     throw error;
   }
 
-  const rows = data ?? INITIAL_EVENTS;
+  const rows = mergeCuratedDevEvents(sanitizeLiveBrowseRows(data ?? []));
   writeCachedVisibleEvents(rows);
   return withSocialSignals(rows);
 }
@@ -181,6 +219,7 @@ function timeoutVisibleEventsRequest(): Promise<null> {
  */
 export async function listVisibleEvents(): Promise<VisibleEvent[]> {
   const cached = readCachedVisibleEvents();
+  const sanitizedCached = cached ? applyCuratedDevCopy(sanitizeLiveBrowseRows(cached)) : null;
 
   try {
     const result = await Promise.race([
@@ -191,11 +230,14 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
     if (result) {
       return result;
     }
-  } catch {
-    // Fall through to cached/seeded fallback below.
+  } catch (error) {
+    if (sanitizedCached) {
+      return withSocialSignals(sanitizedCached);
+    }
+    throw error;
   }
 
-  return withSocialSignals(cached ?? INITIAL_EVENTS);
+  return withSocialSignals(sanitizedCached ?? LOCKED_FALLBACK_EVENTS);
 }
 
 /**

@@ -32,9 +32,19 @@ function mirrorStagingVarsToViteBrowserEnv() {
   if (!viteRef && sRef) process.env.VITE_SUPABASE_PROJECT_ID = sRef;
 }
 
+function hasResolvedViteBrowserSupabaseEnv() {
+  const url = (process.env.VITE_SUPABASE_URL || '').trim();
+  const key = (
+    (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim()
+    || (process.env.VITE_SUPABASE_ANON_KEY || '').trim()
+  );
+  return !!url && !!key;
+}
+
 function preloadLocalEnvFiles(command: string, mode: string) {
   const root = __dirname;
   const isProdBuild = command === 'build' && mode === 'production';
+  const isExplicitStagingMode = mode === 'staging';
 
   if (isProdBuild) {
     const prodLocal = path.join(root, '.env.production.local');
@@ -44,11 +54,21 @@ function preloadLocalEnvFiles(command: string, mode: string) {
     return;
   }
 
-  const stagingLocal = path.join(root, '.env.staging.local');
-  if (existsSync(stagingLocal)) loadDotenv({ path: stagingLocal });
+  if (isExplicitStagingMode) {
+    const stagingLocal = path.join(root, '.env.staging.local');
+    if (existsSync(stagingLocal)) loadDotenv({ path: stagingLocal });
+    mirrorStagingVarsToViteBrowserEnv();
+  }
   const envLocal = path.join(root, '.env.local');
   if (existsSync(envLocal)) loadDotenv({ path: envLocal, override: true });
-  mirrorStagingVarsToViteBrowserEnv();
+
+  if (!isExplicitStagingMode && !hasResolvedViteBrowserSupabaseEnv()) {
+    const stagingLocal = path.join(root, '.env.staging.local');
+    if (existsSync(stagingLocal)) {
+      loadDotenv({ path: stagingLocal });
+      mirrorStagingVarsToViteBrowserEnv();
+    }
+  }
 }
 
 export default defineConfig(({ command, mode }) => {

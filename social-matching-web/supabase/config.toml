@@ -1,12 +1,20 @@
 project_id = "huzcvjyyyuudchnrosvx"
 
 [auth]
-site_url = "https://social-matching-web.vercel.app"
+# Linked project is staging (huzcvjyyyuudchnrosvx). Primary post-auth origin for this project:
+site_url = "https://social-matching-web-staging.vercel.app"
+minimum_password_length = 8
 additional_redirect_urls = [
+  "https://social-matching-web-staging.vercel.app/auth/callback",
+  "https://social-matching-web-staging.vercel.app",
   "https://social-matching-web.vercel.app/auth/callback",
   "https://social-matching-web.vercel.app",
   "https://social-matching-350oq3jeq-circles-connect.vercel.app/auth/callback",
   "https://social-matching-350oq3jeq-circles-connect.vercel.app",
+  "http://127.0.0.1:5173/auth/callback",
+  "http://localhost:5173/auth/callback",
+  "http://127.0.0.1:5173",
+  "http://localhost:5173",
 ]
 
 [auth.mfa]
@@ -29,7 +37,7 @@ double_confirm_changes = true
 enable_confirmations = true
 secure_password_change = false
 max_frequency = "1m0s"
-otp_length = 8
+otp_length = 6
 otp_expiry = 3600
 
 [functions.process-email-queue]

@@ -39,7 +39,7 @@ export function AdminEventRequestsPage() {
         setSubmittedRequests(req);
       } catch {
         if (stale) return;
-        setSubmittedError('Failed to load submitted requests.');
+        setSubmittedError('לא הצלחנו לטעון בקשות שנשלחו לבדיקה.');
       } finally {
         if (!stale) setLoading(false);
       }
@@ -62,9 +62,9 @@ export function AdminEventRequestsPage() {
     try {
       await approveSubmittedEventRequest(request.id);
       await refreshRequests();
-      setActionMessage(`Approved and published: "${request.title}".`);
+      setActionMessage(`הבקשה אושרה ופורסמה: "${request.title}".`);
     } catch (e) {
-      setActionError(e instanceof AdminEventRequestActionError ? e.message : 'Approve failed.');
+      setActionError(e instanceof AdminEventRequestActionError ? e.message : 'האישור נכשל.');
     } finally {
       setRequestActionId(null);
     }
@@ -77,9 +77,9 @@ export function AdminEventRequestsPage() {
     try {
       await rejectSubmittedEventRequest(request.id);
       await refreshRequests();
-      setActionMessage(`Rejected: "${request.title}".`);
+      setActionMessage(`הבקשה נדחתה: "${request.title}".`);
     } catch (e) {
-      setActionError(e instanceof AdminEventRequestActionError ? e.message : 'Reject failed.');
+      setActionError(e instanceof AdminEventRequestActionError ? e.message : 'הדחייה נכשלה.');
     } finally {
       setRequestActionId(null);
     }
@@ -108,7 +108,11 @@ export function AdminEventRequestsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {submittedRequests.map((request) => (
-                <div key={request.id} className={tokens.card.inner + ' space-y-2 p-4'}>
+                <div
+                  key={request.id}
+                  data-testid={`admin-event-request-${request.id}`}
+                  className={tokens.card.inner + ' space-y-2 p-4'}
+                >
                   <p className="font-medium text-foreground">{request.title}</p>
                   <p>{formatEventStatus(request.status)}</p>
                   <p>יוצר/ת: {request.creator?.full_name || request.creator?.email || request.created_by_user_id}</p>

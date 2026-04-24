@@ -58,7 +58,14 @@ export SUPABASE_ACCESS_TOKEN=…  # same PAT style as prebuilt-prod-deploy
 npm run ops:sync-vercel-vite-env
 ```
 
-This upserts `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY` (anon / publishable from Management API, **Supabase CLI**, or matching local env) for **production**, **preview**, and **development** targets. Then **redeploy** so a new build inlines them.
+This upserts `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY` (anon / publishable from Management API, **Supabase CLI**, or matching local env):
+
+- **Production** → `SUPABASE_PROJECT_REF` (default `nshgmuqlivuhlimwdwhe`)
+- **Preview + Development** → `STAGING_PROJECT_REF` (default `huzcvjyyyuudchnrosvx`)
+
+So Preview deployments on Vercel talk to the **staging** Supabase project by default, while Production talks to **prod**. Set `VERCEL_SUPABASE_ENV_UNIFIED=1` if you intentionally want the **same** ref for all three targets (legacy).
+
+Then **redeploy** (Production + at least one Preview) so new builds inline the values.
 
 Preview with `DRY_RUN=1` (resolves the key the same way as a real run — PAT, CLI, or local env):
 
@@ -68,13 +75,27 @@ DRY_RUN=1 npm run ops:sync-vercel-vite-env
 
 **Concrete refs in this repo (non-secret):** production frontend is shaped around project ref `nshgmuqlivuhlimwdwhe`; local/staging examples use `huzcvjyyyuudchnrosvx`. If Production hosting still bakes in the staging host, you will see intermittent auth issues and misleading smoke results — fix Vercel **Production** `VITE_*` values, then trigger a **new production deploy** (env changes do not rewrite an already-built `dist/`).
 
-After deploy, confirm the live bundle (not only Vercel’s env screen):
+After deploy, confirm the live bundle (not only Vercel’s env screen). To compare **staging vs prod SPA text** baked into JS (detects old prod builds vs newer staging):
+
+```bash
+cd social-matching-web
+npm run ops:compare-staging-prod-spa-bundles
+```
 
 ```bash
 cd social-matching-web
 npm run ops:verify-deploy-supabase
 # or override:
 VERIFY_DEPLOY_URL=https://your-prod-host.example VERIFY_EXPECT_SUPABASE_REF=nshgmuqlivuhlimwdwhe npm run ops:verify-deploy-supabase
+
+# Dedicated staging host (fixed URL + ref):
+npm run ops:verify-staging-deploy-supabase
+```
+
+After editing `supabase/config.toml` for the linked staging project (`project_id` in that file), push Auth/API settings:
+
+```bash
+npm run ops:push-staging-supabase-config
 ```
 
 **Vercel CLI gotcha:** if `vercel deploy --prod` fails immediately with *Git author … must have access to the team*, the team blocks CLI builds when commit metadata points at a non-member. A working path is **prebuilt**: set Production `VITE_*` in the dashboard (so Git-based deploys stay healthy), then locally run `node scripts/ops/prebuilt-prod-deploy.mjs` with `SUPABASE_ACCESS_TOKEN` set (see script header) so `npm run build` inlines the correct Supabase host, then `vercel build` + `vercel deploy --prebuilt --prod`.
@@ -89,8 +110,10 @@ Email **OTP vs magic link**: the SPA expects a **6-digit code**; the Supabase �
 
 In Supabase Dashboard → Authentication → URL configuration:
 
-- **Site URL** — production app origin (e.g. `https://app.example.com`).
-- **Redirect URLs** — include your app origin with paths used by the auth flow, e.g. `https://app.example.com/auth/callback` (add staging origins separately).
+- **Site URL** — primary app origin for that Supabase project (production host on the **prod** project; staging host on the **staging** project, e.g. `https://social-matching-web-staging.vercel.app`).
+- **Redirect URLs** — include your app origin with paths used by the auth flow, e.g. `https://app.example.com/auth/callback` (add staging, preview, and `http://localhost:5173/auth/callback` separately).
+
+**This repo:** staging Supabase (`huzcvjyyyuudchnrosvx`) is kept in sync with `supabase/config.toml` via `supabase config push` (see root `project_id`). Production Supabase (`nshgmuqlivuhlimwdwhe`) must still be configured in its own Dashboard (or Management API) with production origins.
 
 Mismatch here is the most common “works locally, fails in prod” issue.
 

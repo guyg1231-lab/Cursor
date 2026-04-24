@@ -9,7 +9,7 @@ export function HostEventRegistrationsPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="תמונת הרשמות למארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
+    <PageShell title="תמונת הרשמות למארח/ת" subtitle={`אירוע ${eventId ?? 'לא זמין'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
           <Link to={`/host/events/${eventId ?? ''}`}>חזרה למרחב ניהול מארח/ת</Link>
@@ -18,7 +18,7 @@ export function HostEventRegistrationsPage() {
 
       <SectionHeader
         title="תמונת הרשמות למארח/ת"
-        description="שמורה להשלמת יישום עתידי."
+        description="יושלם בהמשך."
       />
 
       <PlaceholderPanel

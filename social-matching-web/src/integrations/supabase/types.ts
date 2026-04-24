@@ -227,6 +227,7 @@ export type Database = {
           is_published: boolean
           max_capacity: number | null
           payment_required: boolean
+          presentation_key: string | null
           price_cents: number
           registration_deadline: string | null
           starts_at: string
@@ -246,6 +247,7 @@ export type Database = {
           is_published?: boolean
           max_capacity?: number | null
           payment_required?: boolean
+          presentation_key?: string | null
           price_cents?: number
           registration_deadline?: string | null
           starts_at: string
@@ -265,6 +267,7 @@ export type Database = {
           is_published?: boolean
           max_capacity?: number | null
           payment_required?: boolean
+          presentation_key?: string | null
           price_cents?: number
           registration_deadline?: string | null
           starts_at?: string

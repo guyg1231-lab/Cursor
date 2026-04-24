@@ -78,7 +78,7 @@ export function TeamGatheringPage() {
         await offerTemporarySpot(id, INVITATION_TIMEOUT_HOURS);
       }
       await loadData();
-      setInfoMessage('ההזמנות נשלחו. כל 4 ההרשמות עברו למצב awaiting_response.');
+      setInfoMessage('ההזמנות נשלחו. כל 4 ההרשמות עברו למצב ממתין לתגובה.');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'לא הצלחנו לשלוח את ההזמנות כרגע.';
       setActionError(message);
@@ -99,7 +99,7 @@ export function TeamGatheringPage() {
         await adminMarkAttended(row.id);
       }
       await loadData();
-      setInfoMessage('כל 4 ההרשמות סומנו כ-attended.');
+      setInfoMessage('כל 4 ההרשמות סומנו כהגיעו.');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'לא הצלחנו לסמן הגעה כרגע.';
       setActionError(message);
@@ -173,8 +173,8 @@ export function TeamGatheringPage() {
               {isMarkingAttended ? 'מסמנים...' : 'סימון הגעה'}
             </Button>
             <p className="text-xs text-muted-foreground">
-              סה״כ רשומים: {rows.length} · דרושים {SLICE_COHORT_SIZE} במצב pending לשליחת הזמנות
-              · ודרושים {SLICE_COHORT_SIZE} במצב confirmed לסימון הגעה.
+              סה״כ רשומים: {rows.length} · דרושים {SLICE_COHORT_SIZE} במצב ממתין (pending) לשליחת הזמנות
+              · ודרושים {SLICE_COHORT_SIZE} במצב מאושר (confirmed) לסימון הגעה.
             </p>
           </div>
 
@@ -185,8 +185,8 @@ export function TeamGatheringPage() {
                   <th className="px-4 py-3 text-start font-medium">שם מלא</th>
                   <th className="px-4 py-3 text-start font-medium">טלפון</th>
                   <th className="px-4 py-3 text-start font-medium">registration_id</th>
-                  <th className="px-4 py-3 text-start font-medium">status</th>
-                  <th className="px-4 py-3 text-start font-medium">expires_at</th>
+                  <th className="px-4 py-3 text-start font-medium">סטטוס</th>
+                  <th className="px-4 py-3 text-start font-medium">תוקף הצעה</th>
                 </tr>
               </thead>
               <tbody className="text-foreground/90">

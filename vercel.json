@@ -1,6 +1,7 @@
 {
-  "installCommand": "cd social-matching-web && npm ci",
-  "buildCommand": "cd social-matching-web && npm run build",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix social-matching-web ci",
+  "buildCommand": "npm --prefix social-matching-web run build",
   "outputDirectory": "social-matching-web/dist",
   "rewrites": [
     {

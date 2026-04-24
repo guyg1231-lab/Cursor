@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
 import { RouteErrorState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
@@ -32,8 +33,11 @@ import {
   isOfferExpired,
 } from '@/features/applications/status';
 import { ApplicationStatusPanel } from '@/features/applications/components/ApplicationStatusPanel';
+import { PostEventFeedbackCard } from '@/features/applications/components/PostEventFeedbackCard';
 import { resolveApplicationBadgeTone, resolveApplicationPanelContent } from '@/features/applications/presentation';
 import { getVisibleEventById } from '@/features/events/api';
+import { EventIdentityHero } from '@/features/events/components/EventIdentityHero';
+import { EventGroupContextCard } from '@/features/events/components/EventGroupContextCard';
 import type {
   EventRegistrationRow,
   MatchingResponseRow,
@@ -105,6 +109,28 @@ function SubmittedAnswersSummary({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ApplyEventIdentityCard({
+  event,
+  subtitle,
+}: {
+  event: VisibleEvent;
+  subtitle: string;
+}) {
+  return (
+    <EventIdentityHero
+      event={event}
+      eyebrow="הכוונה למפגש הזה"
+      subtitle={subtitle}
+      socialLabel={
+        event.social_signal?.attendee_count
+          ? `${event.social_signal.attendee_count} כבר מתחילים לבנות את החדר הזה`
+          : undefined
+      }
+      socialDetail="החדר נבנה סביב המפגש הזה"
+    />
   );
 }
 
@@ -272,6 +298,13 @@ export function ApplyPage() {
   const offerExpired = existingApplication ? isOfferExpired(existingApplication) : false;
   const canConfirmSpot = existingApplication ? canConfirmTemporarySpot(existingApplication) : false;
   const confirmedParticipation = existingApplication ? isConfirmedParticipation(existingApplication.status) : false;
+  const completedEventFeedbackStatus =
+    existingApplication?.status === 'attended' || existingApplication?.status === 'no_show'
+      ? existingApplication.status
+      : null;
+  const fieldShellClassName = tokens.card.inner + ' space-y-2.5 p-4';
+  const textInputClassName =
+    'w-full rounded-[22px] border border-border/70 bg-card/94 px-4 py-3 text-sm text-foreground shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_18px_-16px_hsl(var(--foreground)/0.18)] outline-none transition focus:border-primary/35 focus:ring-2 focus:ring-primary/10';
 
   async function handleSubmit() {
     if (!user || !event || !canSubmit) return;
@@ -429,7 +462,7 @@ export function ApplyPage() {
 
   if (pageLoading) {
     return (
-      <PageShell title="הגשת מועמדות למפגש" subtitle="טוענים את פרטי ההגשה...">
+      <PageShell title="הגשה למפגש" subtitle="טוענים את הכוונה למפגש הזה...">
         <Card className={tokens.card.surface}>
           <CardContent className="py-10 text-sm text-muted-foreground">טוענים...</CardContent>
         </Card>
@@ -439,7 +472,7 @@ export function ApplyPage() {
 
   if (error) {
     return (
-      <PageShell title="הגשת מועמדות למפגש" subtitle="לא הצלחנו לטעון את הדף כרגע.">
+      <PageShell title="הגשה למפגש" subtitle="לא הצלחנו לטעון את הכוונה למפגש כרגע.">
         <RouteErrorState title="לא הצלחנו לטעון את פרטי ההגשה" body={error} />
       </PageShell>
     );
@@ -456,17 +489,28 @@ export function ApplyPage() {
   if (!user) {
     return (
       <PageShell
-        title="כדי להגיש מועמדות צריך להתחבר"
-        subtitle="עמוד זה הוא הסמכות היחידה להגשה ולניהול סטטוס, ולכן צריך להתחבר כדי להמשיך."
+        title="כדי לשלוח כוונה למפגש צריך להתחבר"
+        subtitle="העמוד הזה מרכז את הכוונה והסטטוס של המפגש הזה, ולכן צריך להתחבר כדי להמשיך."
       >
-        <Card className={tokens.card.surface}>
-          <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-            <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
+        <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="כאן שולחים כוונה למפגש עצמו, ואפשר לחזור בדיוק לאותה נקודה אחרי התחברות."
+          />
+          <PageActionBar variant="participant">
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>
             </Button>
-          </CardContent>
-        </Card>
+            <Button asChild variant="primary">
+              <Link to="/auth">להתחברות כדי להמשיך</Link>
+            </Button>
+          </PageActionBar>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
+            <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
+              <p>אחרי התחברות אפשר לחזור לעמוד הזה ולהמשיך בדיוק מאותה נקודה.</p>
+            </CardContent>
+          </Card>
+        </div>
       </PageShell>
     );
   }
@@ -475,20 +519,51 @@ export function ApplyPage() {
     const panel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
-        title="סטטוס ההרשמה – מקום זמני"
+        title="סטטוס הכוונה למפגש – מקום זמני"
         subtitle={
           offerExpired
             ? 'המקום הזמני כבר לא מחכה לתגובה, אבל נציג כאן בבירור מה קרה.'
-            : 'כדי לשמור על המקום, צריך להגיב עד הדדליין שמופיע כאן.'
+            : 'כדי לשמור על המקום, צריך להגיב עד המועד שמופיע כאן.'
         }
       >
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle={
+              offerExpired
+                ? 'המקום הזמני כבר לא מחכה לתגובה, אבל ההקשר של המפגש נשאר כאן ברור ומסודר.'
+                : 'כאן מגיבים למקום הזמני שנשמר עבורך, בלי לאבד את ההקשר של המפגש הזה.'
+            }
+          />
+          <EventGroupContextCard event={event} />
+          <PageActionBar variant="participant">
+            {!offerExpired ? (
+              <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
+                {isConfirmingSpot ? 'שומר/ת...' : 'אישור המקום הזמני'}
+              </Button>
+            ) : null}
+            {!offerExpired ? (
+              <Button
+                variant="outline"
+                disabled={!canConfirmSpot || isDecliningSpot || isConfirmingSpot}
+                onClick={() => void handleDeclineTemporarySpot()}
+              >
+                {isDecliningSpot ? 'מעדכן/ת...' : 'לא אוכל להגיע'}
+              </Button>
+            ) : null}
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/dashboard">לאזור האישי</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title={panel.title}
             body={panel.body}
             footer={panel.footer ? <p>{panel.footer}</p> : undefined}
           />
-          <Card className={tokens.card.surface}>
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 text-sm text-muted-foreground pt-6">
               <div className={tokens.card.inner + ' p-4 space-y-2'}>
                 <p><strong className="text-foreground">מפגש:</strong> {event.title}</p>
@@ -498,29 +573,6 @@ export function ApplyPage() {
 
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               {confirmError ? <p className="text-destructive">{confirmError}</p> : null}
-
-              <div className="flex flex-wrap gap-3 pt-1">
-                {!offerExpired ? (
-                  <Button variant="primary" disabled={!canConfirmSpot || isConfirmingSpot} onClick={() => void handleConfirmTemporarySpot()}>
-                    {isConfirmingSpot ? 'שומר/ת...' : 'אישור המקום הזמני'}
-                  </Button>
-                ) : null}
-                {!offerExpired ? (
-                  <Button
-                    variant="outline"
-                    disabled={!canConfirmSpot || isDecliningSpot || isConfirmingSpot}
-                    onClick={() => void handleDeclineTemporarySpot()}
-                  >
-                    {isDecliningSpot ? 'מעדכן/ת...' : 'לא אוכל להגיע'}
-                  </Button>
-                ) : null}
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to="/dashboard">לאזור האישי</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
@@ -528,7 +580,7 @@ export function ApplyPage() {
             <SubmittedAnswersSummary
               answers={persistedApplicationAnswers}
               title="ההגשה שנשמרה עבורך"
-              subtitle="אלה הפרטים שנשמרו עם ההרשמה למפגש הזה, כדי שתוכל או תוכלי לראות בדיוק על מה התגובה מתייחסת."
+              subtitle="אלה הפרטים שנשמרו עם ההרשמה למפגש הזה, כדי שתוכל או תוכלי לראות בדיוק למה התגובה מתייחסת."
             />
           ) : null}
         </div>
@@ -540,31 +592,43 @@ export function ApplyPage() {
     const blockingPanel = resolveApplicationPanelContent(existingApplication);
     return (
       <PageShell
-        title="סטטוס ההרשמה"
+        title="סטטוס ההגשה למפגש"
         subtitle={
           confirmedParticipation
-            ? 'לא צריך לשלוח שוב טופס. זהו הסטטוס העדכני של ההרשמה שלך.'
-            : 'לא נפתח שוב טופס חדש לאותו אירוע. במקום זה נציג את הסטטוס הקיים שלך.'
+            ? 'לא צריך לשלוח שוב את הכוונה למפגש הזה. זהו הסטטוס העדכני שלך.'
+            : 'לא נפתח שוב טופס חדש לאותו מפגש. במקום זה נציג את הסטטוס הקיים שלך.'
         }
       >
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="זהו הסטטוס העדכני של ההגשה למפגש הזה, יחד עם פרטי המפגש שנשמרו כהקשר."
+          />
+          <EventGroupContextCard event={event} />
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+            <Button asChild variant="primary">
+              <Link to="/events">לכל המפגשים</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title={blockingPanel.title}
             body={blockingPanel.body}
             footer={blockingPanel.footer ? <p>{blockingPanel.footer}</p> : undefined}
           />
-          <Card className={tokens.card.surface}>
+          {completedEventFeedbackStatus && user ? (
+            <PostEventFeedbackCard
+              eventId={event.id}
+              userId={user.id}
+              completedStatus={completedEventFeedbackStatus}
+            />
+          ) : null}
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-3 py-6 text-sm text-muted-foreground">
               {savedMessage ? <p className="text-primary">{savedMessage}</p> : null}
               <p>ברגע שיהיה שינוי בסטטוס, זה יופיע כאן ובהמשך גם בדשבורד.</p>
-              <div className="flex gap-3 pt-2">
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-                <Button asChild variant="primary">
-                  <Link to="/events">לכל המפגשים</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
@@ -582,15 +646,21 @@ export function ApplyPage() {
 
   if (!event.is_registration_open) {
     return (
-      <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח להגשות חדשות.">
+      <PageShell title="ההגשות למפגש הזה סגורות" subtitle="המפגש עדיין פומבי, אבל כרגע לא פתוח לכוונות חדשות.">
         <div className="space-y-4">
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="ההגשה סגורה כרגע, אבל פרטי המפגש נשארים כאן כדי שתהיה תמונה מלאה וברורה."
+          />
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to="/events">חזרה לכל המפגשים</Link>
+            </Button>
+          </PageActionBar>
           <ApplicationStatusPanel
             title="ההגשות למפגש הזה סגורות כרגע"
             body="אפשר לחזור לרשימת המפגשים ולבדוק אם יש מפגש אחר שפתוח להגשה."
           />
-          <Button asChild variant="outline">
-            <Link to="/events">חזרה לכל המפגשים</Link>
-          </Button>
         </div>
       </PageShell>
     );
@@ -598,22 +668,28 @@ export function ApplyPage() {
 
   if (!questionnaireReady) {
     return (
-      <PageShell title="הגשה למפגש – פרופיל חסר" subtitle="כדי שנוכל להבין אותך טוב יותר ולשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל.">
+      <PageShell title="הגשה למפגש" subtitle="כדי לשמור את הכוונה למפגש הזה נכון, צריך קודם להשלים את הבסיס האישי.">
         <div className="space-y-4">
-          <ApplicationStatusPanel
-            title="צריך להשלים את השאלון לפני ההגשה"
-            body="כדי שנוכל לשמור את ההגשה נכון, צריך להשלים קודם את שאלון הפרופיל."
+          <ApplyEventIdentityCard
+            event={event}
+            subtitle="לפני ששולחים כוונה למפגש, נשמור כאן את פרטי המפגש עצמו כדי שההמשך יישאר ברור ורגוע."
           />
-          <Card className={tokens.card.surface}>
+          <EventGroupContextCard event={event} />
+          <PageActionBar variant="participant">
+            <Button asChild variant="primary">
+              <Link to="/questionnaire">להשלמת הפרופיל</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+            </Button>
+          </PageActionBar>
+          <ApplicationStatusPanel
+            title="צריך להשלים קודם את הבסיס האישי"
+            body="כדי שנוכל לשמור את הכוונה למפגש נכון, צריך להשלים קודם את הבסיס האישי."
+          />
+          <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardContent className="space-y-4 py-8 text-sm text-muted-foreground">
-              <div className="flex gap-3 pt-2">
-                <Button asChild variant="primary">
-                  <Link to="/questionnaire">להשלמת הפרופיל</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
-                </Button>
-              </div>
+              <p>ברגע שהבסיס האישי יושלם, אפשר לחזור לכאן ולהמשיך בדיוק עם הכוונה למפגש הזה.</p>
             </CardContent>
           </Card>
         </div>
@@ -624,11 +700,25 @@ export function ApplyPage() {
   return (
     <PageShell
       title="הגשה למפגש"
-      subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך נשמר מקום זמני."
+      subtitle="זה העמוד שבו מנסחים כוונה למפגש, חוזרים לסטטוס, ומגיבים אם בהמשך ייפתח מקום זמני."
     >
-      <Card className={tokens.card.accent}>
+      <PageActionBar variant="participant">
+        <Button asChild variant="outline">
+          <Link to={`/events/${event.id}`}>חזרה לפרטי המפגש</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/dashboard">לאזור האישי</Link>
+        </Button>
+      </PageActionBar>
+      <ApplyEventIdentityCard
+        event={event}
+        subtitle="זהו עמוד הכוונה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את ההקשר של המפגש."
+      />
+      <EventGroupContextCard event={event} />
+
+      <Card data-testid="participant-surface-panel" className={tokens.card.accent}>
         <CardHeader>
-          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמתחילים</CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">לפני שמנסחים כוונה</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-foreground/85 leading-7">
           {/**
@@ -640,16 +730,26 @@ export function ApplyPage() {
            * work requires symmetry, extract a shared ReapplyHeader (badge + prose) —
            * do not adopt ApplicationStatusPanel here without a UX review.
            */}
-          {existingApplication && canReapplyToEvent(existingApplication.status) ? (
+          <div className={tokens.card.inner + ' space-y-2 p-4'}>
+            <p className={tokens.typography.eyebrow}>מה קורה במסך הזה</p>
+            <p>זהו עמוד הכוונה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
+          </div>
+          <div className={tokens.card.inner + ' space-y-2 p-4'}>
+            <p className={tokens.typography.eyebrow}>אחרי השליחה</p>
             <p>
-              הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
-              שליחה עכשיו תפתח אותה מחדש כ-הגשה ממתינה.
+              ההגשה שלך תישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי
+              להגיב אליו בזמן.
             </p>
+          </div>
+          {existingApplication && canReapplyToEvent(existingApplication.status) ? (
+            <div className={tokens.card.inner + ' space-y-2 p-4'}>
+              <p className={tokens.typography.eyebrow}>הגשה קודמת</p>
+              <p>
+                הייתה לך כבר כוונה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
+                שליחה עכשיו תפתח אותה מחדש כהגשה ממתינה.
+              </p>
+            </div>
           ) : null}
-          <p>זהו עמוד ההגשה והסטטוס למפגש הזה. כל עדכון עתידי יופיע כאן וגם באזור האישי.</p>
-          <p>
-            אחרי ההגשה הסטטוס שלך יישמר למפגש הזה, ואם בהמשך יישמר עבורך מקום זמני נחזיר אותך למסך הזה כדי להגיב אליו בזמן.
-          </p>
         </CardContent>
       </Card>
 
@@ -658,8 +758,8 @@ export function ApplyPage() {
           <SectionDivider />
           <SubmittedAnswersSummary
             answers={persistedApplicationAnswers}
-            title="ההגשה הקודמת שלך"
-            subtitle="אלה הפרטים האחרונים שנשמרו על ההגשה למפגש הזה. אם תרצה או תרצי להגיש מחדש, הטופס למטה יתחיל מהמידע הזה אלא אם קיימת טיוטה מקומית חדשה יותר."
+            title="הכוונה הקודמת שלך"
+            subtitle="אלה הפרטים האחרונים שנשמרו על הכוונה למפגש הזה. אם תרצה או תרצי להגיש מחדש, הטופס למטה יתחיל מהמידע הזה אלא אם קיימת טיוטה מקומית חדשה יותר."
           />
         </>
       ) : null}
@@ -675,74 +775,92 @@ export function ApplyPage() {
         </div>
       ) : null}
 
-      <Card className={tokens.card.surface}>
+      <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטים על ההגשה</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-[-0.015em]">פרטי הכוונה למפגש</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className={tokens.card.inner + ' p-4 space-y-2 text-sm text-foreground/80'}>
-            <p><strong className="text-foreground">מפגש:</strong> {event.title}</p>
-            <p><strong className="text-foreground">עיר:</strong> {event.city}</p>
-            <p><strong className="text-foreground">תהליך:</strong> ההגשה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי.</p>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+            <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
+              <p className={tokens.typography.eyebrow}>איך זה מרגיש</p>
+              <p>
+                זהו טופס קצר וממוקד למפגש הזה. המטרה היא להבין מה מחבר אותך דווקא לחדר הזה, בלי להפוך
+                את זה למסך כבד.
+              </p>
+            </div>
+            <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
+              <p className={tokens.typography.eyebrow}>תהליך</p>
+              <p>
+                הכוונה נשמרת עכשיו, ובהמשך הסטטוס שלך יתעדכן כאן ובאזור האישי. אם ייפתח מקום זמני, נחזור למסך
+                הזה עם צעד ברור להמשך.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
+          <div className={fieldShellClassName}>
             <label className="text-sm font-medium text-foreground">למה דווקא המפגש הזה מעניין אותך?</label>
             <textarea
               value={whyThisEvent}
               onChange={(e) => setWhyThisEvent(e.target.value)}
-              className="min-h-[120px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
+              className={textInputClassName + ' min-h-[124px] resize-y'}
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">מה היית רוצה לקבל מהמפגש הזה?</label>
-            <select
-              value={desiredOutcome}
-              onChange={(e) => setDesiredOutcome(e.target.value)}
-              className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-            >
-              <option value="">בחר/י תשובה אחת</option>
-              <option value="meet_new_people">להכיר אנשים חדשים</option>
-              <option value="meaningful_conversation">שיחה טובה ומשמעותית</option>
-              <option value="easygoing_experience">חוויה נעימה וקלילה</option>
-              <option value="inspiration">השראה / פתיחת אופקים</option>
-            </select>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className={fieldShellClassName}>
+              <label className="text-sm font-medium text-foreground">מה היית רוצה לקבל מהמפגש הזה?</label>
+              <select
+                value={desiredOutcome}
+                onChange={(e) => setDesiredOutcome(e.target.value)}
+                className={textInputClassName}
+              >
+                <option value="">בחר/י תשובה אחת</option>
+                <option value="meet_new_people">להכיר אנשים חדשים</option>
+                <option value="meaningful_conversation">שיחה טובה ומשמעותית</option>
+                <option value="easygoing_experience">חוויה נעימה וקלילה</option>
+                <option value="inspiration">השראה / פתיחת אופקים</option>
+              </select>
+            </div>
+
+            <div className={fieldShellClassName}>
+              <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לחדר הזה?</label>
+              <select
+                value={whatYouBring}
+                onChange={(e) => setWhatYouBring(e.target.value)}
+                className={textInputClassName}
+              >
+                <option value="">בחר/י תשובה אחת</option>
+                {WHAT_YOU_BRING_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">מה היית רוצה להביא לקבוצה?</label>
-            <select
-              value={whatYouBring}
-              onChange={(e) => setWhatYouBring(e.target.value)}
-              className="w-full rounded-full border border-input bg-background px-4 py-3 text-sm outline-none"
-            >
-              <option value="">בחר/י תשובה אחת</option>
-              {WHAT_YOU_BRING_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">יש משהו שחשוב למארגן לדעת?</label>
+          <div className={fieldShellClassName}>
+            <label className="text-sm font-medium text-foreground">יש משהו שחשוב למארגן של המפגש הזה לדעת?</label>
             <textarea
               value={hostNote}
               onChange={(e) => setHostNote(e.target.value)}
-              className="min-h-[100px] w-full rounded-3xl border border-input bg-background px-4 py-3 text-sm outline-none"
+              className={textInputClassName + ' min-h-[108px] resize-y'}
             />
           </div>
 
           {savedMessage ? <p className="text-sm text-primary">{savedMessage}</p> : null}
           {submitError ? <RouteErrorState title="לא הצלחנו לשמור את ההגשה" body={submitError} /> : null}
 
-          <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={saveDraft} disabled={isSubmitting}>
+          <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={saveDraft} disabled={isSubmitting}>
               שמירת טיוטה
             </Button>
-            <Button variant="primary" disabled={!canSubmit || isSubmitting} onClick={() => void handleSubmit()}>
+            <Button
+              variant="primary"
+              className="w-full sm:w-auto sm:min-w-[172px]"
+              disabled={!canSubmit || isSubmitting}
+              onClick={() => void handleSubmit()}
+            >
               {isSubmitting ? 'שולח/ת...' : 'שליחת הגשה'}
             </Button>
           </div>

@@ -83,11 +83,11 @@ export function DashboardPage() {
   return (
     <PageShell
       title="האזור האישי שלך"
-      subtitle="כאן יופיעו הסטטוס של הפרופיל, ההגשות שלך, ומה השלב הבא בכל מפגש שאליו הגשת מועמדות."
+      subtitle="כאן רואים את מצב הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש."
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <QuestionnaireReadinessPanel body="כאן יופיע הסטטוס של הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש." />
+          <QuestionnaireReadinessPanel body="כאן יופיע מצב הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש." />
         </div>
         <ProfileReadinessCard ready={profileReady} isLoading={authLoading || !user || readinessLoading} />
         <Card className={tokens.card.surface}>
@@ -95,10 +95,10 @@ export function DashboardPage() {
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">סטטוס פרופיל</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
-            <p>הפרופיל שלך נבנה כדי לעזור לנו להבין אותך טוב יותר לפני כל הגשה.</p>
+            <p>הפרופיל עוזר לנו להתאים אותך למעגלים ולמפגשים שמתאימים לך.</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="outline">
-                <Link to="/questionnaire">לשאלון הפרופיל</Link>
+                <Link to="/questionnaire">להשלמת הפרופיל</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link to="/events/propose">להציע מפגש חדש</Link>
@@ -120,7 +120,7 @@ export function DashboardPage() {
               <div className="space-y-3">
                 <RouteEmptyState
                   title="אין עדיין הגשות"
-                  body="כשתגישו למפגש פתוח, הסטטוס והצעדים הבאים יופיעו כאן."
+                body="כשתגישו למפגש פתוח, הסטטוס והצעדים הבאים יופיעו כאן."
                 />
                 <Button asChild variant="primary">
                   <Link to="/events">למפגשים פתוחים</Link>
