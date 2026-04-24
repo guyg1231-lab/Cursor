@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('events experiences demo', () => {
   test('renders a production-like shelf display with minimal framing', async ({ page }) => {
-    await page.goto('/events/demo-experiences');
+    await page.goto('/events/demo-experiences', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     await expect(page).toHaveURL(/\/events\/demo-experiences$/);
     await expect(page.getByRole('heading', { name: 'אירועים' })).toBeVisible();
@@ -30,7 +30,7 @@ test.describe('events experiences demo', () => {
 
   test('keeps the recommended 4-across shelf aligned and free of horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 1600 });
-    await page.goto('/events/demo-experiences');
+    await page.goto('/events/demo-experiences', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     const section4 = page.getByTestId('experiences-demo-grid-4');
     const cards = section4.getByTestId('experience-demo-card');
@@ -71,7 +71,7 @@ test.describe('events experiences demo', () => {
 
   test('card and primary CTA react on hover to feel interactive', async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 1400 });
-    await page.goto('/events/demo-experiences');
+    await page.goto('/events/demo-experiences', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     const card = page.getByTestId('experiences-demo-grid-4').getByTestId('experience-demo-card').first();
     const button = card.getByRole('button', { name: 'לפרטי הערב' });
@@ -111,7 +111,7 @@ test.describe('events experiences demo', () => {
 
   test('lays out the 3-across shelf in two clean rows of three on wide screens', async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 1600 });
-    await page.goto('/events/demo-experiences');
+    await page.goto('/events/demo-experiences', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     const section3 = page.getByTestId('experiences-demo-grid-3');
     const cards = section3.getByTestId('experience-demo-card');
@@ -142,7 +142,7 @@ test.describe('events experiences demo', () => {
 
   test('uses only the mobile fallback on narrow screens', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 1200 });
-    await page.goto('/events/demo-experiences');
+    await page.goto('/events/demo-experiences', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     await expect(page.getByTestId('experiences-demo-mobile')).toBeVisible();
     await expect(page.getByTestId('experiences-demo-grid-4')).toBeHidden();

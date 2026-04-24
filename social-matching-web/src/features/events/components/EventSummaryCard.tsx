@@ -3,6 +3,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
+import { EventPresentationIcon } from '@/features/events/components/EventPresentationIcon';
 import {
   formatEventAreaHint,
   formatEventAtmosphereSnippet,
@@ -63,7 +64,7 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
               presentation.symbolShellClassName,
             )}
           >
-            <span aria-hidden="true">{presentation.symbol}</span>
+            <EventPresentationIcon presentationKey={presentation.key} className="h-5 w-5" />
           </div>
         </div>
         <div className="relative mt-1.5 flex min-w-0 flex-wrap items-center gap-2">

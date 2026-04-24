@@ -3,8 +3,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
+import { EventPresentationIcon } from '@/features/events/components/EventPresentationIcon';
 import { cn } from '@/lib/utils';
 import { tokens } from '@/lib/design-tokens';
+import type { EventPresentationKey } from '@/features/events/presentation';
 
 type DemoEvent = {
   title: string;
@@ -16,7 +18,7 @@ type DemoEvent = {
   capacity: string;
   mood: string;
   hostNote: string;
-  emoji: string;
+  presentationKey: EventPresentationKey;
   tintClassName: string;
 };
 
@@ -31,7 +33,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 12 משתתפים',
     mood: 'אחר צהריים רגוע',
     hostNote: 'מפגש פתוח עם שמיכה, משחקים קטנים ונשנושים שמופיעים מעצמם.',
-    emoji: '🧺',
+    presentationKey: 'picnic',
     tintClassName: 'from-[#edf6cf] via-[#f8f5e8] to-[#dceac9]',
   },
   {
@@ -44,7 +46,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 14 משתתפים',
     mood: 'בוקר פעיל',
     hostNote: 'למי שאוהב להתחיל את היום עם תנועה, ים וקבוצה עם אנרגיה טובה.',
-    emoji: '🏐',
+    presentationKey: 'beach-volleyball',
     tintClassName: 'from-[#d8efff] via-[#f7f6ed] to-[#f5d8b6]',
   },
   {
@@ -57,7 +59,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 10 משתתפים',
     mood: 'הליכה שקיעתית',
     hostNote: 'מתאים למי שמעדיף היכרות דרך תנועה איטית ושיחה בדרך.',
-    emoji: '🚶',
+    presentationKey: 'promenade-walk',
     tintClassName: 'from-[#d9e4ff] via-[#fbf7ee] to-[#f3d7c2]',
   },
   {
@@ -70,7 +72,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 8 משתתפים',
     mood: 'מפגש קצר באמצע שבוע',
     hostNote: 'שולחן קטן, שיחה נעימה ואפשרות להכיר בלי ערב ארוך.',
-    emoji: '☕',
+    presentationKey: 'coffee-square',
     tintClassName: 'from-[#f2e4d1] via-[#fbf8f2] to-[#ebe5ff]',
   },
   {
@@ -83,7 +85,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 20 משתתפים',
     mood: 'ערב חברתי פתוח',
     hostNote: 'מעגלים קצרים, מוזיקה רכה ותחושה של ערב שנכנסים אליו בקלות.',
-    emoji: '🥂',
+    presentationKey: 'young-house',
     tintClassName: 'from-[#ede2ff] via-[#fff8ee] to-[#f9d9d6]',
   },
   {
@@ -96,7 +98,7 @@ const DEMO_EVENTS: DemoEvent[] = [
     capacity: 'עד 16 משתתפים',
     mood: 'תרבות ושיחה',
     hostNote: 'למי שאוהב ערבים עם תוכן, הקשבה ושיחה טובה אחרי ההקרנה.',
-    emoji: '🎬',
+    presentationKey: 'cinemateque',
     tintClassName: 'from-[#dde3fb] via-[#fbfaf5] to-[#e7ddd1]',
   },
 ];
@@ -211,10 +213,13 @@ function ExperienceDemoCard({
             <div
               className={cn(
                 'flex shrink-0 items-center justify-center rounded-[22px] border border-white/65 bg-white/82 shadow-[0_12px_20px_-16px_hsl(var(--foreground)/0.4)] transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_18px_28px_-18px_hsl(var(--foreground)/0.3)]',
-                isEditorial ? 'h-16 w-16 text-[2rem]' : 'h-14 w-14 text-[1.9rem]',
+                isEditorial ? 'h-16 w-16' : 'h-14 w-14',
               )}
             >
-              <span aria-hidden="true">{event.emoji}</span>
+              <EventPresentationIcon
+                presentationKey={event.presentationKey}
+                className={cn(isEditorial ? 'h-8 w-8' : 'h-7 w-7')}
+              />
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">

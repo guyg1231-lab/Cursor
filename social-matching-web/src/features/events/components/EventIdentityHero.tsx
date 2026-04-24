@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { EventAttendeeCircles } from '@/features/events/components/EventAttendeeCircles';
+import { EventPresentationIcon } from '@/features/events/components/EventPresentationIcon';
 import {
   formatEventAreaHint,
   formatEventCapacityLabel,
@@ -73,7 +74,7 @@ export function EventIdentityHero({
               presentation.symbolShellClassName,
             )}
           >
-            <span aria-hidden="true">{presentation.symbol}</span>
+            <EventPresentationIcon presentationKey={presentation.key} className="h-6 w-6" />
           </div>
         </div>
       </div>

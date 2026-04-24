@@ -1,14 +1,22 @@
 import type { EventRow, VisibleEvent } from '@/features/events/types';
 
 export type EventPresentation = {
-  key: 'picnic' | 'beach-volleyball' | 'promenade-walk' | 'coffee-square' | 'young-house' | 'cinemateque' | 'default';
-  symbol: string;
+  key: EventPresentationKey;
   moodLabel: string;
   bandGradientClassName: string;
   symbolShellClassName: string;
   moodChipClassName: string;
   shelfAccentClassName: string;
 };
+
+export type EventPresentationKey =
+  | 'picnic'
+  | 'beach-volleyball'
+  | 'promenade-walk'
+  | 'coffee-square'
+  | 'young-house'
+  | 'cinemateque'
+  | 'default';
 
 type CuratedSeedEvent = {
   id: string;
@@ -34,7 +42,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 6,
     presentation: {
       key: 'picnic',
-      symbol: '🧺',
       moodLabel: 'אחר צהריים רגוע',
       bandGradientClassName: 'from-[#edf6cf] via-[#f8f5e8] to-[#dceac9]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#64744f]',
@@ -53,7 +60,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 8,
     presentation: {
       key: 'beach-volleyball',
-      symbol: '🏐',
       moodLabel: 'בוקר פעיל',
       bandGradientClassName: 'from-[#d8efff] via-[#f7f6ed] to-[#f5d8b6]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#4a6f8b]',
@@ -72,7 +78,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 10,
     presentation: {
       key: 'promenade-walk',
-      symbol: '🚶',
       moodLabel: 'הליכה שקיעתית',
       bandGradientClassName: 'from-[#d9e4ff] via-[#fbf7ee] to-[#f3d7c2]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#5b6f96]',
@@ -91,7 +96,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 5,
     presentation: {
       key: 'coffee-square',
-      symbol: '☕',
       moodLabel: 'מפגש קצר באמצע שבוע',
       bandGradientClassName: 'from-[#f2e4d1] via-[#fbf8f2] to-[#ebe5ff]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#86654e]',
@@ -110,7 +114,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 11,
     presentation: {
       key: 'young-house',
-      symbol: '🥂',
       moodLabel: 'ערב חברתי פתוח',
       bandGradientClassName: 'from-[#ede2ff] via-[#fff8ee] to-[#f9d9d6]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#845f7f]',
@@ -129,7 +132,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
     daysUntilDeadline: 14,
     presentation: {
       key: 'cinemateque',
-      symbol: '🎬',
       moodLabel: 'תרבות ושיחה',
       bandGradientClassName: 'from-[#dde3fb] via-[#fbfaf5] to-[#e7ddd1]',
       symbolShellClassName: 'border-white/70 bg-white/84 text-[#546480]',
@@ -141,7 +143,6 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
 
 const DEFAULT_EVENT_PRESENTATION: EventPresentation = {
   key: 'default',
-  symbol: '◌',
   moodLabel: 'מפגש רגוע',
   bandGradientClassName: 'from-[hsl(var(--background))] via-[hsl(var(--accent-lavender)/0.18)] to-[hsl(var(--accent-sky)/0.1)]',
   symbolShellClassName: 'border-white/70 bg-white/84 text-foreground/70',
@@ -186,5 +187,11 @@ export function getEventPresentation(event: Pick<VisibleEvent, 'id' | 'title'> |
     (candidate) => normalize(candidate.id) === normalizedId || normalize(candidate.title) === normalizedTitle,
   );
 
+  return matched?.presentation ?? DEFAULT_EVENT_PRESENTATION;
+}
+
+export function getEventPresentationByKey(key: EventPresentationKey): EventPresentation {
+  if (key === 'default') return DEFAULT_EVENT_PRESENTATION;
+  const matched = CURATED_SEED_EVENTS.find((candidate) => candidate.presentation.key === key);
   return matched?.presentation ?? DEFAULT_EVENT_PRESENTATION;
 }

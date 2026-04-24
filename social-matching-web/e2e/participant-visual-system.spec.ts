@@ -208,8 +208,8 @@ test.describe('participant visual system', () => {
     const symbol = firstSummaryCard.getByTestId('event-presentation-symbol');
 
     await expect(symbol).toBeVisible();
-    await expect(symbol).toContainText('🧺');
     await expect(symbol).toHaveAttribute('data-presentation-key', 'picnic');
+    await expect(symbol.locator('svg')).toBeVisible();
     await expect(firstSummaryCard.getByText('אחר צהריים רגוע')).toBeVisible();
   });
 
@@ -426,16 +426,16 @@ test.describe('participant visual system', () => {
       await page.goto(`/events/${eventId}`);
       const detailHeroSymbol = page.getByTestId('event-identity-symbol');
       await expect(detailHeroSymbol).toBeVisible();
-      await expect(detailHeroSymbol).toContainText('🎬');
       await expect(detailHeroSymbol).toHaveAttribute('data-presentation-key', 'cinemateque');
+      await expect(detailHeroSymbol.locator('svg')).toBeVisible();
 
       await page.getByRole('link', { name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה/i }).first().click();
 
       await expect(page).toHaveURL(`/events/${eventId}/apply`);
       const applyHeroSymbol = page.getByTestId('event-identity-symbol');
       await expect(applyHeroSymbol).toBeVisible();
-      await expect(applyHeroSymbol).toContainText('🎬');
       await expect(applyHeroSymbol).toHaveAttribute('data-presentation-key', 'cinemateque');
+      await expect(applyHeroSymbol.locator('svg')).toBeVisible();
     } finally {
       await ctx.close();
     }
