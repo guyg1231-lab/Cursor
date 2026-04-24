@@ -34,7 +34,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-picnic-park',
     title: 'פיקניק בפארק',
-    description: 'שמיכה גדולה, פירות קיץ ושיחה פתוחה עם אנשים שבאים בנחת.',
+    description: 'פיקניק שקיעה על הדשא עם היכרות ושיחה טובה.',
     city: 'תל אביב',
     venueHint: 'פארק הירקון',
     maxCapacity: 12,
@@ -52,7 +52,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-beach-volleyball',
     title: 'קבוצת כדורעף חופים',
-    description: 'משחק קליל ליד המים, עם אנרגיה טובה והחלפות בין סבבים.',
+    description: 'משחק כדורעף חופים והיכרות תוך כדי סבבים.',
     city: 'תל אביב',
     venueHint: 'חוף גורדון',
     maxCapacity: 14,
@@ -70,7 +70,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-promenade-walk',
     title: 'קבוצת הליכה בטיילת',
-    description: 'מסלול נעים עם עצירות לשיחה, קפה קטן ונוף פתוח לים.',
+    description: 'הליכת ערב על הים עם עצירה לקפה ושיחה.',
     city: 'תל אביב',
     venueHint: 'טיילת תל אביב',
     maxCapacity: 10,
@@ -88,7 +88,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-coffee-square',
     title: 'קפה בכיכר',
-    description: 'שולחן קטן בחוץ, שיחה קלה ופתיחות נעימה למפגש ראשון.',
+    description: 'קפה קצר בכיכר להיכרות נעימה בלי לחץ.',
     city: 'תל אביב',
     venueHint: 'כיכר ביאליק',
     maxCapacity: 8,
@@ -106,7 +106,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-young-house-mingle',
     title: 'מפגש מינגלינג בבית הצעירים',
-    description: 'ערב חברתי פתוח עם מעגלי היכרות, יין קליל וקצב לא מתאמץ.',
+    description: 'ערב חברתי פתוח עם מעגלי היכרות מתחלפים.',
     city: 'תל אביב',
     venueHint: 'בית הצעירים',
     maxCapacity: 20,
@@ -124,7 +124,7 @@ const CURATED_SEED_EVENTS: CuratedSeedEvent[] = [
   {
     id: 'seed-cinemateque-evening',
     title: 'ערב סרט והרצאה בסינמטק',
-    description: 'הקרנה עם הקדמה קצרה ושיחה טובה אחרי, למי שאוהב תרבות עם עומק.',
+    description: 'סרט משותף ושיחה פתוחה אחרי ההקרנה.',
     city: 'תל אביב',
     venueHint: 'סינמטק תל אביב',
     maxCapacity: 16,

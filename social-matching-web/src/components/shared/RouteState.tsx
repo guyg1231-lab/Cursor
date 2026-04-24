@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { tokens } from '@/lib/design-tokens';
 
 type RouteStateProps = {
@@ -34,10 +35,11 @@ function RouteStateCard({ title, body, tone = 'default', action }: RouteStateCar
 }
 
 export function RouteLoadingState({
-  title = 'טוענים…',
-  body = 'המערכת טוענת את הדף, רק רגע.',
+  title,
+  body,
 }: RouteLoadingStateProps = {}) {
-  return <RouteStateCard title={title} body={body} />;
+  const { t } = useLanguage();
+  return <RouteStateCard title={title ?? t('routeLoadingTitle')} body={body ?? t('routeLoadingBody')} />;
 }
 
 export function RouteEmptyState({ title, body }: RouteStateProps) {

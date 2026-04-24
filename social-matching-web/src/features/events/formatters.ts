@@ -41,18 +41,18 @@ export function formatVisibleEventRegistrationState(event: VisibleEvent): {
   if (event.is_registration_open) {
     if (event.registration_deadline) {
       return {
-        label: `להגשה עד ${formatEventDate(event.registration_deadline)}`,
+        label: `הרשמה עד ${formatEventDate(event.registration_deadline)}`,
         tone: 'warning',
       };
     }
-    return { label: 'פתוח להגשה', tone: 'default' };
+    return { label: 'פתוח להרשמה', tone: 'default' };
   }
 
   if (event.status === 'completed') {
     return { label: 'המפגש כבר הסתיים', tone: 'muted' };
   }
 
-  return { label: 'ההגשה סגורה כרגע', tone: 'muted' };
+  return { label: 'ההרשמה סגורה כרגע', tone: 'muted' };
 }
 
 export function formatMobileEventWindowLabel(event: VisibleEvent) {
@@ -63,7 +63,7 @@ export function formatMobileEventWindowLabel(event: VisibleEvent) {
     return `${dateLabel} · ${areaHint}`;
   }
 
-  return `${dateLabel} · ${areaHint} · ההגשה סגורה כרגע`;
+  return `${dateLabel} · ${areaHint} · ההרשמה סגורה כרגע`;
 }
 
 export function formatEventAreaHint(event: VisibleEvent) {

@@ -23,8 +23,8 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
   const capacityLabel = formatEventCapacityLabel(event);
   const attendeeSignal = event.social_signal;
   const attendeeCount = attendeeSignal?.attendee_count ?? 0;
-  const socialLabel = attendeeCount > 0 ? `${attendeeCount} כבר בפנים` : 'עדיין אין בפנים';
-  const socialDetail = 'החדר נבנה בקצב רגוע';
+  const socialLabel = attendeeCount > 0 ? `${attendeeCount} כבר בפנים` : 'מעגל חדש נפתח עכשיו';
+  const socialDetail = attendeeCount > 0 ? 'נשאר מקום להצטרף' : 'הזדמנות להצטרף מההתחלה';
   const presentation = getEventPresentation(event);
 
   return (
@@ -112,7 +112,7 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
             className="w-full shadow-[0_12px_24px_-18px_hsl(var(--primary)/0.56)] hover:-translate-y-[2px] hover:shadow-[0_18px_28px_-16px_hsl(var(--primary)/0.48)]"
           >
             <Link data-testid="event-summary-card-action" to={`/events/${event.id}`}>
-              לפרטי המפגש
+              לפרטים ולהרשמה
             </Link>
           </Button>
         </div>

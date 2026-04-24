@@ -46,7 +46,7 @@ export function EventsPage() {
   return (
     <PageShell
       title="אירועים"
-      subtitle="שישה ערבים קטנים, שקטים ומדויקים להתחיל מהם."
+      subtitle="אירועים ומפגשים לאנשים בגילאי 20-40 סביב חוויות משותפות וחיבורים אמיתיים."
       heroAlign="start"
     >
       <div className="mx-auto -mt-4 w-full max-w-[1380px] space-y-5">
@@ -54,7 +54,7 @@ export function EventsPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-primary/15 bg-primary/8 px-3 py-1.5 text-[11px] font-medium text-primary/90 shadow-sm">
-                ערבים שנבחרו בקפידה
+                מפגשים לקהילת 20-40
               </span>
             </div>
 

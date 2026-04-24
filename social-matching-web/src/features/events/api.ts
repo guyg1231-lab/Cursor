@@ -26,6 +26,7 @@ function isRegistrationOpen(event: EventRow) {
 const INITIAL_EVENTS: EventRow[] = buildCuratedInitialEvents(nowIso, isoDaysFromNow);
 const LOCKED_FALLBACK_EVENTS: EventRow[] = INITIAL_EVENTS.slice(0, 4);
 const CURATED_DEV_EVENT_TITLES = new Set(LOCKED_FALLBACK_EVENTS.map((event) => event.title));
+const CURATED_DEV_EVENT_BY_TITLE = new Map(LOCKED_FALLBACK_EVENTS.map((event) => [event.title, event]));
 
 const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
 
@@ -150,15 +151,31 @@ function shouldInjectCuratedDevEvents() {
   return host === 'localhost' || host === '127.0.0.1';
 }
 
+function applyCuratedDevCopy(events: EventRow[]) {
+  if (!shouldInjectCuratedDevEvents()) return events;
+  return events.map((event) => {
+    const curated = CURATED_DEV_EVENT_BY_TITLE.get(event.title);
+    if (!curated) return event;
+    return {
+      ...event,
+      // Keep live ids/timestamps/statuses, but enforce curated participant-facing copy on localhost.
+      description: curated.description,
+      presentation_key: curated.presentation_key ?? event.presentation_key,
+    };
+  });
+}
+
 function mergeCuratedDevEvents(events: EventRow[]) {
   if (!shouldInjectCuratedDevEvents()) return events;
 
-  const hasAnyCuratedTitle = events.some((event) => CURATED_DEV_EVENT_TITLES.has(event.title));
-  if (hasAnyCuratedTitle) return events;
+  const withCuratedCopy = applyCuratedDevCopy(events);
+
+  const hasAnyCuratedTitle = withCuratedCopy.some((event) => CURATED_DEV_EVENT_TITLES.has(event.title));
+  if (hasAnyCuratedTitle) return withCuratedCopy;
 
   const byId = new Map<string, EventRow>();
   for (const event of LOCKED_FALLBACK_EVENTS) byId.set(event.id, event);
-  for (const event of events) byId.set(event.id, event);
+  for (const event of withCuratedCopy) byId.set(event.id, event);
   return [...byId.values()];
 }
 
@@ -193,7 +210,7 @@ function timeoutVisibleEventsRequest(): Promise<null> {
  */
 export async function listVisibleEvents(): Promise<VisibleEvent[]> {
   const cached = readCachedVisibleEvents();
-  const sanitizedCached = cached ? sanitizeLiveBrowseRows(cached) : null;
+  const sanitizedCached = cached ? applyCuratedDevCopy(sanitizeLiveBrowseRows(cached)) : null;
 
   try {
     const result = await Promise.race([

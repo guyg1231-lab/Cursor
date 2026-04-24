@@ -25,7 +25,7 @@ export function OperatorEventsListPage() {
         setEvents(ev);
       } catch {
         if (stale) return;
-        setError('Failed to load events.');
+        setError('לא הצלחנו לטעון את האירועים.');
       } finally {
         if (!stale) setLoading(false);
       }
@@ -40,11 +40,11 @@ export function OperatorEventsListPage() {
     <PageShell
       variant="minimal"
       title="ניהול אירועים (אופרטור)"
-      subtitle="רשימה, יצירה וכניסה לדשבורד אירוע. לשימוש תפעולי פנימי."
+      subtitle="רשימה, יצירה וכניסה לדשבורד אירוע לשימוש תפעולי פנימי."
     >
       <div className="mb-4 flex flex-wrap gap-3">
         <Button asChild variant="default">
-          <Link to="/admin/events/new">Create event</Link>
+          <Link to="/admin/events/new">יצירת אירוע</Link>
         </Button>
         <Button asChild variant="outline">
           <Link to="/admin/event-requests">בקשות מארחים ממתינות</Link>

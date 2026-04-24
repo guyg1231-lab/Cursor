@@ -484,7 +484,7 @@ export function ApplyPage() {
     return (
       <PageShell
         title="כדי להגיש מועמדות צריך להתחבר"
-        subtitle="עמוד זה הוא הסמכות היחידה להגשה ולניהול סטטוס, ולכן צריך להתחבר כדי להמשיך."
+        subtitle="עמוד זה מרכז את ההגשה והסטטוס למפגש, ולכן צריך להתחבר כדי להמשיך."
       >
         <div className="space-y-4">
           <ApplyEventIdentityCard
@@ -517,7 +517,7 @@ export function ApplyPage() {
         subtitle={
           offerExpired
             ? 'המקום הזמני כבר לא מחכה לתגובה, אבל נציג כאן בבירור מה קרה.'
-            : 'כדי לשמור על המקום, צריך להגיב עד הדדליין שמופיע כאן.'
+            : 'כדי לשמור על המקום, צריך להגיב עד המועד שמופיע כאן.'
         }
       >
         <div className="space-y-4">
@@ -573,7 +573,7 @@ export function ApplyPage() {
             <SubmittedAnswersSummary
               answers={persistedApplicationAnswers}
               title="ההגשה שנשמרה עבורך"
-              subtitle="אלה הפרטים שנשמרו עם ההרשמה למפגש הזה, כדי שתוכל או תוכלי לראות בדיוק על מה התגובה מתייחסת."
+              subtitle="אלה הפרטים שנשמרו עם ההרשמה למפגש הזה, כדי שתוכל או תוכלי לראות בדיוק למה התגובה מתייחסת."
             />
           ) : null}
         </div>
@@ -589,7 +589,7 @@ export function ApplyPage() {
         subtitle={
           confirmedParticipation
             ? 'לא צריך לשלוח שוב טופס. זהו הסטטוס העדכני של ההרשמה שלך.'
-            : 'לא נפתח שוב טופס חדש לאותו אירוע. במקום זה נציג את הסטטוס הקיים שלך.'
+            : 'לא נפתח שוב טופס חדש לאותו מפגש. במקום זה נציג את הסטטוס הקיים שלך.'
         }
       >
         <div className="space-y-4">
@@ -684,7 +684,7 @@ export function ApplyPage() {
   return (
     <PageShell
       title="הגשה למפגש"
-      subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך נשמר מקום זמני."
+        subtitle="זה העמוד שבו מגישים, חוזרים לסטטוס, ומגיבים אם בהמשך ייפתח מקום זמני."
     >
       <PageActionBar variant="participant">
         <Button asChild variant="outline">
@@ -696,7 +696,7 @@ export function ApplyPage() {
       </PageActionBar>
       <ApplyEventIdentityCard
         event={event}
-        subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את התחושה של מי כבר מתחיל לבנות את החדר."
+        subtitle="זהו עמוד ההגשה והסטטוס של המפגש הזה. כל שינוי יופיע כאן וגם באזור האישי, בלי לאבד את ההקשר של המפגש."
       />
 
       <Card data-testid="participant-surface-panel" className={tokens.card.accent}>
@@ -729,7 +729,7 @@ export function ApplyPage() {
               <p className={tokens.typography.eyebrow}>הגשה קודמת</p>
               <p>
                 הייתה לך כבר הגשה קודמת למפגש הזה במצב "{formatApplicationStatusDetailed(existingApplication.status)}".
-                שליחה עכשיו תפתח אותה מחדש כ-הגשה ממתינה.
+                שליחה עכשיו תפתח אותה מחדש כהגשה ממתינה.
               </p>
             </div>
           ) : null}
@@ -767,8 +767,8 @@ export function ApplyPage() {
             <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>
               <p className={tokens.typography.eyebrow}>איך זה מרגיש</p>
               <p>
-                זהו טופס קצר, רגוע וממוקד. המטרה היא להבין למה דווקא המפגש הזה מתאים לך, בלי להפוך את ההגשה
-                למסך כבד או טכני.
+                זהו טופס קצר וממוקד. המטרה היא להבין למה דווקא המפגש הזה מתאים לך, בלי להפוך את ההגשה
+                למסך כבד.
               </p>
             </div>
             <div className={fieldShellClassName + ' text-start text-sm text-foreground/80'}>

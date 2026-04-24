@@ -133,11 +133,11 @@ export function EventDetailPage() {
   const registrationState = formatVisibleEventRegistrationState(event);
   const capacityLabel = formatEventCapacityLabel(event);
   const detailSubtitle = event.is_registration_open
-    ? 'כל הפרטים כדי להבין את האווירה, הזמן והתהליך לפני שמגישים.'
-    : 'ההגשה אולי סגורה כרגע, אבל כל הפרטים נשארים כאן כדי לאפשר החלטה רגועה וברורה.';
+    ? 'כל הפרטים כדי להבין את אופי המפגש והאם הוא מתאים לך.'
+    : 'ההרשמה סגורה כרגע, אבל כל הפרטים נשארים כאן כדי לאפשר החלטה שקטה וברורה.';
   const shellSubtitle = event.is_registration_open
-    ? 'כאן רואים את הקצב, האזור והתהליך, בלי לעבור דרך מסך צפוף מדי.'
-    : 'גם אחרי סגירת ההגשה, העמוד נשאר קריא וברור כדי שלא יהיה סוף מת.';
+    ? 'כאן רואים את האווירה, האזור והשלבים הבאים במקום אחד ברור.'
+    : 'גם אחרי סגירת ההגשה, העמוד נשאר פתוח כדי לשמור על תמונה מלאה.';
 
   return (
     <PageShell title="פרטי המפגש" subtitle={shellSubtitle}>
@@ -148,16 +148,16 @@ export function EventDetailPage() {
         {awaitingResponse ? (
           <Button asChild variant={offerExpired ? 'outline' : 'primary'}>
             <Link to={`/events/${event.id}/apply`}>
-              {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'למקום הזמני ולתגובה'}
+              {offerExpired ? 'לצפייה בסטטוס ההרשמה' : 'לתגובה על מקום זמני'}
             </Link>
           </Button>
         ) : hasApplication && !canReapplyToEvent(application!.status) ? (
           <Button asChild variant="outline">
-            <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
+            <Link to={`/events/${event.id}/apply`}>להרשמה וסטטוס</Link>
           </Button>
         ) : event.is_registration_open ? (
           <Button asChild variant="primary">
-            <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
+            <Link to={`/events/${event.id}/apply`}>להרשמה וסטטוס</Link>
           </Button>
         ) : (
           <Button asChild variant="outline">
@@ -172,7 +172,7 @@ export function EventDetailPage() {
             event={event}
             eyebrow="המפגש שפתוח לפניך"
             subtitle={detailSubtitle}
-            socialDetail="הערב מתחיל לקבל צורה"
+            socialDetail="הקבוצה מתחילה להיווצר"
             badges={
               <>
                 <StatusBadge label={registrationState.label} tone={registrationState.tone} />
@@ -197,7 +197,7 @@ export function EventDetailPage() {
             <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
               <CardContent className="space-y-2 py-6 text-sm leading-7 text-muted-foreground">
                 <p className="font-medium text-foreground">ההגשות למפגש הזה אינן פתוחות כרגע.</p>
-                <p>העמוד נשאר פתוח כדי לאפשר הבנה רגועה של הערב הזה גם אחרי שהחלון נסגר.</p>
+                <p>העמוד נשאר פתוח כדי לאפשר הבנה רגועה של המפגש גם אחרי שהחלון נסגר.</p>
               </CardContent>
             </Card>
           ) : null}
@@ -205,7 +205,7 @@ export function EventDetailPage() {
           {event.description ? (
             <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
               <CardHeader>
-                <CardTitle className="text-xl font-semibold tracking-[-0.015em]">איך הערב הזה מרגיש?</CardTitle>
+                <CardTitle className="text-xl font-semibold tracking-[-0.015em]">איך המפגש הזה מרגיש?</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
                 <div className={tokens.card.inner + ' space-y-2 p-4'}>
@@ -214,11 +214,11 @@ export function EventDetailPage() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className={tokens.card.inner + ' space-y-2 p-4'}>
                     <p className={tokens.typography.eyebrow}>מה קורה אחרי ההגשה</p>
-                    <p>הסטטוס שלך נשמר למפגש הזה, ואם ייפתח עבורך מקום זמני נחזור לכאן עם דדליין ברור.</p>
+                    <p>הסטטוס שלך נשמר למפגש הזה, ואם ייפתח עבורך מקום זמני נחזור לכאן עם צעד ברור להמשך.</p>
                   </div>
                   <div className={tokens.card.inner + ' space-y-2 p-4'}>
                     <p className={tokens.typography.eyebrow}>איך מחליטים</p>
-                    <p>לפני אישור מקום סופי עוברים על כל הגשה באופן אנושי, כדי לשמור על קבוצה מדויקת ונעימה.</p>
+                    <p>לפני אישור מקום סופי עוברים על כל הגשה באופן אנושי, כדי לשמור על מעגל מדויק ונעים.</p>
                   </div>
                 </div>
               </CardContent>
@@ -239,14 +239,14 @@ export function EventDetailPage() {
                     <p className="font-medium text-foreground">
                       {event.registration_deadline
                         ? `ההגשה פתוחה כרגע עד ${formatEventDate(event.registration_deadline)}.`
-                        : 'ההגשה פתוחה כרגע.'}
+                        : 'ההרשמה פתוחה כרגע.'}
                     </p>
-                    <p>זה עדיין מסלול קטן ומסונן, לא הרשמה אוטומטית ולא שוק רועש.</p>
+                    <p>זה עדיין מסלול אישי וממוקד, לא הרשמה אוטומטית ולא מערכת המונית.</p>
                   </>
                 ) : (
                   <>
                     <p className="font-medium text-foreground">
-                      ההגשה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה היה מתאים לך.
+                      ההרשמה סגורה כרגע, אבל אפשר עדיין להבין אם המפגש הזה מתאים לך.
                     </p>
                     <p>העמוד נשאר פתוח כדי לתת תמונה מלאה במקום דף מת או לא ברור.</p>
                   </>
@@ -270,7 +270,7 @@ export function EventDetailPage() {
             <CardContent className="space-y-3">
               {[
                 'שומרים את ההגשה שלך למפגש הספציפי הזה.',
-                'בודקים התאמה באופן אנושי, כדי שהקבוצה תישאר מדויקת ורגועה.',
+                'בודקים התאמה באופן אנושי, כדי שהמעגל יישאר מדויק ונעים.',
                 'אם נפתח עבורך מקום זמני, יופיע כאן דדליין ברור לתגובה.',
                 'אחרי אישור התגובה, המקום שלך נשמר סופית למפגש.',
               ].map((step, index) => (

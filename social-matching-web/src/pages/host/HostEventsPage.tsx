@@ -277,7 +277,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
   return (
     <PageShell
       title="בקשת אירוע"
-      subtitle="כאן אפשר לבנות טיוטת אירוע פרטית, לשמור אותה לעצמך, ורק כשמרגיש מוכן לשלוח אותה לבדיקה מנהלית."
+      subtitle="פותחים טיוטת אירוע, שומרים, ושולחים לבדיקה כשמוכן."
     >
       {isLoading || isEligibilityLoading ? (
         <Card className={tokens.card.surface}>
@@ -559,8 +559,8 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
               </div>
 
               <div className={tokens.card.inner + ' p-4 space-y-2 text-sm text-muted-foreground'}>
-                <p>בבלוק הזה המערכת שומרת טיוטה פרטית, ואז מעבירה אותה לסטטוס "נשלח לבדיקת מנהל".</p>
-                <p>אחרי אישור מנהל, האירוע מתפרסם דרך החוזה הקיים `active + is_published`, והמארח/ת הראשי/ת נקבע/ת לפי יוצר/ת הבקשה.</p>
+                <p>המערכת שומרת קודם טיוטה פרטית, ואז מעבירה את הבקשה לסטטוס "נשלח לבדיקת מנהל".</p>
+                <p>אחרי אישור, האירוע מתפרסם בסטטוס `active + is_published`, והמארח/ת נקבע/ת לפי יוצר/ת הבקשה.</p>
               </div>
 
               {actionMessage ? <p className="text-sm text-primary">{actionMessage}</p> : null}

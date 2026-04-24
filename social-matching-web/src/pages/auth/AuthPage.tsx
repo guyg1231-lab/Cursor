@@ -282,7 +282,7 @@ export function AuthPage() {
   return (
     <PageShell
       title="כניסה לאזור האישי"
-      subtitle="נשלח לך קוד חד-פעמי למייל, ואחרי האימות נחזיר אותך בדיוק למקום שממנו רצית להמשיך."
+      subtitle="נשלח קוד חד-פעמי למייל, ואחרי האימות נחזיר אותך בדיוק למקום שממנו רצית להמשיך."
     >
       {submitError && step === 'email' ? (
         <div className="mb-4">
@@ -296,8 +296,8 @@ export function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground/85 leading-relaxed">
             <p>
-              בלי סיסמה קבועה: נשלח אליכם מייל עם קוד קצר לזיהוי (לא קישור בלבד). מזינים את הקוד כאן וממשיכים
-              ישר ליעד ששמרנו עבורכם.
+              בלי סיסמה קבועה: נשלח מייל עם קוד קצר לזיהוי. מזינים את הקוד כאן וממשיכים
+              ישירות ליעד ששמרנו עבורך.
             </p>
 
             {effectiveReturnTo ? (
@@ -312,7 +312,7 @@ export function AuthPage() {
                   <p>
                     שלחנו קוד אימות אל <strong className="text-foreground">{submittedEmail}</strong>.
                   </p>
-                  <p>מזינים כאן את הקוד מהמייל (שורה אחת, בלי רווחים), ואז לוחצים על האימות.</p>
+                  <p>מזינים כאן את הקוד מהמייל (בשורה אחת, בלי רווחים), ואז ממשיכים.</p>
                   <p>תוקף הקוד: {formatCountdown(remainingSeconds)}</p>
                 </div>
 
@@ -398,7 +398,7 @@ export function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             <p>1. מזינים אימייל ומקבלים במייל קוד לאימות.</p>
-            <p>2. מזינים את הקוד כאן — לא לוחצים על קישור במייל (אין צורך).</p>
+            <p>2. מזינים את הקוד כאן ומאמתים.</p>
             <p>3. אחרי האימות חוזרים ליעד ששמרנו (הגשה, דשבורד וכו׳).</p>
             <Button asChild variant="outline">
               <Link to="/events">חזרה למפגשים</Link>

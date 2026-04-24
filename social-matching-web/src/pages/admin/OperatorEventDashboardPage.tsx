@@ -40,20 +40,30 @@ const DASHBOARD_STATUSES = [
 
 type DashboardStatus = (typeof DASHBOARD_STATUSES)[number] | 'other';
 
+const DASHBOARD_STATUS_LABELS: Record<DashboardStatus, string> = {
+  pending: 'ממתין',
+  waitlist: 'רשימת המתנה',
+  awaiting_response: 'ממתין לתגובה',
+  confirmed: 'אושר',
+  approved: 'עבר אישור',
+  cancelled: 'בוטל',
+  other: 'אחר',
+};
+
 function applicantNote(applicant: AdminApplicantReview) {
   if (isAwaitingParticipantResponse(applicant.status)) {
     if (isOfferExpired(applicant)) {
       return applicant.expires_at
-        ? `Offer expired at ${formatLifecycleDateTime(applicant.expires_at)}. Run expiry/refill.`
-        : 'Offer expired. Run expiry/refill.';
+        ? `תוקף ההצעה פג ב-${formatLifecycleDateTime(applicant.expires_at)}. אפשר להריץ תפוגה/מילוי מחדש.`
+        : 'תוקף ההצעה פג. אפשר להריץ תפוגה/מילוי מחדש.';
     }
-    return `Awaiting response until ${applicant.expires_at ? formatLifecycleDateTime(applicant.expires_at) : '—'}.`;
+    return `ממתין לתגובת משתתף/ת עד ${applicant.expires_at ? formatLifecycleDateTime(applicant.expires_at) : '—'}.`;
   }
   if (isConfirmedParticipation(applicant.status)) {
-    return 'Committed seat.';
+    return 'המקום אושר סופית.';
   }
   if (canManuallyOfferTemporarySpot(applicant)) {
-    return 'Eligible for temporary offer (manual).';
+    return 'אפשר להציע מקום זמני ידנית.';
   }
   return formatApplicationStatusDetailed(applicant.status);
 }
@@ -69,7 +79,7 @@ async function copyText(text: string) {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
-    window.prompt('Copy:', text);
+    window.prompt('העתקה:', text);
   }
 }
 
@@ -95,9 +105,9 @@ export function OperatorEventDashboardPage() {
       const [ev, apps] = await Promise.all([getOperatorEvent(eventId), listAdminApplicantsForEvent(eventId)]);
       setEventRow(ev);
       setApplicants(apps);
-      if (!ev) setLoadError('Event not found or not accessible.');
+      if (!ev) setLoadError('האירוע לא נמצא או שאין הרשאה לצפות בו.');
     } catch {
-      setLoadError('Failed to load event.');
+      setLoadError('לא הצלחנו לטעון את האירוע.');
     } finally {
       setLoading(false);
     }
@@ -120,8 +130,8 @@ export function OperatorEventDashboardPage() {
   }, [applicants]);
 
   const countsLabel = useMemo(() => {
-    const parts = DASHBOARD_STATUSES.map((s) => `${s}: ${grouped.get(s)?.length ?? 0}`);
-    parts.push(`other: ${grouped.get('other')?.length ?? 0}`);
+    const parts = DASHBOARD_STATUSES.map((s) => `${DASHBOARD_STATUS_LABELS[s]}: ${grouped.get(s)?.length ?? 0}`);
+    parts.push(`${DASHBOARD_STATUS_LABELS.other}: ${grouped.get('other')?.length ?? 0}`);
     return parts.join(' · ');
   }, [grouped]);
 
@@ -151,9 +161,9 @@ export function OperatorEventDashboardPage() {
     try {
       await offerTemporarySpot(a.id, 24);
       await refresh();
-      setActionMessage(`Temporary offer saved (24h) for registration ${a.id}.`);
+      setActionMessage(`נשמרה הצעה זמנית ל-24 שעות עבור הרשמה ${a.id}.`);
     } catch (e) {
-      setActionError(e instanceof AdminOfferActionError ? e.message : 'Offer failed.');
+      setActionError(e instanceof AdminOfferActionError ? e.message : 'שליחת ההצעה נכשלה.');
     } finally {
       setOfferingId(null);
     }
@@ -169,11 +179,11 @@ export function OperatorEventDashboardPage() {
       await refresh();
       setActionMessage(
         result.expired_count > 0
-          ? `Expired ${result.expired_count} offer(s); prepared ${result.prepared_offer_count} refill step(s).`
-          : 'No expired offers to clean; no refill steps prepared.',
+          ? `נוקו ${result.expired_count} הצעות שפג תוקפן; הוכנו ${result.prepared_offer_count} שלבי מילוי מחדש.`
+          : 'לא נמצאו הצעות שפג תוקפן, ולא הוכנו שלבי מילוי מחדש.',
       );
     } catch (e) {
-      setActionError(e instanceof AdminOfferActionError ? e.message : 'Expire/refill failed.');
+      setActionError(e instanceof AdminOfferActionError ? e.message : 'תהליך תפוגה/מילוי מחדש נכשל.');
     } finally {
       setIsCleaningExpired(false);
     }
@@ -184,7 +194,7 @@ export function OperatorEventDashboardPage() {
     const selected = parseRegistrationIdList(selectedRaw);
     const waitlist = parseRegistrationIdList(waitlistRaw);
     if (selected.length === 0 && waitlist.length === 0) {
-      setActionError('Enter at least one registration UUID in selected or waitlist (comma / space / newline separated).');
+      setActionError('צריך להזין לפחות מזהה הרשמה אחד ב-Selected או ב-Waitlist.');
       return;
     }
     setIsSavingSelection(true);
@@ -194,10 +204,10 @@ export function OperatorEventDashboardPage() {
       const out = await recordEventSelectionOutputForOperator(eventId, selected, waitlist);
       await refresh();
       setActionMessage(
-        `Selection saved. Batch ${out.selection_batch_id ?? '—'} · selected: ${out.selected_count}, waitlist: ${out.waitlist_count}.`,
+        `הבחירה נשמרה. אצווה ${out.selection_batch_id ?? '—'} · נבחרו: ${out.selected_count}, המתנה: ${out.waitlist_count}.`,
       );
     } catch (e) {
-      setActionError(e instanceof AdminSelectionActionError ? e.message : 'Selection RPC failed.');
+      setActionError(e instanceof AdminSelectionActionError ? e.message : 'שמירת הבחירה נכשלה.');
     } finally {
       setIsSavingSelection(false);
     }
@@ -216,18 +226,18 @@ export function OperatorEventDashboardPage() {
   return (
     <PageShell
       variant="minimal"
-      title={eventRow?.title ?? 'Event'}
+      title={eventRow?.title ?? 'אירוע'}
       subtitle="דשבורד תפעולי לאירוע — פעולות מחזור חיים והרשמות."
     >
       <div className="mb-4 flex flex-wrap gap-3">
         <Button asChild variant="outline" size="sm">
-          <Link to="/admin/events">← All events</Link>
+          <Link to="/admin/events">← כל האירועים</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/admin/events/${eventId}/diagnostics`}>Diagnostics</Link>
+          <Link to={`/admin/events/${eventId}/diagnostics`}>דיאגנוסטיקה</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link to={`/admin/events/${eventId}/audit`}>Audit</Link>
+          <Link to={`/admin/events/${eventId}/audit`}>ביקורת</Link>
         </Button>
       </div>
 
@@ -283,8 +293,7 @@ export function OperatorEventDashboardPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  Paste registration UUIDs below (commas, spaces, or newlines). IDs are shown on each participant row —
-                  use Copy.
+                  מדביקים כאן מזהי הרשמה (UUID), מופרדים בפסיק/רווח/שורה חדשה. אפשר להעתיק מזהים מתוך כל שורת משתתף/ת.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button
@@ -294,11 +303,11 @@ export function OperatorEventDashboardPage() {
                     onClick={() => void copyText(pendingAndWaitlistIds.join(', '))}
                     disabled={pendingAndWaitlistIds.length === 0}
                   >
-                    Copy all pending + waitlist IDs
+                    העתקת כל מזהי ממתין + רשימת המתנה
                   </Button>
                 </div>
                 <label className="block space-y-1">
-                  <span className="text-foreground">Selected registration IDs</span>
+                  <span className="text-foreground">מזהי הרשמה לנבחרים (Selected)</span>
                   <textarea
                     className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
                     value={selectedRaw}
@@ -307,7 +316,7 @@ export function OperatorEventDashboardPage() {
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-foreground">Waitlist registration IDs</span>
+                  <span className="text-foreground">מזהי הרשמה לרשימת המתנה (Waitlist)</span>
                   <textarea
                     className="min-h-[88px] w-full rounded-xl border border-border bg-background/50 px-3 py-2 font-mono text-xs"
                     value={waitlistRaw}
@@ -321,7 +330,7 @@ export function OperatorEventDashboardPage() {
                   disabled={isSavingSelection}
                   onClick={() => void handleSelectionSave()}
                 >
-                  {isSavingSelection ? 'שומרים...' : 'שמירת בחירה (record_event_selection_output)'}
+                  {isSavingSelection ? 'שומרים...' : 'שמירת בחירה'}
                 </Button>
               </CardContent>
             </Card>
@@ -338,8 +347,8 @@ export function OperatorEventDashboardPage() {
                   onClick={() => void handleExpire()}
                 >
                   {isCleaningExpired
-                    ? 'Running…'
-                    : `Run expire_offers_and_prepare_refill${expiredOfferCount > 0 ? ` (${expiredOfferCount})` : ''}`}
+                    ? 'מריצים...'
+                    : `הרצת תפוגה ומילוי מחדש${expiredOfferCount > 0 ? ` (${expiredOfferCount})` : ''}`}
                 </Button>
               </CardContent>
             </Card>
@@ -356,12 +365,12 @@ export function OperatorEventDashboardPage() {
               <Card key={bucket} className={tokens.card.surface}>
                 <CardHeader>
                   <CardTitle className="text-lg capitalize">
-                    {bucket.replace('_', ' ')} ({list.length})
+                    {DASHBOARD_STATUS_LABELS[bucket as DashboardStatus]} ({list.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {list.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">None</p>
+                    <p className="text-sm text-muted-foreground">אין רשומות</p>
                   ) : (
                     list.map((a) => (
                       <div
@@ -382,7 +391,7 @@ export function OperatorEventDashboardPage() {
                                 className="ml-2 h-7 px-2 text-xs"
                                 onClick={() => void copyText(a.id)}
                               >
-                                Copy
+                                העתקה
                               </Button>
                             </p>
                             {a.selection_batch_id ? (
@@ -406,7 +415,7 @@ export function OperatorEventDashboardPage() {
                               disabled={offeringId === a.id}
                               onClick={() => void handleOffer(a)}
                             >
-                              {offeringId === a.id ? 'Offering…' : 'Offer temporary spot (24h)'}
+                              {offeringId === a.id ? 'שולחים...' : 'הצעת מקום זמני (24h)'}
                             </Button>
                           ) : null}
                         </div>

@@ -37,7 +37,7 @@ export function EventIdentityHero({
     { label: 'איפה בערך', value: formatEventAreaHint(event) },
     { label: 'קבוצה', value: formatEventCapacityLabel(event) },
     {
-      label: event.is_registration_open ? 'להגשה עד' : 'נסגר להגשה',
+      label: event.is_registration_open ? 'הרשמה עד' : 'ההרשמה נסגרה',
       value: event.registration_deadline ? formatEventDate(event.registration_deadline) : 'יעודכן בהמשך',
     },
   ];

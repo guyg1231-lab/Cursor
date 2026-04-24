@@ -3,36 +3,36 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { SectionDivider } from '@/components/shared/SectionDivider';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { tokens } from '@/lib/design-tokens';
 
 const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL?.trim();
 
 export function LandingPage() {
+  const { t } = useLanguage();
+
   return (
     <PageShell
-      title="מפגשים קטנים. אנשים חדשים. חוויה שמרגישה נכונה."
-      subtitle="מצטרפים למפגשים חברתיים קטנים, נעימים ומאוצרים — עם תהליך שמרגיש בטוח יותר מרנדומליות."
+      title={t('landingTitle')}
+      subtitle={t('landingSubtitle')}
       headerTransparent
     >
       <section className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] items-start">
         <Card className={tokens.card.accent}>
           <CardHeader className="space-y-3">
-            <p className={tokens.typography.eyebrow}>מפגשים מאוצרים</p>
+            <p className={tokens.typography.eyebrow}>{t('landingEyebrow')}</p>
             <CardTitle className="text-2xl md:text-3xl leading-tight">
-              לא מגיעים לבד לרנדום — מצטרפים לקבוצה קטנה שמרגישה יותר נכונה.
+              {t('landingHeroTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5 text-sm md:text-base text-foreground/85 leading-relaxed">
-            <p>
-              אנחנו שומרים על קבוצות קטנות, עוברים על ההגשות, ומבקשים תשלום רק אחרי אישור — כדי שהדרך
-              למפגש תרגיש ברורה, נעימה ומכבדת.
-            </p>
+            <p>{t('landingHeroBody')}</p>
             <div className="flex flex-wrap gap-3 pt-1">
               <Button asChild variant="primary">
-                <Link to="/events">לצפייה במפגשים</Link>
+                <Link to="/events">{t('landingCtaEvents')}</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/questionnaire">להתחיל פרופיל</Link>
+                <Link to="/questionnaire">{t('landingCtaProfile')}</Link>
               </Button>
             </div>
           </CardContent>
@@ -40,20 +40,20 @@ export function LandingPage() {
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-xl">איך זה עובד</CardTitle>
+            <CardTitle className="text-xl">{t('landingHowItWorksTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground/80">
             <div className="space-y-1">
-              <p className="font-medium text-foreground">1. בוחרים מפגש שנראה נכון</p>
-              <p>מעיינים באופי, בשפה, באזור ובמחיר לפני שמגישים מועמדות.</p>
+              <p className="font-medium text-foreground">{t('landingStep1Title')}</p>
+              <p>{t('landingStep1Body')}</p>
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-foreground">2. עונים על כמה שאלות קצרות</p>
-              <p>כדי שנוכל להבין אותך טוב יותר ולבנות קבוצה עם חיבור וגם תחושת נינוחות.</p>
+              <p className="font-medium text-foreground">{t('landingStep2Title')}</p>
+              <p>{t('landingStep2Body')}</p>
             </div>
             <div className="space-y-1">
-              <p className="font-medium text-foreground">3. תשלום רק אחרי אישור</p>
-              <p>אם התקבלת, נשלח לך את פרטי התשלום ונאשר את המקום שלך בקבוצה.</p>
+              <p className="font-medium text-foreground">{t('landingStep3Title')}</p>
+              <p>{t('landingStep3Body')}</p>
             </div>
           </CardContent>
         </Card>
@@ -64,28 +64,28 @@ export function LandingPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-lg">לא דייטינג</CardTitle>
+            <CardTitle className="text-lg">{t('landingCard1Title')}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            זה לא מרגיש כמו סווייפים, ולא כמו התאמה אחד-על-אחד. זו חוויה קבוצתית, אנושית ורגועה יותר.
+            {t('landingCard1Body')}
           </CardContent>
         </Card>
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-lg">לא לוח אירועים גנרי</CardTitle>
+            <CardTitle className="text-lg">{t('landingCard2Title')}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            אנחנו לא מציגים המון רעש. המטרה היא קבוצה קטנה, עם כוונה, ולא שוק פתוח של אינסוף אפשרויות.
+            {t('landingCard2Body')}
           </CardContent>
         </Card>
 
         <Card className={tokens.card.surface}>
           <CardHeader>
-            <CardTitle className="text-lg">כן יותר בהיר, בטוח ומדויק</CardTitle>
+            <CardTitle className="text-lg">{t('landingCard3Title')}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            מי שרוצה להצטרף יודע מה קורה, מה השלב הבא, ולמה התהליך בנוי כך — לפני שמגיעים למפגש עצמו.
+            {t('landingCard3Body')}
           </CardContent>
         </Card>
       </section>
@@ -93,14 +93,14 @@ export function LandingPage() {
       <footer className="pt-8 border-t border-border/60 text-center text-xs text-muted-foreground">
         <nav
           className="flex flex-wrap justify-center gap-x-4 gap-y-1"
-          aria-label={supportEmail ? 'מסמכים משפטיים ותמיכה' : 'מסמכים משפטיים'}
+          aria-label={supportEmail ? t('legalNavWithSupport') : t('legalNavOnly')}
         >
           <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
-            תנאי שימוש
+            {t('termsOfUse')}
           </Link>
           <span aria-hidden>·</span>
           <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
-            מדיניות פרטיות
+            {t('privacyPolicy')}
           </Link>
           {supportEmail ? (
             <>
@@ -109,7 +109,7 @@ export function LandingPage() {
                 href={`mailto:${supportEmail}`}
                 className="underline underline-offset-2 hover:text-foreground"
               >
-                צור קשר
+                {t('contactUs')}
               </a>
             </>
           ) : null}

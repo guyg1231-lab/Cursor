@@ -9,7 +9,7 @@ export function HostEventCommunicationsPage() {
   const { eventId } = useParams();
 
   return (
-    <PageShell title="תקשורת מארח/ת" subtitle={`אירוע ${eventId ?? 'unknown'}`}>
+    <PageShell title="תקשורת מארח/ת" subtitle={`אירוע ${eventId ?? 'לא זמין'}`}>
       <PageActionBar>
         <Button asChild variant="outline" size="sm">
           <Link to={`/host/events/${eventId ?? ''}`}>חזרה למרחב ניהול מארח/ת</Link>
@@ -18,7 +18,7 @@ export function HostEventCommunicationsPage() {
 
       <SectionHeader
         title="תקשורת מארח/ת"
-        description="שמורה להשלמת יישום עתידי."
+        description="יושלם בהמשך."
       />
 
       <PlaceholderPanel
