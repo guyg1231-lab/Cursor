@@ -375,9 +375,14 @@ select exists(
 
 ב־`supabase/config.toml` מוגדרים גם `create-stripe-checkout` ו־`stripe-webhook` — **לא** הופיעו ברשימת הסטייג׳. לפרוד: **לאמת בדשבורד Supabase** (ה־MCP לפרוד לא אישר פונקציות כאן).
 
-### 12ו) מספר פונקציות/פרוצדורות ב־`public` (ספירה גסה)
+### 12ו) פונקציות ופרוצדורות ב־`public` — רשימה מלאה (חתימה + ארגומנטים)
 
-שני הצדדים החזירו **26** פונקציות/פרוצדורות בטווח הסינון שבשאילתה — עדיין יש **הבדל בשמות** (למשל `get_public_event_social_signals` קיים רק בפרוד). אין להסתמך על ספירה בלבד.
+מקור: `pg_proc` + `pg_get_function_identity_arguments`. **שתי הסביבות: 26 חתימות**; ההפרש הוא **בדיוק פונקציה אחת**:
+
+| קיום | חתימה |
+|------|--------|
+| **רק בפרוד** | `get_public_event_social_signals(event_ids uuid[])` |
+| בשתיהן (25 נוספות) | אותה קבוצה; ללא הבדל נוסף ברשימת השמות שהוחזרה מה־MCP. |
 
 ### 12ז) תיעוד ו־E2E (סריקת ריפו)
 
@@ -386,6 +391,84 @@ select exists(
 | `slice-admin-review.spec.ts` | מתועד במספר מקומות; **חסר בדיסק**. ראו סעיף 6 לרשימת קבצי E2E קיימים. |
 | `VITE_ENABLE_HOST_DEV_SHORTCUT` | בתיעוד וב־SQL; **אין** שימוש ב־TypeScript (כבר בסעיף 5). |
 | CI | `deploy-drift-guard` — אין אימות bundle חי מול Supabase ואין E2E בזרימה זו (סעיף 10). |
+
+### 12ח) מלאי מלא — טבלאות, views, טריגרים, enums, RLS, הרחבות, advisors
+
+#### טבלאות `public` (BASE TABLE) — רשימה מלאה
+
+**שותף לשתי הסביבות (8):**  
+`email_queue`, `email_templates`, `event_registrations`, `events`, `matching_responses`, `message_logs`, `profiles`, `user_roles`
+
+**רק בפרוד (1):** `registration_payments`
+
+#### Views ב־`public`
+
+אין views ב־`public` בשתי הסביבות (`information_schema.views` ריק).
+
+#### טריגרים (לא פנימיים) על טבלאות `public`
+
+| סביבה | רשימה (`טבלה:שם_טריגר`) |
+|--------|---------------------------|
+| Staging | `email_queue:set_email_queue_updated_at`, `email_templates:set_email_templates_updated_at`, `event_registrations:normalize_event_registration_transition`, `event_registrations:promote_waitlist_on_cancellation`, `events:set_events_updated_at`, `matching_responses:set_matching_responses_updated_at` |
+| Prod | כמו למעלה **ללא** `event_registrations:promote_waitlist_on_cancellation`, **עם** `registration_payments:set_registration_payments_updated_at` |
+
+#### טיפוסי enum ב־`public`
+
+| סביבה | רשימה |
+|--------|--------|
+| Staging | `app_role`, `event_status`, `funnel_status_type`, `message_status_type`, `preferred_language_type`, `registration_status`, `selection_outcome_type`, `template_key_type` |
+| Prod | כמו סטייג׳ **+** `registration_payment_status` |
+
+#### מדיניות RLS — מספר מדיניות לטבלה (`pg_policies`)
+
+| טבלה | Staging | Prod |
+|--------|---------|------|
+| `email_queue` | 1 | 1 |
+| `email_templates` | 4 | 4 |
+| `event_registrations` | 1 | 1 |
+| `events` | 3 | 3 |
+| `matching_responses` | 3 | 3 |
+| `message_logs` | 1 | 1 |
+| `profiles` | 3 | 3 |
+| `user_roles` | 4 | 4 |
+| `registration_payments` | — | 1 |
+
+#### הרחבות Postgres מותקנות (`pg_extension`)
+
+**זהות בשתי הסביבות:** `pg_graphql`, `pg_stat_statements`, `pgcrypto`, `plpgsql`, `supabase_vault`, `uuid-ossp`
+
+#### Supabase Advisors (MCP)
+
+| סוג | Staging | Prod |
+|-----|---------|------|
+| **אבטחה** | אזהרה אחת: `auth_leaked_password_protection` כבוי — [תיעוד](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) | אותה אזהרה |
+| **ביצועים** | 7 התראות `unused_index` (כולל אינדקסים על טבלאות שלא בשימוש כבד בסטייג׳) | 11 התראות `unused_index` (כולל אינדקסים על `registration_payments` שלא בשימוש) |
+
+### 12ט) קריאות `.rpc` מהאפליקציה (`src/`) מול קיום ב־DB
+
+| RPC | קובץ | Staging | Prod |
+|-----|------|---------|------|
+| `get_public_event_social_signals` | `src/features/events/api.ts` | **חסר** | כן |
+| `list_host_event_registration_summaries` | `src/features/host-events/api.ts` | כן | כן |
+| `register_or_reregister_with_email` | `src/features/applications/api.ts` | כן | כן |
+| `confirm_registration_response` | `src/features/applications/api.ts` | כן | כן |
+| `decline_registration_response` | `src/features/applications/api.ts` | כן | כן |
+| `record_event_selection_output` | `src/features/admin/api.ts` | כן | כן |
+| `offer_registration_with_timeout` | `src/features/admin/api.ts` | כן | כן |
+| `admin_mark_attended` | `src/features/admin/api.ts` | כן | כן |
+| `expire_offers_and_prepare_refill` | `src/features/admin/api.ts` | כן | כן |
+
+**משמעות:** על סטייג׳, מסך/זרימות שתלויות ב־`get_public_event_social_signals` **ישברו או ייכשלו ב־RPC** עד שייושמו מיגרציות התואמות (למשל `020`).
+
+### 12י) גבולות «100% כיסוי» (מה **לא** נכלל כאן)
+
+הכיסוי כאן הוא **מלא לשכבות שסרקנו בפועל** (Postgres `public`, bundle, קריאות RPC בקוד, תיעוד, CI, Edge דרך MCP). **מחוץ לטווח** של סשן זה / כלי זה:
+
+- השוואת **עמודות** לכל טבלה שקיימת בשניהם (DDL מלא), **אינדקסים** אחד־לאחד, **GRANT**, **search_path** של כל פונקציה.
+- **Realtime / Storage / Auth templates / webhooks / secrets** בדשבורד.
+- **Stripe**, מיילים אמיתיים, **Playwright על הדומיינים ב־Vercel** (לא רק localhost).
+- **Edge Functions בפרוד** — ה־MCP החזיר רשימה ריקה; נדרש אימות ידני בדשבורד.
+- **מוניטורינג חיצוני** (Sentry וכו’).
 
 ---
 
@@ -396,3 +479,4 @@ select exists(
 | 1.0 | 2026-04-24 | יצירה ראשונה לפי סאב־אייגנטים + אימות DB |
 | 1.1 | 2026-04-24 | Git ל־Vercel סטייג׳; `config.toml` + `config push` ל־Auth סטייג׳; סקריפטים `ops:verify-staging-deploy-supabase` / `ops:push-staging-supabase-config`; תווית כותרת לפי ref Supabase (`deployEnvBadge`) |
 | 1.2 | 2026-04-24 | סעיף 12: פערים מאומתים (MCP + bundle + מיגרציות + Edge + תיעוד); עדכון סעיף 6, סעיף 10 (CI); מספור מעקב → 13 |
+| 1.3 | 2026-04-24 | סעיפים 12ח–12י: מלאי מלא (טבלאות/views/פונקציות/טריגרים/enums/RLS/pg_extension/advisors), מיפוי `.rpc`; 12ו מעודכן לרשימת חתימות; 12י = גבולות כיסוי |
