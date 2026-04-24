@@ -33,6 +33,10 @@ export function AppHeader({
   const { theme, toggleTheme } = useThemeMode();
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
+  const envMode = (import.meta.env.MODE || '').toLowerCase();
+  const projectRef = (import.meta.env.VITE_SUPABASE_PROJECT_ID || '').trim();
+  const showEnvBadge = envMode !== 'production' || !!projectRef;
+  const envLabel = envMode === 'production' ? 'PROD' : envMode === 'staging' ? 'STAGING' : 'DEV';
 
   const navLinkClassName = 'rounded-full px-3 text-muted-foreground hover:text-foreground';
   const trayClassName =
@@ -104,6 +108,15 @@ export function AppHeader({
         </div>
 
         <div className={cn('flex items-center gap-1.5', trayClassName)}>
+          {showEnvBadge ? (
+            <span
+              data-testid="env-badge"
+              className="rounded-full border border-border/70 bg-background/80 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-muted-foreground"
+              title={projectRef ? `Supabase project: ${projectRef}` : 'Supabase project ref not set'}
+            >
+              {envLabel}{projectRef ? ` · ${projectRef}` : ''}
+            </span>
+          ) : null}
           {user ? (
             <Button
               type="button"

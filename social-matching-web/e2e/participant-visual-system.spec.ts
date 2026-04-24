@@ -266,6 +266,92 @@ test.describe('participant visual system', () => {
     expect(height).toBeLessThan(380);
   });
 
+  test('browse keeps stable multi-event identity tones from presentation keys', async ({ page }) => {
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: '11111111-1111-4111-8111-111111111111',
+            title: 'פיקניק בפארק',
+            description: 'שמיכה גדולה, פירות קיץ ושיחה פתוחה עם אנשים שבאים בנחת.',
+            city: 'תל אביב',
+            starts_at: '2026-05-08T17:30:00.000Z',
+            registration_deadline: '2026-05-05T17:30:00.000Z',
+            venue_hint: 'פארק הירקון',
+            max_capacity: 12,
+            status: 'active',
+            is_published: true,
+            presentation_key: 'picnic',
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+          {
+            id: '22222222-2222-4222-8222-222222222222',
+            title: 'קבוצת כדורעף חופים',
+            description: 'משחק קליל ליד המים עם אנרגיה טובה והחלפות בין סבבים.',
+            city: 'תל אביב',
+            starts_at: '2026-05-12T17:30:00.000Z',
+            registration_deadline: '2026-05-10T17:30:00.000Z',
+            venue_hint: 'חוף גורדון',
+            max_capacity: 14,
+            status: 'active',
+            is_published: true,
+            presentation_key: 'beach-volleyball',
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+          {
+            id: '33333333-3333-4333-8333-333333333333',
+            title: 'קבוצת הליכה בטיילת',
+            description: 'מסלול נעים עם עצירות לשיחה, קפה קטן ונוף פתוח לים.',
+            city: 'תל אביב',
+            starts_at: '2026-05-15T17:30:00.000Z',
+            registration_deadline: '2026-05-12T17:30:00.000Z',
+            venue_hint: 'טיילת תל אביב',
+            max_capacity: 10,
+            status: 'active',
+            is_published: true,
+            presentation_key: 'promenade-walk',
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+    const symbols = page.getByTestId('event-presentation-symbol');
+    await expect(symbols).toHaveCount(3);
+    await expect(symbols.nth(0)).toHaveAttribute('data-presentation-key', 'picnic');
+    await expect(symbols.nth(1)).toHaveAttribute('data-presentation-key', 'beach-volleyball');
+    await expect(symbols.nth(2)).toHaveAttribute('data-presentation-key', 'promenade-walk');
+  });
+
   test('detail and apply keep participant continuity semantics across the flow', async ({ browser }) => {
     const eventId = '55555555-5555-4555-8555-555555555555';
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });

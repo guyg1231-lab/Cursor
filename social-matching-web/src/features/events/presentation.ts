@@ -171,6 +171,7 @@ export function buildCuratedInitialEvents(nowIso: () => string, isoDaysFromNow: 
     created_by_user_id: null,
     host_user_id: null,
     payment_required: false,
+    presentation_key: event.presentation.key,
     price_cents: 0,
     currency: 'ILS',
   }));
@@ -180,7 +181,16 @@ export function getLegacyEventSlugToTitleMap() {
   return Object.fromEntries(CURATED_SEED_EVENTS.map((event) => [event.id, event.title])) as Record<string, string>;
 }
 
-export function getEventPresentation(event: Pick<VisibleEvent, 'id' | 'title'> | Pick<EventRow, 'id' | 'title'>): EventPresentation {
+type EventWithPresentation =
+  | Pick<VisibleEvent, 'id' | 'title' | 'presentation_key'>
+  | Pick<EventRow, 'id' | 'title' | 'presentation_key'>;
+
+export function getEventPresentation(event: EventWithPresentation): EventPresentation {
+  const presentationKey = (event.presentation_key || '').trim() as EventPresentationKey;
+  if (presentationKey) {
+    return getEventPresentationByKey(presentationKey);
+  }
+
   const normalizedId = normalize(event.id);
   const normalizedTitle = normalize(event.title);
   const matched = CURATED_SEED_EVENTS.find(
