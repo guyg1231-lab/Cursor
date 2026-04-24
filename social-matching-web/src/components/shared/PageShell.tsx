@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { FloatingCircles } from '@/components/shared/FloatingCircles';
 import { AppHeader } from '@/components/shared/AppHeader';
+import { MobileBottomNav } from '@/components/shared/MobileBottomNav';
 import { tokens } from '@/lib/design-tokens';
 
 interface PageShellProps {
@@ -78,7 +79,7 @@ export function PageShell({
 
       <div className={tokens.participant.shell.chrome}>
         <AppHeader variant={headerVariant} transparent={headerTransparent} actions={headerActions} />
-        <main id="main-content" className={tokens.participant.shell.content}>
+        <main id="main-content" className={cn(tokens.participant.shell.content, 'pb-28 md:pb-10')}>
           {title || subtitle ? (
             <div
               data-testid="participant-page-hero"
@@ -90,6 +91,7 @@ export function PageShell({
           ) : null}
           {children}
         </main>
+        <MobileBottomNav />
       </div>
     </div>
   );
