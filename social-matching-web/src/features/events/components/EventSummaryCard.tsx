@@ -19,51 +19,65 @@ export function EventSummaryCard({ event }: { event: VisibleEvent }) {
   const registrationState = formatVisibleEventRegistrationState(event);
   const capacityLabel = formatEventCapacityLabel(event);
   const attendeeSignal = event.social_signal;
-  const hasAttendeeSignal = attendeeSignal !== undefined;
+  const attendeeCount = attendeeSignal?.attendee_count ?? 0;
+  const socialLabel = attendeeCount > 0 ? `${attendeeCount} כבר בפנים` : 'עדיין אין בפנים';
+  const socialDetail = 'החדר נבנה בקצב רגוע';
 
   return (
-    <Card data-testid="event-summary-card" className={tokens.card.accent + ' self-start overflow-hidden'}>
-      <CardHeader className="space-y-2.5 p-4 pb-2">
-        <div className="flex flex-wrap items-center gap-2">
+    <Card
+      data-testid="event-summary-card"
+      className={
+        tokens.card.surface +
+        ' group flex h-full min-w-0 flex-col self-start overflow-hidden border-border/65 bg-card/98 hover:-translate-y-0.5 hover:border-primary/12 hover:shadow-[0_26px_52px_-30px_hsl(var(--foreground)/0.28),0_16px_24px_-20px_hsl(var(--foreground)/0.1)]'
+      }
+    >
+      <div className="relative overflow-hidden border-b border-border/55 bg-[linear-gradient(135deg,hsl(var(--background))_0%,hsl(var(--accent-lavender)/0.18)_62%,hsl(var(--accent-sky)/0.08)_100%)] px-4 pb-2.5 pt-3">
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-12 rounded-full bg-white/35 blur-2xl" />
+        <div className="relative flex flex-wrap items-center gap-2">
           <StatusBadge label={registrationState.label} tone={registrationState.tone} />
           <StatusBadge label={capacityLabel} tone="muted" />
+          <span className="rounded-full border border-white/65 bg-white/84 px-3 py-1 text-[11px] font-medium text-foreground/72 shadow-sm">
+            {areaHint}
+          </span>
         </div>
-        <CardTitle className="text-xl leading-tight tracking-[-0.01em]">{event.title}</CardTitle>
+      </div>
+
+      <CardHeader className="space-y-1.5 p-4 pb-2">
+        <CardTitle className="max-h-12 overflow-hidden text-[1.08rem] leading-6 tracking-[-0.02em]">
+          {event.title}
+        </CardTitle>
         {atmospherePreview ? (
-          <p className="max-w-[54ch] text-sm leading-5 text-foreground/80">{atmospherePreview}</p>
+          <p className="max-h-10 overflow-hidden text-[13px] leading-5 text-foreground/78">{atmospherePreview}</p>
         ) : null}
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 p-4 pt-0 text-sm text-foreground/85">
-        <div className="grid gap-2.5 sm:grid-cols-2">
-          <div className={tokens.participant.panelInner + ' space-y-1 p-3'}>
-            <p className={tokens.typography.eyebrow}>מתי?</p>
-            <p className="text-sm leading-5 text-foreground">{formatEventDate(event.starts_at)}</p>
-          </div>
-          <div className={tokens.participant.panelInner + ' space-y-1 p-3'}>
-            <p className={tokens.typography.eyebrow}>איפה בערך?</p>
-            <p className="text-sm leading-5 text-foreground">{areaHint}</p>
+      <CardContent className="flex flex-1 flex-col gap-3 p-4 pt-0 text-sm text-foreground/85">
+        <div className={tokens.card.inner + ' grid gap-2 p-2.5'}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <p className={tokens.typography.eyebrow}>מתי</p>
+              <p className="text-[13px] leading-5 text-foreground">{formatEventDate(event.starts_at)}</p>
+            </div>
+            <div className="min-w-0 max-w-[44%] space-y-1 text-end">
+              <p className={tokens.typography.eyebrow}>איפה בערך</p>
+              <p className="text-[13px] leading-5 text-foreground">{areaHint}</p>
+            </div>
           </div>
         </div>
 
-        <div className="grid gap-2.5 border-t border-border/60 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          {hasAttendeeSignal ? (
-            <EventAttendeeCircles
-              count={attendeeSignal.attendee_count}
-              detail="החדר נבנה בקצב רגוע"
-              density="compact"
-              className="sm:min-w-[220px]"
-            />
-          ) : (
-            <div className={tokens.participant.panelInner + ' space-y-1.5 p-4 sm:min-w-[220px]'}>
-              <p className={tokens.typography.eyebrow}>אנרגיה חברתית</p>
-              <p className="text-foreground">קבוצה קטנה ומאוצרת</p>
-              <p className="text-xs leading-5 text-muted-foreground">
-                עדיין לא מוצג מספר מצטרפים, אבל התחושה נשארת אנושית ושקטה.
-              </p>
-            </div>
-          )}
+        <div className="mt-auto space-y-2 border-t border-border/55 pt-2.5">
+          <EventAttendeeCircles
+            count={attendeeCount}
+            label={socialLabel}
+            detail={socialDetail}
+            density="compact"
+            className="transition duration-300 group-hover:border-primary/10 group-hover:bg-background/96 group-hover:shadow-[inset_0_1px_0_hsl(var(--card)),0_10px_18px_-16px_hsl(var(--foreground)/0.24)]"
+          />
 
-          <Button asChild variant="primary" className="w-full sm:min-w-[176px] sm:justify-self-end">
+          <Button
+            asChild
+            variant="primary"
+            className="w-full shadow-[0_12px_24px_-18px_hsl(var(--primary)/0.56)] hover:-translate-y-[2px] hover:shadow-[0_18px_28px_-16px_hsl(var(--primary)/0.48)]"
+          >
             <Link data-testid="event-summary-card-action" to={`/events/${event.id}`}>
               לפרטי המפגש
             </Link>

@@ -6,6 +6,152 @@ import { withFlippedRegistrationStatus } from './fixtures/registrations';
 import { submitApplicationViaUi } from './fixtures/ui';
 
 test.describe('participant foundation', () => {
+  test('desktop discovery shelf uses a compact 4-across layout on wide screens', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 1400 });
+    const events = Array.from({ length: 6 }, (_, index) => ({
+      id: `4across-event-${index + 1}`,
+      title: `אירוע בדיקה ${index + 1}`,
+      description: 'מפגש קטן ואינטימי עם שיחה רגועה בעיר.',
+      city: 'תל אביב',
+      starts_at: `2026-05-0${(index % 6) + 1}T17:30:00.000Z`,
+      registration_deadline: `2026-04-2${(index % 6) + 1}T17:30:00.000Z`,
+      venue_hint: index % 2 === 0 ? 'נווה צדק' : 'כיכר ביאליק',
+      max_capacity: 8,
+      status: 'active',
+      is_published: true,
+      created_at: '2026-04-01T10:00:00.000Z',
+      updated_at: '2026-04-01T10:00:00.000Z',
+      created_by_user_id: null,
+      host_user_id: null,
+      payment_required: false,
+      price_cents: 0,
+      currency: 'ILS',
+    }));
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(events.map((event, index) => ({ event_id: event.id, attendee_count: 3 + index }))),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(events),
+      });
+    });
+
+    await page.goto('/events');
+
+    const grid = page.getByTestId('events-discovery-grid');
+    const cards = grid.getByTestId('event-summary-card');
+    await expect(cards).toHaveCount(6);
+
+    const sectionTop = await grid.evaluate((node) => Math.round(node.getBoundingClientRect().top));
+    expect(sectionTop).toBeLessThan(320);
+
+    const layout = await cards.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        return {
+          x: Math.round(rect.x),
+          y: Math.round(rect.y),
+          right: Math.round(rect.right),
+          height: Math.round(rect.height),
+        };
+      }),
+    );
+
+    const rowTops = [...new Set(layout.map((card) => card.y))].sort((a, b) => a - b);
+    const firstRow = layout.filter((card) => card.y === rowTops[0]);
+    const secondRow = layout.filter((card) => card.y === rowTops[1]);
+
+    expect(rowTops.length).toBe(2);
+    expect(firstRow).toHaveLength(4);
+    expect(secondRow).toHaveLength(2);
+    expect(new Set(firstRow.map((card) => card.height)).size).toBe(1);
+    expect(Math.min(...firstRow.map((card) => card.x))).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...firstRow.map((card) => card.right))).toBeLessThanOrEqual(1600);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  });
+
+  test('desktop discovery card and CTA feel interactive on hover', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    const eventId = 'hover-event-1';
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ event_id: eventId, attendee_count: 5 }]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: eventId,
+            title: 'אירוע בדיקה להובר',
+            description: 'מפגש קטן עם קצב רגוע ואווירה חמה.',
+            city: 'תל אביב',
+            starts_at: '2026-05-01T17:30:00.000Z',
+            registration_deadline: '2026-04-29T17:30:00.000Z',
+            venue_hint: 'נווה צדק',
+            max_capacity: 8,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const card = page.getByTestId('event-summary-card').first();
+    const button = card.getByTestId('event-summary-card-action');
+
+    const beforeCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+    await card.hover();
+    await page.waitForTimeout(120);
+    const afterCard = await card.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterCard.transform).not.toBe(beforeCard.transform);
+    expect(afterCard.shadow).not.toBe(beforeCard.shadow);
+
+    const beforeButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+    await button.hover();
+    await page.waitForTimeout(120);
+    const afterButton = await button.evaluate((node) => {
+      const styles = getComputedStyle(node);
+      return { transform: styles.transform, shadow: styles.boxShadow };
+    });
+
+    expect(afterButton.transform).not.toBe(beforeButton.transform);
+    expect(afterButton.shadow).not.toBe(beforeButton.shadow);
+  });
+
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
 

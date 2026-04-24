@@ -18,6 +18,8 @@ export function EventsPage() {
   const [events, setEvents] = useState<VisibleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const wideDesktopGridClassName =
+    events.length >= 4 ? 'xl:grid-cols-4' : events.length === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2';
 
   useEffect(() => {
     let stale = false;
@@ -43,16 +45,29 @@ export function EventsPage() {
 
   return (
     <PageShell
-      title="מפגשים פתוחים"
-      subtitle="יותר מפגשים באותו מסך, בקצב רגוע ועם דרך ברורה להבין אם זה מתאים."
-      heroAlign="center"
+      title="אירועים פתוחים"
+      subtitle="לראות יותר אפשרויות באותו מדף, ולפתוח את מה שמרגיש נכון."
+      heroAlign="start"
     >
-      <div className="mx-auto w-full max-w-5xl space-y-4">
-        <PageActionBar variant="participant">
-          <Button asChild variant="outline">
-            <Link to="/events/propose">להציע מפגש חדש</Link>
-          </Button>
-        </PageActionBar>
+      <div className="mx-auto w-full max-w-[1380px] space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {!isLoading && !error ? (
+              <span className="rounded-full border border-border/70 bg-card/92 px-3 py-1.5 text-[11px] font-medium text-foreground/72 shadow-sm">
+                {events.length} אירועים פתוחים
+              </span>
+            ) : null}
+            <span className="rounded-full border border-primary/15 bg-primary/8 px-3 py-1.5 text-[11px] font-medium text-primary/90 shadow-sm">
+              דפדוף רגוע
+            </span>
+          </div>
+
+          <PageActionBar variant="participant">
+            <Button asChild variant="outline">
+              <Link to="/events/propose">להציע מפגש חדש</Link>
+            </Button>
+          </PageActionBar>
+        </div>
         {isLoading ? (
           <RouteLoadingState />
         ) : error ? (
@@ -63,7 +78,10 @@ export function EventsPage() {
             body="ברגע שיתפרסמו מפגשים חדשים, הם יופיעו כאן."
           />
         ) : (
-          <div data-testid="events-discovery-grid" className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            data-testid="events-discovery-grid"
+            className={`grid items-start gap-4 md:grid-cols-2 ${wideDesktopGridClassName}`}
+          >
             {events.map((event) => (
               <EventSummaryCard key={event.id} event={event} />
             ))}
