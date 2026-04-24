@@ -216,7 +216,7 @@
 | Auth | E2E: סיסמה + session מזויף; פרוד: OTP / מדיניות שונה. |
 | Service role | קיים ב־E2E לצורך ניקוי/עדכון DB — **אסור** בדפדפן פרוד. |
 | נתונים | אירועי slice, משתמשי validation — לא קיימים בפרוד. |
-| תיעוד מול קבצים | `docs/ops/admin-review-slice.md` מתייחס ל־`e2e/slice-admin-review.spec.ts` — לוודא אם הקובץ קיים/שונה שם. |
+| תיעוד מול קבצים | **מאומת 2026-04-24:** `docs/ops/admin-review-slice.md` ותוכניות ב־`docs/superpowers/plans/` מתייחסים ל־`e2e/slice-admin-review.spec.ts` — **הקובץ לא קיים** בריפו. קיימים במקום: `slice-happy-path.spec.ts`, `slice-decline-path.spec.ts`, `participant-foundation.spec.ts`, `host-admin-foundation.spec.ts`, `foundation-routes.spec.ts`, `participant-visual-system.spec.ts`, `events-experiences-demo.spec.ts`. |
 
 ---
 
@@ -251,7 +251,7 @@
 
 ### שלב D — יישור תיעוד וכלים
 
-- [ ] **D1** ליישר `docs/ops/admin-review-slice.md` עם שמות קבצי E2E בפועל.
+- [ ] **D1** ליישר `docs/ops/admin-review-slice.md` (ותוכניות שמפנות ל־`slice-admin-review.spec.ts`) עם שמות קבצי E2E בפועל — ראו **סעיף 12ז**.
 - [ ] **D2** להחליט אם `VITE_ENABLE_HOST_DEV_SHORTCUT` נשאר בתיעוד או נמחק/מסומן כהיסטורי.
 - [ ] **D3** `supabase gen types` מול הפרויקט שממנו מייצרים types ל־PR (בדרך כלל staging) — לתעד מתי חייבים לסנכרן מול prod.
 
@@ -313,7 +313,7 @@ select exists(
 - [ ] כל שינוי סכימה: PR + יישום ל**סטייג׳** → smoke → רק אז **פרוד**.
 - [ ] איסור שינוי DDL ידני בפרוד בלי מיגרציה מקבילה בגיט.
 - [ ] צ'קליסט שחרור: השוואת `schema_migrations` + שאילתות סעיף 8.
-- [ ] CI: בדיקה ש־`npm run build` לא משתמש בערכי placeholder ל־`VITE_SUPABASE_*` (סקריפטים קיימים בריפו).
+- [ ] CI: בדיקה ש־`npm run build` לא משתמש בערכי placeholder ל־`VITE_SUPABASE_*`. **מצב נוכחי:** `.github/workflows/deploy-drift-guard.yml` מריץ `ops:verify-monorepo-vercel-root-config`, `typecheck`, `build` — **ללא** `ops:verify-deploy-supabase` וללא Playwright.
 
 ---
 
@@ -326,9 +326,73 @@ select exists(
 
 ---
 
-## 12) מעקב שינויים במסמך הזה
+## 12) פערים מאומתים (Staging ↔ Prod) — 2026-04-24
+
+מקור: **MCP** (`user-supabase` = סטייג׳ `huzcvjyyyuudchnrosvx`, `user-supabase-prod` = פרוד `nshgmuqlivuhlimwdwhe`), סקריפטי `ops:verify-*-deploy-supabase`, וסריקת קבצים בגיט.
+
+### 12א) אפליקציה מול Supabase (bundle)
+
+| בדיקה | תוצאה |
+|--------|--------|
+| `npm run ops:verify-staging-deploy-supabase` | **OK** — `social-matching-web-staging.vercel.app` → `huzcvjyyyuudchnrosvx.supabase.co` |
+| `npm run ops:verify-deploy-supabase` | **OK** — `social-matching-web.vercel.app` → `nshgmuqlivuhlimwdwhe.supabase.co` |
+
+### 12ב) סכימה — אותה שאילתת קבלה (כמו סעיף 8)
+
+| מדד | Staging | Prod |
+|-----|---------|------|
+| טבלה `registration_payments` | לא | כן |
+| עמודה `events.payment_required` | לא | כן |
+| פונקציה `get_public_event_social_signals` | לא | כן |
+| עמודה `events.presentation_key` | כן | כן |
+| פונקציה `host_submit_gathering_dev_shortcut` (אחרי 019 צפי: לא) | לא | לא |
+
+**מסקנה:** סטייג׳ **לא** כולל את יכולות התשלום ו־social signals כמו פרוד — תואם לכך שמיגרציות **015 / 016 / 020** (ושכבות תלויות) **לא** מופיעות ב־`schema_migrations` של הסטייג׳ (ראו 12ג).
+
+### 12ג) טבלאות `public` (סיכום MCP)
+
+| סביבה | מספר טבלאות | הערה |
+|--------|-------------|--------|
+| Staging | 8 | **ללא** `registration_payments` |
+| Prod | 9 | **כולל** `registration_payments` |
+
+### 12ד) `schema_migrations` — השוואת שמות (עיקרי)
+
+ב־**פרוד** מופיעות בין היתר (חלקית לפי שם):  
+`011_fix_internal_offer_queue_ambiguity`, `015_payment_foundation_schema`, `016_payment_foundation_rpcs`, `019_drop_host_submit_gathering_dev_shortcut`, `020_public_event_social_signals`, `023_events_update_policy_unification`, `024_event_presentation_key_and_backfill`.
+
+ב־**סטייג׳** **חסרות** לפחות: **011**, **015**, **016**, **019**, **020** (לפי רשימת השמות שהוחזרה מ־MCP).  
+בסטייג׳ **קיימות** שתי רשומות `018_*` (כולל `018_host_submit_gathering_rpc` + `018_host_submit_gathering_rpc_dev_shortcut`) **בלי** `019_drop_*` — מצב שונה מפרוד (שם אחרי 018 מגיעים 019 ואילך).
+
+**גיט מול רימוט:** בתיקייה `supabase/migrations/` יש **22** קבצי `.sql` (עד `022_event_presentation_key.sql`). בשני הפרויקטים ברימוט מופיעות גם מיגרציות בשמות **023** ו־**024** — **אין** קבצים בשמות האלה בתיקיית המיגרציות שנסרקה; יש **פער ניהול גרסאות** (שינוי שם/יישום ידני/היסטוריה שלא הועתקה לגיט) שדורש החלטת ארכיטקט.
+
+### 12ה) Edge Functions (MCP)
+
+| סביבה | מה הוחזר |
+|--------|-----------|
+| Staging | `send-event-email`, `process-email-queue` (פעילים) |
+| Prod | רשימה **ריקה** מה־MCP |
+
+ב־`supabase/config.toml` מוגדרים גם `create-stripe-checkout` ו־`stripe-webhook` — **לא** הופיעו ברשימת הסטייג׳. לפרוד: **לאמת בדשבורד Supabase** (ה־MCP לפרוד לא אישר פונקציות כאן).
+
+### 12ו) מספר פונקציות/פרוצדורות ב־`public` (ספירה גסה)
+
+שני הצדדים החזירו **26** פונקציות/פרוצדורות בטווח הסינון שבשאילתה — עדיין יש **הבדל בשמות** (למשל `get_public_event_social_signals` קיים רק בפרוד). אין להסתמך על ספירה בלבד.
+
+### 12ז) תיעוד ו־E2E (סריקת ריפו)
+
+| פער | פירוט |
+|-----|--------|
+| `slice-admin-review.spec.ts` | מתועד במספר מקומות; **חסר בדיסק**. ראו סעיף 6 לרשימת קבצי E2E קיימים. |
+| `VITE_ENABLE_HOST_DEV_SHORTCUT` | בתיעוד וב־SQL; **אין** שימוש ב־TypeScript (כבר בסעיף 5). |
+| CI | `deploy-drift-guard` — אין אימות bundle חי מול Supabase ואין E2E בזרימה זו (סעיף 10). |
+
+---
+
+## 13) מעקב שינויים במסמך הזה
 
 | גרסה | תאריך | שינוי |
 |--------|--------|--------|
 | 1.0 | 2026-04-24 | יצירה ראשונה לפי סאב־אייגנטים + אימות DB |
 | 1.1 | 2026-04-24 | Git ל־Vercel סטייג׳; `config.toml` + `config push` ל־Auth סטייג׳; סקריפטים `ops:verify-staging-deploy-supabase` / `ops:push-staging-supabase-config`; תווית כותרת לפי ref Supabase (`deployEnvBadge`) |
+| 1.2 | 2026-04-24 | סעיף 12: פערים מאומתים (MCP + bundle + מיגרציות + Edge + תיעוד); עדכון סעיף 6, סעיף 10 (CI); מספור מעקב → 13 |
