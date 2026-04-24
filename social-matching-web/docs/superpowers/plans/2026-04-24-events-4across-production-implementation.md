@@ -10,6 +10,16 @@
 
 ---
 
+## Reconciliation Update (Post-implementation)
+
+This plan was implemented and then extended with additional hardening decisions:
+
+- Live browse now enforces fixture-like English row filtering and falls back to a locked curated set only when sanitized live rows are empty.
+- `/gathering/:eventId` was aligned as a compatibility bridge with shared participant copy and status primitives.
+- Host event sharing now points to canonical event detail URLs (`/events/:eventId`) to reduce route drift.
+
+Tests were updated accordingly and validated in full-suite runs.
+
 ### Task 1: Lock the product contract
 
 **Files:**

@@ -152,7 +152,7 @@ test.describe('participant foundation', () => {
     expect(afterButton.shadow).not.toBe(beforeButton.shadow);
   });
 
-  test('events shelf prefers curated Circles content over generic fixture-like browse rows', async ({ page }) => {
+  test('events shelf filters fixture-like English rows and keeps curated Hebrew fallback', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
 
     await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
@@ -214,13 +214,13 @@ test.describe('participant foundation', () => {
 
     const grid = page.getByTestId('events-discovery-grid');
     await expect(grid.getByRole('heading', { name: 'פיקניק בפארק' })).toBeVisible();
-    await expect(grid.getByRole('heading', { name: 'ערב סרט והרצאה בסינמטק' })).toBeVisible();
+    await expect(grid.getByRole('heading', { name: 'קפה בכיכר' })).toBeVisible();
     await expect(grid.getByText('AR-slice 1776959485845')).toHaveCount(0);
     await expect(grid.getByText('E2E slice fixture')).toHaveCount(0);
     await expect(grid.getByText('Tel Aviv')).toHaveCount(0);
   });
 
-  test('events shelf hides heavy app chrome in favor of a quieter Circles-first header', async ({ page }) => {
+  test('events shelf keeps the shared app navigation chrome', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
 
     await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
@@ -261,11 +261,12 @@ test.describe('participant foundation', () => {
 
     await page.goto('/events');
 
-    await expect(page.getByRole('link', { name: 'שאלון' })).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'דשבורד' })).toHaveCount(0);
-    await expect(page.getByText('Light')).toHaveCount(0);
-    await expect(page.getByText('EN')).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'כניסה' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'אירועים' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'שאלון' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'דשבורד' })).toBeVisible();
+    await expect(page.getByText('Light')).toBeVisible();
+    await expect(page.getByText('EN')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'כניסה' })).toBeVisible();
   });
 
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
@@ -569,9 +570,9 @@ test.describe('participant foundation', () => {
 
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
       await expect(page.getByText(/הערב מתחיל לקבל צורה/)).toBeVisible();
-      await expect(page.getByRole('link', { name: 'להגשה למפגש' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'להגשה ולסטטוס' })).toBeVisible();
 
-      await page.getByRole('link', { name: 'להגשה למפגש' }).click();
+      await page.getByRole('link', { name: 'להגשה ולסטטוס' }).click();
       await expect(page.getByTestId('event-attendee-circles')).toBeVisible();
       await expect(page.getByText(/החדר כבר מתחיל להיבנות/)).toBeVisible();
       await expect(page.getByRole('heading', { name: 'פרטים על ההגשה' })).toBeVisible();
@@ -1421,14 +1422,59 @@ test.describe('participant foundation', () => {
     try {
       await page.goto(`/gathering/${ENV.EVENT_ID}`);
       await expect(
-        page.getByText('כאן רואים מה קורה אחרי ההגשה, ומה הצעד הבא אם נשמר עבורך מקום או סטטוס מעודכן.'),
+        page.getByText('זהו מסך מעקב קצר מקישור ישיר. להגשה ולסטטוס המלא משתמשים במסלול האירוע הראשי.'),
       ).toBeVisible();
       await expect(page.getByRole('link', { name: 'להגשה ולסטטוס' }).first()).toHaveAttribute(
         'href',
         `/events/${ENV.EVENT_ID}/apply`,
       );
-      await expect(page.getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'לאזור האישי' })).toBeVisible();
+      await expect(page.getByTestId('participant-page-actions').getByRole('link', { name: 'לפרטי המפגש' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'חזרה לאירועים' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('gathering canonicalizes a legacy event identifier to the canonical event id in URL', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    await authenticateAs(ctx, ENV.EMAILS.P1);
+    const page = await ctx.newPage();
+    const legacyId = '99999999-9999-4999-8999-999999999999';
+    const canonicalId = ENV.EVENT_ID;
+
+    try {
+      await page.route('**/rest/v1/events**', async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: canonicalId,
+              title: 'מפגש קנוני',
+              description: 'בדיקת הפניה מזהה ישן למזהה קנוני.',
+              city: 'תל אביב',
+              starts_at: '2026-08-01T18:00:00.000Z',
+              registration_deadline: '2026-07-20T18:00:00.000Z',
+              venue_hint: 'מרכז העיר',
+              max_capacity: 8,
+              status: 'active',
+              is_published: true,
+              created_at: '2026-06-01T10:00:00.000Z',
+              updated_at: '2026-06-01T10:00:00.000Z',
+              created_by_user_id: null,
+              host_user_id: null,
+              payment_required: false,
+              price_cents: 0,
+              currency: 'ILS',
+            },
+          ]),
+        });
+      });
+
+      await page.goto(`/gathering/${legacyId}`);
+      await expect(page).toHaveURL(new RegExp(`/gathering/${canonicalId}$`));
+      await expect(page.getByRole('heading', { name: 'מפגש קנוני' })).toBeVisible();
     } finally {
       await ctx.close();
     }
@@ -1543,9 +1589,9 @@ test.describe('participant foundation', () => {
 
       await page.goto(`/gathering/${ENV.EVENT_ID}`);
 
-      await expect(page.getByText('אין כרגע הגשה שמחוברת למפגש הזה', { exact: true })).toBeVisible();
+      await expect(page.getByText('אין כרגע הגשה פעילה למפגש הזה', { exact: true })).toBeVisible();
       await expect(
-        page.getByText('ההגשות למפגש הזה אינן פתוחות כרגע, ולכן אין מה לנהל מכאן בשלב הזה.', { exact: true }),
+        page.getByText('חלון ההגשה סגור כרגע. אפשר לעבור לפרטי המפגש ולהמשיך לעקוב משם.', { exact: true }),
       ).toBeVisible();
       await expect(page.getByRole('link', { name: 'לפרטי המפגש' }).first()).toHaveAttribute(
         'href',
@@ -1576,12 +1622,9 @@ test.describe('participant foundation', () => {
           await authenticateAs(ctx, ENV.EMAILS.P1);
           const page = await ctx.newPage();
           await page.goto(`/gathering/${ENV.EVENT_ID}`);
-          await expect(page.getByText(/הסטטוס הנוכחי שלך/)).toBeVisible({ timeout: 15_000 });
-          // Scope the assertion to the composed status line — catches both the
-          // English-token leak and any mis-mapping that would render a different
-          // Hebrew label in that slot.
+          await expect(page.getByRole('heading', { name: 'ההגשה ברשימת המתנה' })).toBeVisible({ timeout: 15_000 });
           await expect(
-            page.getByText(/הסטטוס הנוכחי שלך:\s*רשימת המתנה/),
+            page.getByText('כרגע אין לך מקום שמור, אבל ההרשמה שלך עדיין נמצאת ברשימת ההמתנה.', { exact: true }),
           ).toBeVisible();
           // Defensive: none of the raw English enum tokens appear anywhere in the
           // rendered body (in case the status slot escapes narrowing later).

@@ -24,6 +24,7 @@ function isRegistrationOpen(event: EventRow) {
 }
 
 const INITIAL_EVENTS: EventRow[] = buildCuratedInitialEvents(nowIso, isoDaysFromNow);
+const LOCKED_FALLBACK_EVENTS: EventRow[] = INITIAL_EVENTS.slice(0, 4);
 
 const LEGACY_EVENT_SLUG_TO_TITLE: Record<string, string> = getLegacyEventSlugToTitleMap();
 
@@ -113,6 +114,7 @@ function looksFixtureLikeBrowseEvent(event: EventRow) {
   const normalizedTitle = event.title.trim().toLowerCase();
   const normalizedCity = event.city.trim().toLowerCase();
   const normalizedVenue = (event.venue_hint ?? '').trim().toLowerCase();
+  const normalizedDescription = (event.description ?? '').trim().toLowerCase();
 
   return (
     normalizedTitle.includes('fixture')
@@ -120,15 +122,25 @@ function looksFixtureLikeBrowseEvent(event: EventRow) {
     || normalizedTitle.startsWith('ar-')
     || normalizedCity === 'tel aviv'
     || normalizedVenue === 'tel aviv'
+    || normalizedDescription.includes('a calm, small gathering')
   );
 }
 
-function normalizeBrowseRows(events: EventRow[]) {
-  if (events.length > 0 && events.every(looksFixtureLikeBrowseEvent)) {
-    return INITIAL_EVENTS;
+function sanitizeLiveBrowseRows(events: EventRow[]) {
+  const cleaned = events.filter((event) => !looksFixtureLikeBrowseEvent(event));
+  const removedCount = events.length - cleaned.length;
+  if (removedCount > 0) {
+    console.warn('[events/api] filtered fixture-like rows from live browse data', {
+      receivedCount: events.length,
+      removedCount,
+      keptCount: cleaned.length,
+    });
   }
-
-  return events;
+  if (cleaned.length > 0) return cleaned;
+  if (events.length > 0) {
+    console.warn('[events/api] no valid live browse rows after filtering, using locked fallback');
+  }
+  return LOCKED_FALLBACK_EVENTS;
 }
 
 async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
@@ -143,7 +155,7 @@ async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
     throw error;
   }
 
-  const rows = normalizeBrowseRows(data ?? INITIAL_EVENTS);
+  const rows = sanitizeLiveBrowseRows(data ?? []);
   writeCachedVisibleEvents(rows);
   return withSocialSignals(rows);
 }
@@ -162,7 +174,7 @@ function timeoutVisibleEventsRequest(): Promise<null> {
  */
 export async function listVisibleEvents(): Promise<VisibleEvent[]> {
   const cached = readCachedVisibleEvents();
-  const normalizedCached = cached ? normalizeBrowseRows(cached) : null;
+  const sanitizedCached = cached ? sanitizeLiveBrowseRows(cached) : null;
 
   try {
     const result = await Promise.race([
@@ -174,13 +186,13 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
       return result;
     }
   } catch (error) {
-    if (normalizedCached) {
-      return withSocialSignals(normalizedCached);
+    if (sanitizedCached) {
+      return withSocialSignals(sanitizedCached);
     }
     throw error;
   }
 
-  return withSocialSignals(normalizedCached ?? INITIAL_EVENTS);
+  return withSocialSignals(sanitizedCached ?? LOCKED_FALLBACK_EVENTS);
 }
 
 /**

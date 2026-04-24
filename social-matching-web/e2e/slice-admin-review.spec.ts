@@ -53,10 +53,10 @@ test.describe('Circles admin-review slice', () => {
   });
 
   test('host submits a draft, admin approves, event becomes active+published', async ({ browser }) => {
-    const uniqueTitle = `AR-slice ${Date.now()}`;
+    const uniqueTitle = `Admin Review Event ${Date.now()}`;
     // 150+ chars so the /events preview truncates with an ellipsis.
     const longDescription =
-      'A calm, small gathering for people who prefer depth over small talk and want to spend an evening around one topic with four curated guests, plus coffee.';
+      'מפגש רגוע ואינטימי למי שמעדיפים עומק על סמול טוק, עם שיחה ממוקדת וארבעה משתתפים שנבחרו בקפידה.';
     const previewPrefix = longDescription.slice(0, 40);
     const now = new Date();
     const starts = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -75,7 +75,7 @@ test.describe('Circles admin-review slice', () => {
 
         await page.getByLabel('כותרת האירוע').fill(uniqueTitle);
         await page.getByLabel('תיאור קצר').fill(longDescription);
-        await page.getByLabel('עיר / אזור').fill('Tel Aviv');
+        await page.getByLabel('עיר / אזור').fill('תל אביב');
         await page.getByLabel('קיבולת רצויה').fill('5');
         await fillDateTimeLocal(page, 'מועד האירוע', toLocalInputValue(starts));
         await fillDateTimeLocal(page, 'דדליין להגשה', toLocalInputValue(deadline));
@@ -136,7 +136,7 @@ test.describe('Circles admin-review slice', () => {
         await authenticateAs(ctx, ENV.EMAILS.HOST1);
         const hostPage = await ctx.newPage();
         await hostPage.goto('/host/events');
-        await expect(hostPage.getByText('/gathering/')).toBeVisible();
+        await expect(hostPage.getByText('/events/')).toBeVisible();
       } finally {
         await ctx.close();
       }

@@ -48,8 +48,6 @@ export function EventsPage() {
       title="אירועים"
       subtitle="שישה ערבים קטנים, שקטים ומדויקים להתחיל מהם."
       heroAlign="start"
-      headerVariant="immersive"
-      headerTransparent
     >
       <div className="mx-auto -mt-4 w-full max-w-[1380px] space-y-5">
         <section className="rounded-[38px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.96)_0%,hsl(var(--background)/0.94)_100%)] p-4 shadow-[0_30px_70px_-42px_hsl(var(--foreground)/0.22)] sm:p-5 xl:p-6">

@@ -157,9 +157,7 @@ export function EventDetailPage() {
           </Button>
         ) : event.is_registration_open ? (
           <Button asChild variant="primary">
-            <Link to={`/events/${event.id}/apply`}>
-              {application ? 'להגיש שוב' : 'להגשה למפגש'}
-            </Link>
+            <Link to={`/events/${event.id}/apply`}>להגשה ולסטטוס</Link>
           </Button>
         ) : (
           <Button asChild variant="outline">

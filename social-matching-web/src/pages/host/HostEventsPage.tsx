@@ -403,7 +403,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           dir="ltr"
                           className="break-all rounded-2xl border border-border bg-background/60 px-3 py-2 font-mono text-sm text-foreground"
                         >
-                          {`${window.location.origin}/gathering/${event.id}`}
+                          {`${window.location.origin}/events/${event.id}`}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -411,7 +411,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                             variant="primary"
                             onClick={() => {
                               void navigator.clipboard.writeText(
-                                `${window.location.origin}/gathering/${event.id}`,
+                                `${window.location.origin}/events/${event.id}`,
                               );
                             }}
                           >
@@ -420,7 +420,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
                           <Button
                             type="button"
                             variant="outline"
-                            onClick={() => navigate(`/gathering/${event.id}`)}
+                            onClick={() => navigate(`/events/${event.id}`)}
                           >
                             פתיחת הקישור
                           </Button>

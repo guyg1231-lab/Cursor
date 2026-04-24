@@ -1,11 +1,24 @@
 # Events Dense Browse - B2 Tighter Stack Design
 
 **Date:** 2026-04-23  
-**Status:** Proposed  
+**Status:** Partially superseded (implemented with follow-up production decisions)  
 **Scope:** Participant-facing `/events` browse direction only, with continuity rules for `/events/:eventId` and `/events/:eventId/apply`  
 **Audience:** Product, design, engineering, ops
 
 ---
+
+## Superseded Notes (2026-04-24 and later)
+
+This spec remains useful for browse principles and card density intent, but the production contract moved forward in several concrete decisions:
+
+- `/events` now runs in **Live Truth** mode with fixture-like English row filtering and a locked 4-event curated fallback only when needed.
+- `/gathering/:eventId` is treated as a compatibility bridge rather than a primary participant intake surface.
+- Host share links are canonicalized to `/events/:eventId` (not `/gathering/:eventId`).
+
+For execution-level truth, use:
+
+- `docs/superpowers/plans/2026-04-24-events-4across-production-implementation.md`
+- `docs/superpowers/specs/2026-04-23-participant-visual-system-design.md`
 
 ## 1. What this document is for
 
