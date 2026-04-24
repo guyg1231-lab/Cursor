@@ -109,6 +109,28 @@ function writeCachedVisibleEvents(events: EventRow[]) {
   }
 }
 
+function looksFixtureLikeBrowseEvent(event: EventRow) {
+  const normalizedTitle = event.title.trim().toLowerCase();
+  const normalizedCity = event.city.trim().toLowerCase();
+  const normalizedVenue = (event.venue_hint ?? '').trim().toLowerCase();
+
+  return (
+    normalizedTitle.includes('fixture')
+    || normalizedTitle.includes('slice')
+    || normalizedTitle.startsWith('ar-')
+    || normalizedCity === 'tel aviv'
+    || normalizedVenue === 'tel aviv'
+  );
+}
+
+function normalizeBrowseRows(events: EventRow[]) {
+  if (events.length > 0 && events.every(looksFixtureLikeBrowseEvent)) {
+    return INITIAL_EVENTS;
+  }
+
+  return events;
+}
+
 async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
   const { data, error } = await supabase
     .from('events')
@@ -121,7 +143,7 @@ async function fetchVisibleEventsFromRemote(): Promise<VisibleEvent[]> {
     throw error;
   }
 
-  const rows = data ?? INITIAL_EVENTS;
+  const rows = normalizeBrowseRows(data ?? INITIAL_EVENTS);
   writeCachedVisibleEvents(rows);
   return withSocialSignals(rows);
 }
@@ -140,6 +162,7 @@ function timeoutVisibleEventsRequest(): Promise<null> {
  */
 export async function listVisibleEvents(): Promise<VisibleEvent[]> {
   const cached = readCachedVisibleEvents();
+  const normalizedCached = cached ? normalizeBrowseRows(cached) : null;
 
   try {
     const result = await Promise.race([
@@ -151,13 +174,13 @@ export async function listVisibleEvents(): Promise<VisibleEvent[]> {
       return result;
     }
   } catch (error) {
-    if (cached) {
-      return withSocialSignals(cached);
+    if (normalizedCached) {
+      return withSocialSignals(normalizedCached);
     }
     throw error;
   }
 
-  return withSocialSignals(cached ?? INITIAL_EVENTS);
+  return withSocialSignals(normalizedCached ?? INITIAL_EVENTS);
 }
 
 /**

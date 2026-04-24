@@ -8,6 +8,7 @@ interface PageShellProps {
   children: React.ReactNode;
   className?: string;
   variant?: 'default' | 'gradient' | 'minimal';
+  headerVariant?: 'default' | 'immersive';
   title?: string;
   subtitle?: string;
   heroAlign?: 'start' | 'center';
@@ -19,6 +20,7 @@ export function PageShell({
   children,
   className,
   variant = 'gradient',
+  headerVariant = 'default',
   title,
   subtitle,
   heroAlign = 'start',
@@ -75,7 +77,7 @@ export function PageShell({
       )}
 
       <div className={tokens.participant.shell.chrome}>
-        <AppHeader transparent={headerTransparent} actions={headerActions} />
+        <AppHeader variant={headerVariant} transparent={headerTransparent} actions={headerActions} />
         <main id="main-content" className={tokens.participant.shell.content}>
           {title || subtitle ? (
             <div

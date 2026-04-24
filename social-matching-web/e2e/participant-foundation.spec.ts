@@ -152,6 +152,122 @@ test.describe('participant foundation', () => {
     expect(afterButton.shadow).not.toBe(beforeButton.shadow);
   });
 
+  test('events shelf prefers curated Circles content over generic fixture-like browse rows', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'fixture-event-1',
+            title: 'AR-slice 1776959485845',
+            description: 'A calm, small gathering for people who prefer depth over small talk.',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-07T19:00:00.000Z',
+            registration_deadline: '2026-04-30T19:00:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+          {
+            id: 'fixture-event-2',
+            title: 'E2E slice fixture',
+            description: 'Fixture event for testing',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-09T10:21:00.000Z',
+            registration_deadline: '2026-05-02T10:21:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    const grid = page.getByTestId('events-discovery-grid');
+    await expect(grid.getByRole('heading', { name: 'פיקניק בפארק' })).toBeVisible();
+    await expect(grid.getByRole('heading', { name: 'ערב סרט והרצאה בסינמטק' })).toBeVisible();
+    await expect(grid.getByText('AR-slice 1776959485845')).toHaveCount(0);
+    await expect(grid.getByText('E2E slice fixture')).toHaveCount(0);
+    await expect(grid.getByText('Tel Aviv')).toHaveCount(0);
+  });
+
+  test('events shelf hides heavy app chrome in favor of a quieter Circles-first header', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+
+    await page.route('**/rest/v1/rpc/get_public_event_social_signals', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.route('**/rest/v1/events*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'fixture-event-1',
+            title: 'AR-slice 1776959485845',
+            description: 'A calm, small gathering for people who prefer depth over small talk.',
+            city: 'Tel Aviv',
+            starts_at: '2026-05-07T19:00:00.000Z',
+            registration_deadline: '2026-04-30T19:00:00.000Z',
+            venue_hint: 'Tel Aviv',
+            max_capacity: 5,
+            status: 'active',
+            is_published: true,
+            created_at: '2026-04-01T10:00:00.000Z',
+            updated_at: '2026-04-01T10:00:00.000Z',
+            created_by_user_id: null,
+            host_user_id: null,
+            payment_required: false,
+            price_cents: 0,
+            currency: 'ILS',
+          },
+        ]),
+      });
+    });
+
+    await page.goto('/events');
+
+    await expect(page.getByRole('link', { name: 'שאלון' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'דשבורד' })).toHaveCount(0);
+    await expect(page.getByText('Light')).toHaveCount(0);
+    await expect(page.getByText('EN')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'כניסה' })).toHaveCount(0);
+  });
+
   test('events uses shared Hebrew loading state copy while events are loading', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
 
@@ -209,7 +325,7 @@ test.describe('participant foundation', () => {
     await page.goto('/events');
     const discoveryGrid = page.getByTestId('events-discovery-grid');
     await discoveryGrid.getByRole('link', { name: 'לפרטי המפגש' }).first().click();
-    await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+)$/i);
+    await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+|seed-[a-z-]+)$/i);
     await expect(
       page.getByRole('link', {
         name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס ההרשמה|חזרה למפגשים/i,
