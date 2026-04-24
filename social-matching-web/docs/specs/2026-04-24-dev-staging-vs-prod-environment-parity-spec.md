@@ -218,7 +218,7 @@
 | Auth | E2E: סיסמה + session מזויף; פרוד: OTP / מדיניות שונה. |
 | Service role | קיים ב־E2E לצורך ניקוי/עדכון DB — **אסור** בדפדפן פרוד. |
 | נתונים | אירועי slice, משתמשי validation — לא קיימים בפרוד. |
-| תיעוד מול קבצים | **מאומת 2026-04-24:** `docs/ops/admin-review-slice.md` ותוכניות ב־`docs/superpowers/plans/` מתייחסים ל־`e2e/slice-admin-review.spec.ts` — **הקובץ לא קיים** בריפו. קיימים במקום: `slice-happy-path.spec.ts`, `slice-decline-path.spec.ts`, `participant-foundation.spec.ts`, `host-admin-foundation.spec.ts`, `foundation-routes.spec.ts`, `participant-visual-system.spec.ts`, `events-experiences-demo.spec.ts`. |
+| תיעוד מול קבצים | **עודכן 2026-04-24:** `docs/ops/admin-review-slice.md` מפנה ל־`participant-foundation.spec.ts` ו־`foundation-routes.spec.ts`. תוכניות ישנות ב־`docs/superpowers/plans/` עדיין עלולות להזכיר `slice-admin-review.spec.ts` (אין בדיסק). קבצי E2E בפועל: `slice-happy-path.spec.ts`, `slice-decline-path.spec.ts`, `participant-foundation.spec.ts`, `host-admin-foundation.spec.ts`, `foundation-routes.spec.ts`, `participant-visual-system.spec.ts`, `events-experiences-demo.spec.ts`. |
 
 ---
 
@@ -253,7 +253,7 @@
 
 ### שלב D — יישור תיעוד וכלים
 
-- [ ] **D1** ליישר `docs/ops/admin-review-slice.md` (ותוכניות שמפנות ל־`slice-admin-review.spec.ts`) עם שמות קבצי E2E בפועל — ראו **סעיף 12ז**.
+- [x] **D1** `docs/ops/admin-review-slice.md` יושר לקבצי E2E קיימים (סעיף 12ז). תוכניות ישנות ב־`docs/superpowers/plans/` — עדכון אופציונלי.
 - [ ] **D2** להחליט אם `VITE_ENABLE_HOST_DEV_SHORTCUT` נשאר בתיעוד או נמחק/מסומן כהיסטורי.
 - [ ] **D3** `supabase gen types` מול הפרויקט שממנו מייצרים types ל־PR (בדרך כלל staging) — לתעד מתי חייבים לסנכרן מול prod.
 
@@ -332,6 +332,8 @@ select exists(
 
 מקור: **MCP** (`user-supabase` = סטייג׳ `huzcvjyyyuudchnrosvx`, `user-supabase-prod` = פרוד `nshgmuqlivuhlimwdwhe`), סקריפטי `ops:verify-*-deploy-supabase`, וסריקת קבצים בגיט.
 
+**עדכון סכימה (אותו יום, אחרי יישור MCP לסטייג׳):** שאילתות סעיף 8 (קבלה) **זהות** בין סטייג׳ לפרוד. עדיין קיימים פערים **משניים** בהיסטוריית מיגרציות מול קבצי הגיט, ב־`supabase db push`, ובאובייקט DB אחד (`promote_waitlist_on_cancellation` — ראו 12ח).
+
 ### 12א) אפליקציה מול Supabase (bundle)
 
 | בדיקה | תוצאה |
@@ -343,30 +345,35 @@ select exists(
 
 | מדד | Staging | Prod |
 |-----|---------|------|
-| טבלה `registration_payments` | לא | כן |
-| עמודה `events.payment_required` | לא | כן |
-| פונקציה `get_public_event_social_signals` | לא | כן |
+| טבלה `registration_payments` | כן | כן |
+| עמודה `events.payment_required` | כן | כן |
+| פונקציה `get_public_event_social_signals` | כן | כן |
 | עמודה `events.presentation_key` | כן | כן |
 | פונקציה `host_submit_gathering_dev_shortcut` (אחרי 019 צפי: לא) | לא | לא |
 
-**מסקנה:** סטייג׳ **לא** כולל את יכולות התשלום ו־social signals כמו פרוד — תואם לכך שמיגרציות **015 / 016 / 020** (ושכבות תלויות) **לא** מופיעות ב־`schema_migrations` של הסטייג׳ (ראו 12ג).
+**מסקנה:** לפי שאילתות סעיף 8, **אובייקטי הליבה** (תשלום + social signals + הסרת shortcut) **מיושרים** בין סטייג׳ לפרוד. פערים אפשריים ברמת **פונקציה/טריגר נוסף** או **היסטוריית מיגרציות** — ראו 12ח, 12ו ו־12יב.
 
 ### 12ג) טבלאות `public` (סיכום MCP)
 
 | סביבה | מספר טבלאות | הערה |
 |--------|-------------|--------|
-| Staging | 8 | **ללא** `registration_payments` |
-| Prod | 9 | **כולל** `registration_payments` |
+| Staging | 9 | כולל `registration_payments` |
+| Prod | 9 | כולל `registration_payments` |
 
 ### 12ד) `schema_migrations` — השוואת שמות (עיקרי)
 
-ב־**פרוד** מופיעות בין היתר (חלקית לפי שם):  
-`011_fix_internal_offer_queue_ambiguity`, `015_payment_foundation_schema`, `016_payment_foundation_rpcs`, `019_drop_host_submit_gathering_dev_shortcut`, `020_public_event_social_signals`, `023_events_update_policy_unification`, `024_event_presentation_key_and_backfill`.
+ב־**פרוד** מופיעות בין היתר (לפי `list_migrations`):  
+`011_fix_internal_offer_queue_ambiguity` … `020_public_event_social_signals`, `021_prod_hardening_indexes_search_path`, `022_rls_initplan_optimization`, `023_events_update_policy_unification`, `024_event_presentation_key_and_backfill` (גרסאות מזמן־ריצה בסגנון `20260422…`).
 
-ב־**סטייג׳** **חסרות** לפחות: **011**, **015**, **016**, **019**, **020** (לפי רשימת השמות שהוחזרה מ־MCP).  
-בסטייג׳ **קיימות** שתי רשומות `018_*` (כולל `018_host_submit_gathering_rpc` + `018_host_submit_gathering_rpc_dev_shortcut`) **בלי** `019_drop_*` — מצב שונה מפרוד (שם אחרי 018 מגיעים 019 ואילך).
+ב־**סטייג׳** יש **ערבוב פורמטים**: ראשית `001`…`010` (שמות קצרים), אחר כך גרסאות `20260417…` / `20260418…` / `20260422…` / `20260424…` שלא תואמות שמות קבצים מקומיים (`NNN_name.sql`), ובנוסף נרשמו דרך MCP יישורי סכימה בשמות `sync_staging_011_*` … `sync_staging_020_*` (אותו end-state כמו בגיט לגבי 011/015/016/019/020).
 
-**גיט מול רימוט:** בתיקייה `supabase/migrations/` יש **22** קבצי `.sql` (עד `022_event_presentation_key.sql`). בשני הפרויקטים ברימוט מופיעות גם מיגרציות בשמות **023** ו־**024** — **אין** קבצים בשמות האלה בתיקיית המיגרציות שנסרקה; יש **פער ניהול גרסאות** (שינוי שם/יישום ידני/היסטוריה שלא הועתקה לגיט) שדורש החלטת ארכיטקט.
+**גיט מול רימוט:** בתיקייה `supabase/migrations/` יש **22** קבצי `.sql` (עד `022_event_presentation_key.sql`). בשני הפרויקטים ברימוט מופיעות גם מיגרציות **023** ו־**024** — **אין** קבצים בשמות `023_*` / `024_*` בגיט; יש **פער ניהול גרסאות** (יישום ברימוט בלי קבצים מקבילים בשמות אלה) שדורש החלטת ארכיטקט (`db pull` / מיגרציות חסרות / תיקון היסטוריה).
+
+### 12יב) `supabase db push` (CLI) מול סטייג׳
+
+נכון לבדיקה אחרונה: `supabase db push` נכשל עם  
+`Remote migration versions not found in local migrations directory`  
+כי ב־`schema_migrations` של הסטייג׳ קיימות גרסאות מזמן־ריצה שאין להן קובץ מקומי באותו שם. **אין** להריץ `migration repair` בלי הבנת ההשלכות — ראו [תיעוד Supabase](https://supabase.com/docs/guides/cli/managing-environments) ואת רשימת הגרסאות שה־CLI מציע. עד איחוד ההיסטוריה: **אימות סכימה** לפי סעיף 8 + MCP, לא הסתמכות על `db push` בלבד.
 
 ### 12ה) Edge Functions (MCP)
 
@@ -379,18 +386,18 @@ select exists(
 
 ### 12ו) פונקציות ופרוצדורות ב־`public` — רשימה מלאה (חתימה + ארגומנטים)
 
-מקור: `pg_proc` + `pg_get_function_identity_arguments`. **שתי הסביבות: 26 חתימות**; ההפרש הוא **בדיוק פונקציה אחת**:
+מקור: `pg_proc` (פונקציות/פרוצדורות בלבד, `prokind in ('f','p')`). **סטייג׳: 27 שמות; פרוד: 26 שמות.** `get_public_event_social_signals` קיים **בשתיהן**.
 
-| קיום | חתימה |
+| קיום | שם (ברמת `proname`; לא חתימה מלאה) |
 |------|--------|
-| **רק בפרוד** | `get_public_event_social_signals(event_ids uuid[])` |
-| בשתיהן (25 נוספות) | אותה קבוצה; ללא הבדל נוסף ברשימת השמות שהוחזרה מה־MCP. |
+| **רק בסטייג׳** | `promote_waitlist_on_cancellation` (בפרוד אין רשומה כזו ברשימת השמות שהוחזרה מ־MCP) |
+| בשתיהן (שאר) | אותה קבוצה לרוב; ראו השוואה ידנית עם `pg_get_function_identity_arguments` אם נדרש דיוק מלא. |
 
 ### 12ז) תיעוד ו־E2E (סריקת ריפו)
 
 | פער | פירוט |
 |-----|--------|
-| `slice-admin-review.spec.ts` | מתועד במספר מקומות; **חסר בדיסק**. ראו סעיף 6 לרשימת קבצי E2E קיימים. |
+| `slice-admin-review.spec.ts` | **אין בדיסק**; `docs/ops/admin-review-slice.md` עודכן להפנות לקבצים קיימים. תוכניות היסטוריות ב־`docs/superpowers/plans/` עדיין עלולות להזכיר את השם הישן — עדכון אופציונלי. |
 | `VITE_ENABLE_HOST_DEV_SHORTCUT` | בתיעוד וב־SQL; **אין** שימוש ב־TypeScript (כבר בסעיף 5). |
 | CI | `deploy-drift-guard` — אין אימות bundle חי מול Supabase ואין E2E בזרימה זו (סעיף 10). |
 
@@ -398,10 +405,8 @@ select exists(
 
 #### טבלאות `public` (BASE TABLE) — רשימה מלאה
 
-**שותף לשתי הסביבות (8):**  
-`email_queue`, `email_templates`, `event_registrations`, `events`, `matching_responses`, `message_logs`, `profiles`, `user_roles`
-
-**רק בפרוד (1):** `registration_payments`
+**שותף לשתי הסביבות (9):**  
+`email_queue`, `email_templates`, `event_registrations`, `events`, `matching_responses`, `message_logs`, `profiles`, `registration_payments`, `user_roles`
 
 #### Views ב־`public`
 
@@ -418,8 +423,8 @@ select exists(
 
 | סביבה | רשימה |
 |--------|--------|
-| Staging | `app_role`, `event_status`, `funnel_status_type`, `message_status_type`, `preferred_language_type`, `registration_status`, `selection_outcome_type`, `template_key_type` |
-| Prod | כמו סטייג׳ **+** `registration_payment_status` |
+| Staging | `app_role`, `event_status`, `funnel_status_type`, `message_status_type`, `preferred_language_type`, `registration_payment_status`, `registration_status`, `selection_outcome_type`, `template_key_type` |
+| Prod | זהה לרשימת הסטייג׳ (כולל `registration_payment_status`) |
 
 #### מדיניות RLS — מספר מדיניות לטבלה (`pg_policies`)
 
@@ -433,7 +438,7 @@ select exists(
 | `message_logs` | 1 | 1 |
 | `profiles` | 3 | 3 |
 | `user_roles` | 4 | 4 |
-| `registration_payments` | — | 1 |
+| `registration_payments` | 1 | 1 |
 
 #### הרחבות Postgres מותקנות (`pg_extension`)
 
@@ -450,7 +455,7 @@ select exists(
 
 | RPC | קובץ | Staging | Prod |
 |-----|------|---------|------|
-| `get_public_event_social_signals` | `src/features/events/api.ts` | **חסר** | כן |
+| `get_public_event_social_signals` | `src/features/events/api.ts` | כן | כן |
 | `list_host_event_registration_summaries` | `src/features/host-events/api.ts` | כן | כן |
 | `register_or_reregister_with_email` | `src/features/applications/api.ts` | כן | כן |
 | `confirm_registration_response` | `src/features/applications/api.ts` | כן | כן |
@@ -460,7 +465,7 @@ select exists(
 | `admin_mark_attended` | `src/features/admin/api.ts` | כן | כן |
 | `expire_offers_and_prepare_refill` | `src/features/admin/api.ts` | כן | כן |
 
-**משמעות:** על סטייג׳, מסך/זרימות שתלויות ב־`get_public_event_social_signals` **ישברו או ייכשלו ב־RPC** עד שייושמו מיגרציות התואמות (למשל `020`).
+**משמעות:** לאחר יישור סכימת הסטייג׳, ה־RPC זמין **בשתי הסביבות**; אם עדיין נכשל בדפדפן — לבדוק גרסת דיפלוי, מפתחות Supabase בבילד, ורשת.
 
 ### 12י) גבולות «100% כיסוי» (מה **לא** נכלל כאן)
 
@@ -481,7 +486,7 @@ select exists(
 2. **שפת ממשק** — למשל `themeLight` בעברית הוא «בהיר»; באנגלית «Light». אם בהשוואה פתחת שפה שונה בכל אתר — ייראו הבדלים גם בלי שינוי קוד.
 3. **`returnTo` / יעד אחרי התחברות** — השורה «היעד שנשמר…» מציגה את `effectiveReturnTo` מה־URL (`?returnTo=`) או מ־`sessionStorage` (ראו `src/lib/authReturnTo.ts`, `AuthPage.tsx`). זה **לא** קשור ל־staging/prod כסביבה — זה **מצב דפדפן וניווט** באותו רגע.
 
-**מצב נוכחי (אומת בסקריפט, 2026-04-24):** ב־`src/locales/he.ts` התווית ל־`/questionnaire` היא **`navQuestionnaire: 'פרופיל'`**. ב־bundle ה־**חי** של פרוד עדיין מופיעה המחרוזת **«שאלון»** (ועותק Auth ישן עם «נשלח לך…», «אליכם» וכו’), בעוד בסטייג׳ מופיעים הניסוחים החדשים יותר — כלומר **פרוד צריך דיפלוי מחדש** מ־`main` (או מהברנץ’ שמחובר לפרויקט הפרוד ב־Vercel) כדי ליישר עותק למקור.
+**מצב נוכחי (אומת בסקריפט, 2026-04-24; לבדוק שוב אחרי דיפלוי פרוד מ־`main`):** ב־`src/locales/he.ts` התווית ל־`/questionnaire` היא **`navQuestionnaire: 'פרופיל'`**. אם ב־bundle ה־**חי** של פרוד עדיין מופיע **«שאלון»** או עותק Auth ישן — כמעט בוודאות **פרוד לא על הקומיט האחרון**; להפעיל Production deploy מ־`main` (או הברנץ’ המחובר לפרויקט הפרוד) ואז להריץ שוב `ops:compare-staging-prod-spa-bundles` עם `BUNDLE_PROBES` לפי הצורך.
 
 **איך להמשיך לחפש הבדלי עותק:**
 
@@ -504,3 +509,4 @@ select exists(
 | 1.3 | 2026-04-24 | סעיפים 12ח–12י: מלאי מלא (טבלאות/views/פונקציות/טריגרים/enums/RLS/pg_extension/advisors), מיפוי `.rpc`; 12ו מעודכן לרשימת חתימות; 12י = גבולות כיסוי |
 | 1.4 | 2026-04-24 | סעיף 12יא (מוצר/עותק UI, returnTo); סקריפט `ops:compare-staging-prod-spa-bundles` |
 | 1.5 | 2026-04-24 | פרומוט סטייג׳→פרוד: `docs/ops/promote-staging-to-prod.md`, `npm run ops:pre-promote-prod`; קישור מתהליך קידום §1ג |
+| 1.6 | 2026-04-24 | סעיף 12: עדכון אחרי יישור סטייג׳ (§8, טבלאות 9/9, RPC, RLS, enums); 12יב `db push`; 12ו/12ח/12ט/12יא; סעיף 12ז (E2E) |

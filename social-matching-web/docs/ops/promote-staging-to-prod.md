@@ -10,7 +10,7 @@
 
 - **Staging URL:** `https://social-matching-web-staging.vercel.app` (project `social-matching-web-staging`).
 - **Production URL:** `https://social-matching-web.vercel.app` (project `social-matching-web`).
-- **Staging DB ref:** `huzcvjyyyuudchnrosvx` — today it can **lag** prod on schema (see parity spec §12). “Promote staging” means **promote the tested app build + git schema**, not dump staging Postgres into prod.
+- **Staging DB ref:** `huzcvjyyyuudchnrosvx` — core schema for payments/social signals aligns prod per parity spec §8 / §12 (minor drift possible: migration history, `promote_waitlist_on_cancellation`). “Promote staging” means **promote the tested app build + git schema**, not dump staging Postgres into prod.
 
 ---
 

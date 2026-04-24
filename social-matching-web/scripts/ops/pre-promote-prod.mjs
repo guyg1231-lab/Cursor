@@ -35,7 +35,7 @@ Next (human / CI):
 1. Merge the same commit you verified on staging into the branch connected to the **production** Vercel project.
 2. Trigger a **Production** deployment (Git push to that branch, or Vercel Dashboard → Redeploy with Production).
 3. Database: apply **migrations from git** to the **prod** Supabase project in order — do NOT copy staging data/schema blindly.
-   Staging DB may still lag prod on some objects; see docs/specs/2026-04-24-dev-staging-vs-prod-environment-parity-spec.md §12.
+   Re-check §8 acceptance SQL + docs/specs/2026-04-24-dev-staging-vs-prod-environment-parity-spec.md §12 (incl. migration-history / \`supabase db push\` notes).
 4. Smoke: docs/ops/public-readiness-smoke-checklist.md
 
 If \`vercel deploy --prod\` is blocked by team/git-author rules, use scripts/ops/prebuilt-prod-deploy.mjs (see header there).

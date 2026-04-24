@@ -6,7 +6,7 @@
 ## What is complete
 
 - Participant flows: discovery, apply as canonical action surface, gathering alignment, questionnaire, auth and `returnTo` safety — covered by `e2e/participant-foundation.spec.ts` and `e2e/foundation-routes.spec.ts`.
-- Host and admin MVP paths: event requests review, operator dashboards, placeholders, and vertical slice `e2e/slice-admin-review.spec.ts`.
+- Host and admin MVP paths: event requests review, operator dashboards, placeholders; E2E כיסוי ב־`e2e/participant-foundation.spec.ts`, `e2e/foundation-routes.spec.ts`, `e2e/host-admin-foundation.spec.ts` (אין `slice-admin-review.spec.ts` בריפו — ראו `docs/ops/admin-review-slice.md`).
 - Design and copy: Hebrew-first UI; primary brand color restored to soft indigo; E2E assertions aligned with live copy.
 - Operational docs: deploy recipe (`participant-spa-deploy.md`), smoke checklist with recorded PASS (`public-readiness-smoke-checklist.md`), real-event packet baselines under `docs/ops/real-events/events/`.
 

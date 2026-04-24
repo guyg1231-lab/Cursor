@@ -17,7 +17,9 @@ In scope:
 - One new page: `src/pages/admin/AdminEventRequestsPage.tsx`
   (extracted from the existing "Host requests" block on `OperatorEventsListPage`)
 - One new nav link on `/admin/events` pointing at the new page
-- One new E2E test: `e2e/slice-admin-review.spec.ts`
+- E2E כיסוי מפוזר בקבצים קיימים (אין `e2e/slice-admin-review.spec.ts` בריפו):
+  - `e2e/participant-foundation.spec.ts` — משטח מארח וכפתור **שליחה לבדיקה מנהלית**
+  - `e2e/foundation-routes.spec.ts` — רישום הנתיב `/admin/event-requests` בקטלוג האדמין
 
 Explicitly out of scope:
 
@@ -73,23 +75,23 @@ Explicitly out of scope:
 `/admin/events` now has an **"לבקשות מארחים ממתינות"** link to the new page.
 The submitted-for-review block has been removed from that page.
 
-## How to run the E2E test
+## How to run related E2E
 
 ```bash
-npm run e2e -- slice-admin-review.spec.ts
+npm run e2e -- participant-foundation.spec.ts
+npm run e2e -- foundation-routes.spec.ts
 ```
 
-The suite presumes `STAGING_HOST1_EMAIL` + `STAGING_ADMIN1_EMAIL` exist on
-staging (HOST1 questionnaire-ready, ADMIN1 with admin role). Auth is handled
-the same way as the other slices — password sign-in + `localStorage` session
-injection, see `e2e/fixtures/auth.ts`.
+הרצה מלאה של זרימת **אישור מנהל ופרסום** end-to-end דורשת כיום בדיקה ידנית או הרחבת טסט (אין ספק ייעודי אחד). הפריסה מניחה `STAGING_HOST1_EMAIL` + `STAGING_ADMIN1_EMAIL` בסטייג׳ (או משתני סביבה מקבילים). Auth: סיסמה + הזרקת session — ראו `e2e/fixtures/auth.ts`.
 
-What the test proves:
+What automated tests cover today:
 
-- Host UI can move an event from "nothing" → `submitted_for_review` via the
-  existing `/host/events` surface.
-- The new `/admin/event-requests` surface successfully publishes that row via
-  `events_update_admin`, including setting `host_user_id`.
+- משטח מארח: כפתור שליחה לבדיקה מנהלית נראה ב־`participant-foundation` (בהתאם לסצנה).
+- קטלוג נתיבים: `/admin/event-requests` רשום לעבודת אדמין ב־`foundation-routes`.
+
+What still relies on manual / future E2E:
+
+- אדמין לוחץ **Approve & publish** ב־`/admin/event-requests` ומוודא `active` + `is_published` + `host_user_id` ב־DB.
 
 ## Current limitations
 
@@ -110,7 +112,7 @@ and turn off `VITE_ENABLE_HOST_DEV_SHORTCUT` everywhere:
    production (it already is — the shortcut page was additive).
 2. `/admin/event-requests` is wired into real admin navigation / dashboard (or
    at least reachable from the top-level admin home for real reviewers).
-3. This spec (`e2e/slice-admin-review.spec.ts`) is in CI and green.
+3. כיסוי E2E אוטומטי מלא לזרימת approve-and-publish (או בדיקת smoke מתועדת ב־CI).
 4. The dev-shortcut doc (`docs/ops/host-submission-shortcut.md`) is updated to
    reference the admin-review slice as the live replacement.
 
