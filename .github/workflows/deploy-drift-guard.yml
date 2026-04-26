@@ -44,6 +44,12 @@ jobs:
 
       - name: Scroll navigation regression
         run: npm --prefix social-matching-web run e2e:scroll-nav
+        env:
+          VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-anon-key
 
       - name: Events retry regression
         run: npm --prefix social-matching-web run e2e:events-retry
+        env:
+          VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-anon-key
