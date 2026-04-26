@@ -16,7 +16,7 @@
     "staging:validation-users": "node --experimental-strip-types scripts/supabase/create-staging-validation-users.ts",
     "e2e": "playwright test",
     "e2e:scroll-nav": "playwright test e2e/scroll-navigation-regression.spec.ts",
-    "e2e:events-retry": "playwright test e2e/participant-visual-system.spec.ts --grep \"events error state can retry and recover without manual refresh\"",
+    "e2e:events-retry": "playwright test e2e/events-retry-regression.spec.ts",
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
     "ops:sync-vercel-vite-env": "node scripts/ops/sync-vercel-vite-supabase-env.mjs",
