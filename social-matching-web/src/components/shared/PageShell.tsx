@@ -91,7 +91,7 @@ export function PageShell({
           id="main-content"
           className={cn(
             tokens.participant.shell.content,
-            tokens.participant.shell.belowFixedHeader,
+            'pt-[calc(var(--app-header-height)+env(safe-area-inset-top,0px)+0.75rem)] md:pt-[calc(var(--app-header-height)+1rem)] lg:pt-[calc(var(--app-header-height)+1.25rem)]',
             'pb-28 md:pb-10',
           )}
         >
