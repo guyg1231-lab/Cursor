@@ -638,4 +638,5 @@ test.describe('participant visual system', () => {
     await expect(page.getByTestId('participant-route-state')).toBeVisible();
     await expect(page.getByText('שגיאת טעינה', { exact: true })).toBeVisible();
   });
+
 });
