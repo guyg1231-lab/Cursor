@@ -13,6 +13,7 @@ interface AppHeaderProps {
   logoSize?: 'sm' | 'md';
   transparent?: boolean;
   fixed?: boolean;
+  sticky?: boolean;
   variant?: 'default' | 'immersive';
   containerClass?: string;
   navHeight?: string;
@@ -24,6 +25,7 @@ export function AppHeader({
   logoSize = 'sm',
   transparent = false,
   fixed = false,
+  sticky = true,
   variant = 'default',
   containerClass = 'container px-4',
   navHeight = 'h-16',
@@ -41,13 +43,16 @@ export function AppHeader({
     return (
       <header
         className={cn(
-          'top-0 inset-x-0 z-50 transition-all duration-200 ease-out',
-          fixed ? 'fixed' : 'sticky',
-          transparent ? 'bg-transparent' : 'bg-background/65 backdrop-blur-md border-b border-border/40',
+          'top-0 inset-x-0 z-50 will-change-transform transition-transform duration-200 ease-out',
+          fixed ? 'fixed' : sticky ? 'sticky' : 'relative',
+          'translate-y-0',
+          transparent
+            ? 'bg-background/80 backdrop-blur-md shadow-sm'
+            : 'bg-background/65 backdrop-blur-md shadow-sm',
           className,
         )}
       >
-        <nav className={cn('flex items-center justify-between', navHeight, containerClass)}>
+        <nav className={cn('flex items-end justify-between border-b border-border/40 pb-2', navHeight, containerClass)}>
           <Link
             to="/"
             className="text-muted-foreground hover:text-foreground rounded-full p-2 btn-interactive-ghost hover:[&>img]:opacity-80"
@@ -65,13 +70,14 @@ export function AppHeader({
   return (
     <header
       className={cn(
-        'top-0 inset-x-0 z-50 transition-all duration-200 ease-out',
-        fixed ? 'fixed' : 'sticky',
-        transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-md border-b border-border/50',
+        'top-0 inset-x-0 z-50 will-change-transform transition-transform duration-200 ease-out',
+        fixed ? 'fixed' : sticky ? 'sticky' : 'relative',
+        'translate-y-0',
+        'bg-background/80 backdrop-blur-md shadow-sm',
         className,
       )}
     >
-      <nav className={cn('flex items-center justify-between', navHeight, containerClass)}>
+      <nav className={cn('flex items-end justify-between border-b border-border/40 pb-2', navHeight, containerClass)}>
         <Link
           to="/"
           className="text-muted-foreground hover:text-foreground rounded-full p-2 btn-interactive-ghost hover:[&>img]:opacity-80"

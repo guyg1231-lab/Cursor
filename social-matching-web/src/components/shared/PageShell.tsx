@@ -14,6 +14,7 @@ interface PageShellProps {
   subtitle?: string;
   heroAlign?: 'start' | 'center';
   headerTransparent?: boolean;
+  headerSticky?: boolean;
   headerActions?: React.ReactNode;
 }
 
@@ -26,6 +27,7 @@ export function PageShell({
   subtitle,
   heroAlign = 'start',
   headerTransparent = false,
+  headerSticky = true,
   headerActions,
 }: PageShellProps) {
   const { isRTL, t } = useLanguage();
@@ -78,8 +80,14 @@ export function PageShell({
       )}
 
       <div className={tokens.participant.shell.chrome}>
-        <AppHeader variant={headerVariant} transparent={headerTransparent} actions={headerActions} />
-        <main id="main-content" className={cn(tokens.participant.shell.content, 'pb-28 md:pb-10')}>
+        <AppHeader
+          variant={headerVariant}
+          transparent={headerTransparent}
+          fixed
+          sticky={headerSticky}
+          actions={headerActions}
+        />
+        <main id="main-content" className={cn(tokens.participant.shell.content, 'pt-16 pb-28 md:pb-10')}>
           {title || subtitle ? (
             <div
               data-testid="participant-page-hero"

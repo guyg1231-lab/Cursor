@@ -19,7 +19,7 @@ export function ThemeToggle({ theme, toggleTheme }: ThemeToggleProps) {
       size="sm"
       onClick={toggleTheme}
       aria-label={t('toggleTheme')}
-      className="gap-1.5 text-muted-foreground hover:text-foreground min-h-[44px] px-2.5 rounded-full"
+      className="h-9 min-h-0 gap-1.5 text-muted-foreground hover:text-foreground px-2.5 rounded-full"
     >
       <Icon className="h-4 w-4" />
       <span className="text-sm">{label}</span>

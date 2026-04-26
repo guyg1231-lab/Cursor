@@ -12,7 +12,7 @@ export function LanguageToggle() {
       size="sm"
       onClick={() => setLanguage(language === 'he' ? 'en' : 'he')}
       aria-label={t('toggleLanguage')}
-      className="gap-1.5 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] px-2.5 rounded-full"
+      className="h-9 min-h-0 min-w-[44px] gap-1.5 text-muted-foreground hover:text-foreground px-2.5 rounded-full"
     >
       <Globe className="h-4 w-4" />
       <span className="text-sm tabular-nums">{language === 'he' ? 'EN' : 'עב'}</span>
