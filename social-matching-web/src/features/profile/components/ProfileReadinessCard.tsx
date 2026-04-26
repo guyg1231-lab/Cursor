@@ -8,10 +8,15 @@ export function ProfileReadinessCard({ ready, isLoading }: { ready: boolean; isL
   if (isLoading) {
     return (
       <Card className={tokens.card.surface}>
-        <CardHeader>
+        <CardHeader className="space-y-3">
           <CardTitle className="text-xl">מוכנות להגשה</CardTitle>
+          <div data-testid="dashboard-readiness-skeleton" className="space-y-2" aria-hidden="true">
+            <div className="h-4 w-28 rounded-full bg-muted skeleton-shimmer" />
+            <div className="h-3 w-full max-w-[18rem] rounded-full bg-muted/80 skeleton-shimmer" />
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <div className="h-9 w-32 rounded-full bg-muted skeleton-shimmer" aria-hidden="true" />
           <p className="text-sm text-muted-foreground leading-relaxed">טוען...</p>
         </CardContent>
       </Card>

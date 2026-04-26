@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
-import { RouteErrorState } from '@/components/shared/RouteState';
+import { RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
 import { getVisibleEventById } from '@/features/events/api';
@@ -104,9 +104,7 @@ export function EventDetailPage() {
   if (isLoading) {
     return (
       <PageShell title="פרטי מפגש" subtitle="טוענים את פרטי המפגש...">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים פרטים...</CardContent>
-        </Card>
+        <RouteLoadingState title="טוענים פרטים..." body="אוספים כרגע את פרטי המפגש." />
       </PageShell>
     );
   }
@@ -167,8 +165,8 @@ export function EventDetailPage() {
         )}
       </PageActionBar>
 
-      <div className="grid gap-4 md:grid-cols-[1.12fr_0.88fr]">
-        <div className="space-y-4">
+      <div className="grid gap-5 md:grid-cols-[1.12fr_0.88fr] md:gap-6">
+        <div className="space-y-5">
           <EventIdentityHero
             event={event}
             eyebrow="המפגש שפתוח לפניך"
@@ -229,7 +227,7 @@ export function EventDetailPage() {
           ) : null}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           <Card data-testid="participant-surface-panel" className={tokens.card.surface}>
             <CardHeader>
               <CardTitle className="text-xl font-semibold tracking-[-0.015em]">מה חשוב לדעת?</CardTitle>

@@ -1,8 +1,9 @@
 # Design vision — visual companion (Circles / Social Matching MVP)
 
 **Date:** 2026-04-21  
-**Status:** Design track — step-by-step imagination aid; not a replacement for `docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md`  
-**Canonical UX law:** [`docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md`](../../mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md)
+**Status:** Design track — step-by-step imagination aid; not a replacement for the canonical root `DESIGN.md`  
+**Canonical design law:** [`DESIGN.md`](../../../DESIGN.md)  
+**Principles layer:** [`docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md`](../../mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md)
 
 ---
 
@@ -12,13 +13,14 @@ Advance **one step at a time**. After each step, decide “yes / adjust / park�
 
 | Step | You look at | You decide |
 |------|-------------|------------|
-| **D1 — Atmosphere** | Token board + HTML mood page | “Does this feel warm, calm, quietly premium?” — aligns §1–3 of doc 12 |
+| **D1 — Atmosphere** | Token board + HTML mood page | “Does this feel warm, calm, quietly premium?” — aligns with `DESIGN.md` overview and doc 12 §1–3 |
 | **D2 — Browse shape** | ASCII “Events” + optional map note | Feed-first vs hero+list (see progress spec §5.1) |
 | **D3 — Detail story** | ASCII “Event detail” | What one screen must always explain (trust + next step) |
 | **D4 — Apply moment** | ASCII “Apply” | How little friction you can keep while staying event-specific |
 | **D5 — Admin contrast** | ASCII “Admin” | Enough precision without leaking cold voice to participants |
 
-**Browser mood board (opens locally):** [`docs/design/visual-language-board.html`](../../design/visual-language-board.html) — color, type, and tiny fake UI blocks so you can *see* direction without building the app.
+**Browser mood board (opens locally):** [`docs/design/visual-language-board.html`](../../design/visual-language-board.html) — color, type, and tiny fake UI blocks so you can *see* direction without building the app.  
+**Canonical tokens and component rules:** [`DESIGN.md`](../../../DESIGN.md)
 
 ---
 

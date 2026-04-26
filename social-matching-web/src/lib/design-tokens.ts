@@ -2,10 +2,18 @@ export { cn } from './utils';
 
 export const brandColors = {
   primary: 'hsl(239, 84%, 67%)',
+  primaryStrong: '#4B55D8',
+  primarySoft: '#E8EAFF',
   sage: '#6B7F5E',
   lavender: '#9BA8C4',
-  cream: '#FDFBF7',
-  warmWhite: '#FAF9F7',
+  neutral: '#FAF9F7',
+  surface: '#FDFBF7',
+  surfaceElevated: '#FFFEFC',
+  ink: '#1A1A1A',
+  textMuted: '#5C6168',
+  border: '#E7E1D8',
+  destructive: '#A34545',
+  success: '#55664A',
 } as const;
 
 export const tokens = {
@@ -18,14 +26,17 @@ export const tokens = {
     shell: {
       chrome: 'relative z-10',
       content: 'container py-6 md:py-10 space-y-4 md:space-y-5',
+      /** Space below fixed `AppHeader`: header height token + safe-area + optical gap so titles are not clipped. */
+      belowFixedHeader:
+        'pt-[calc(var(--app-header-height)+env(safe-area-inset-top,0px)+0.75rem)] md:pt-[calc(var(--app-header-height)+1rem)] lg:pt-[calc(var(--app-header-height)+1.25rem)]',
       hero: 'max-w-3xl space-y-2.5',
     },
     actionRail:
-      'inline-flex w-fit max-w-full flex-wrap items-center gap-2 rounded-full border border-border/75 bg-card/96 px-2 py-2 shadow-[0_14px_34px_-24px_hsl(var(--foreground)/0.28),0_3px_10px_hsl(var(--foreground)/0.04)]',
+      'inline-flex w-fit max-w-full flex-wrap items-center gap-2 rounded-full border border-border/75 bg-card/96 px-2 py-2 shadow-[0_14px_34px_-24px_hsl(var(--foreground)/0.24),0_3px_10px_hsl(var(--foreground)/0.04)]',
     routeState:
-      'border-border/75 bg-card/96 shadow-[0_16px_38px_-28px_hsl(var(--foreground)/0.3),0_4px_12px_hsl(var(--foreground)/0.05)]',
+      'border-border/75 bg-card/96 shadow-[0_16px_38px_-28px_hsl(var(--foreground)/0.22),0_4px_12px_hsl(var(--foreground)/0.05)]',
     panel:
-      'rounded-[28px] border border-border/75 bg-card/96 text-card-foreground shadow-[0_18px_42px_-30px_hsl(var(--foreground)/0.32),0_6px_14px_hsl(var(--foreground)/0.05)]',
+      'rounded-[28px] border border-border/75 bg-card/96 text-card-foreground shadow-[0_18px_42px_-30px_hsl(var(--foreground)/0.24),0_6px_14px_hsl(var(--foreground)/0.05)]',
     panelInner:
       'rounded-[22px] border border-border/60 bg-background/92 shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_16px_-16px_hsl(var(--foreground)/0.2)]',
   },
@@ -39,9 +50,9 @@ export const tokens = {
   },
   card: {
     surface:
-      'rounded-[28px] border border-border/75 bg-card/96 shadow-[0_18px_40px_-28px_hsl(var(--foreground)/0.3),0_6px_16px_hsl(var(--foreground)/0.04)] transition-all duration-300 ease-out',
+      'rounded-[28px] border border-border/75 bg-card/96 shadow-[0_18px_40px_-28px_hsl(var(--foreground)/0.22),0_6px_16px_hsl(var(--foreground)/0.04)] transition-all duration-300 ease-out',
     accent:
-      'rounded-[28px] border border-primary/10 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--accent-lavender)/0.34)_100%)] shadow-[0_22px_46px_-32px_hsl(var(--primary)/0.26),0_8px_18px_hsl(var(--foreground)/0.04)] transition-all duration-300 ease-out',
+      'rounded-[28px] border border-primary/10 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--accent-lavender)/0.52)_100%)] shadow-[0_22px_46px_-32px_hsl(var(--primary-strong)/0.22),0_8px_18px_hsl(var(--foreground)/0.04)] transition-all duration-300 ease-out',
     inner:
       'rounded-[22px] border border-border/60 bg-background/92 shadow-[inset_0_1px_0_hsl(var(--card)),0_8px_16px_-16px_hsl(var(--foreground)/0.2)]',
   },

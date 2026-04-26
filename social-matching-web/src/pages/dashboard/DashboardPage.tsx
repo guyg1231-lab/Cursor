@@ -85,30 +85,43 @@ export function DashboardPage() {
       title="האזור האישי שלך"
       subtitle="כאן רואים את מצב הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש."
     >
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2 md:gap-6">
         <div className="md:col-span-2">
           <QuestionnaireReadinessPanel body="כאן יופיע מצב הפרופיל, ההגשות שלך, והשלב הבא בכל מפגש." />
         </div>
         <ProfileReadinessCard ready={profileReady} isLoading={authLoading || !user || readinessLoading} />
         <Card className={tokens.card.surface}>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">סטטוס פרופיל</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground leading-7">
-            <p>הפרופיל עוזר לנו להתאים אותך למעגלים ולמפגשים שמתאימים לך.</p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="outline">
-                <Link to="/questionnaire">להשלמת הפרופיל</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/events/propose">להציע מפגש חדש</Link>
-              </Button>
-            </div>
+            {authLoading || !user || readinessLoading ? (
+              <div data-testid="dashboard-profile-status-skeleton" className="space-y-3" aria-hidden="true">
+                <div className="h-3 w-full max-w-sm rounded-full bg-muted/80 skeleton-shimmer" />
+                <div className="h-3 w-4/5 max-w-xs rounded-full bg-muted/80 skeleton-shimmer" />
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <div className="h-9 w-32 rounded-full bg-muted skeleton-shimmer" />
+                  <div className="h-9 w-36 rounded-full bg-muted skeleton-shimmer" />
+                </div>
+              </div>
+            ) : (
+              <>
+                <p>הפרופיל עוזר לנו להתאים אותך למעגלים ולמפגשים שמתאימים לך.</p>
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild variant="outline">
+                    <Link to="/questionnaire">להשלמת הפרופיל</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/events/propose">להציע מפגש חדש</Link>
+                  </Button>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card className={tokens.card.surface}>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-xl font-semibold tracking-[-0.015em]">ההגשות שלך</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
@@ -118,10 +131,7 @@ export function DashboardPage() {
               <RouteErrorState title="שגיאה בטעינת ההגשות" body="נסו לרענן את הדף או לחזור מאוחר יותר." />
             ) : applications.length === 0 ? (
               <div className="space-y-3">
-                <RouteEmptyState
-                  title="אין עדיין הגשות"
-                body="כשתגישו למפגש פתוח, הסטטוס והצעדים הבאים יופיעו כאן."
-                />
+                <RouteEmptyState title="אין עדיין הגשות" body="כשתגישו למפגש פתוח, הסטטוס והצעדים הבאים יופיעו כאן." />
                 <Button asChild variant="primary">
                   <Link to="/events">למפגשים פתוחים</Link>
                 </Button>

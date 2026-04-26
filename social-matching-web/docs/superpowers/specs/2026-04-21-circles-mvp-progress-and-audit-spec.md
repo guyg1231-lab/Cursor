@@ -20,9 +20,9 @@ This file is **not** a replacement for the canonical MVP definition in `docs/mvp
 
 **Companion “how close are we to done?” roadmap (plain language):** `docs/superpowers/specs/2026-04-21-mvp-finish-roadmap-design.md`.
 
-**Design track (wireframes, flows, visual tokens + browser mood board):** `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md` — open `docs/design/visual-language-board.html` in a browser for a quick visual read.
+**Design track (wireframes, flows, visual tokens + browser mood board):** `DESIGN.md` + `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md` — open `docs/design/visual-language-board.html` in a browser for a quick visual read.
 
-**Platform design-system definition (tokens, typography, governance, rollout waves):** `docs/superpowers/specs/2026-04-21-platform-design-system-spec.md`.
+**Platform design-system governance and rollout notes:** `docs/superpowers/specs/2026-04-21-platform-design-system-spec.md`.
 
 ---
 
@@ -49,7 +49,8 @@ People discover **small, curated real-life gatherings** in their city. If someth
 | Apply flow and guards | `docs/mvp-v1/09_APPLY_FLOW_SPEC.md` |
 | Discovery and event detail | `docs/mvp-v1/10_EVENT_DISCOVERY_AND_DETAIL_SPEC.md` |
 | Trust and verification | `docs/mvp-v1/11_TRUST_AND_VERIFICATION.md` |
-| Visual and UX north star | `docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md` |
+| Visual system source of truth | `DESIGN.md` |
+| Visual and UX principles | `docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md` |
 
 **Superpowers design docs** (implementation-facing but useful for audits of *behavior* and *boundaries*): see `docs/superpowers/specs/` — especially lifecycle, apply parity, non-admin boundary, and dashboard compact designs dated 2026-04-18 through 2026-04-21.
 
