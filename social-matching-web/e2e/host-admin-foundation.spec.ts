@@ -34,6 +34,36 @@ test.describe('host/admin MVP-critical workflows', () => {
     }
   });
 
+  test('admin events list shows table skeleton while loading', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    try {
+      await authenticateAs(ctx, ENV.EMAILS.ADMIN1);
+      const page = await ctx.newPage();
+
+      let releaseEventsRequest: (() => void) | null = null;
+      const eventsRequestReleased = new Promise<void>((resolve) => {
+        releaseEventsRequest = resolve;
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        await eventsRequestReleased;
+        await route.continue();
+      });
+
+      await page.goto('/admin/events');
+      await expect(page.getByTestId('admin-events-table-skeleton')).toBeVisible();
+
+      if (!releaseEventsRequest) {
+        throw new Error('Expected events request interception for admin events list.');
+      }
+      releaseEventsRequest();
+
+      await expect(page.getByRole('heading', { name: 'כל האירועים' })).toBeVisible();
+    } finally {
+      await ctx.close();
+    }
+  });
+
   test('admin dashboard exposes diagnostics and audit routes', async ({ browser }) => {
     const ctx = await browser.newContext();
     try {

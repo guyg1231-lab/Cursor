@@ -11,6 +11,7 @@
 
 @layer base {
   :root {
+    --app-header-height: 4rem;
     --font-family-ui: 'Heebo', 'Assistant', 'Noto Sans Hebrew', 'Rubik', system-ui, sans-serif;
     --font-family-display: 'Heebo', 'Assistant', 'Noto Sans Hebrew', 'Rubik', system-ui, sans-serif;
     --font-weight-regular: 400;
@@ -38,71 +39,72 @@
     --letter-normal: 0;
     --letter-wide: 0.02em;
 
-    /* Base — clean off-white */
-    --background: 0 0% 97.6%;
+    /* Base — warm editorial neutrals from DESIGN.md */
+    --background: 40 20% 97%;
     --foreground: 0 0% 10%;
 
     /* Card surfaces */
-    --card: 0 0% 100%;
+    --card: 40 60% 98%;
     --card-foreground: 0 0% 10%;
 
     /* Popover */
-    --popover: 0 0% 100%;
+    --popover: 40 100% 99%;
     --popover-foreground: 0 0% 10%;
 
-    /* Primary — Soft Indigo */
+    /* Primary — Soft Indigo with accessible strong action tone */
     --primary: 239 84% 67%;
-    --primary-foreground: 0 0% 100%;
+    --primary-strong: 236 64% 57%;
+    --primary-foreground: 60 17% 98%;
 
-    /* Secondary */
-    --secondary: 0 0% 96%;
+    /* Secondary / quiet surfaces */
+    --secondary: 40 29% 96%;
     --secondary-foreground: 0 0% 10%;
 
     /* Muted */
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 40 24% 96%;
+    --muted-foreground: 220 5% 36%;
 
     /* Accent */
-    --accent: 0 0% 95%;
+    --accent: 230 100% 96%;
     --accent-foreground: 0 0% 10%;
 
     /* Destructive — red, distinct from primary */
-    --destructive: 357 72% 46%;
-    --destructive-foreground: 0 0% 100%;
-    --error-foreground: 357 55% 32%;
+    --destructive: 0 41% 45%;
+    --destructive-foreground: 60 17% 98%;
+    --error-foreground: 0 41% 36%;
 
     /* Border/Input */
-    --border: 0 0% 91%;
-    --input: 0 0% 91%;
-    --ring: 239 84% 67%;
+    --border: 37 26% 89%;
+    --input: 37 26% 89%;
+    --ring: 236 64% 57%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 40 20% 97%;
     --sidebar-foreground: 0 0% 10%;
     --sidebar-primary: 239 84% 67%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
+    --sidebar-primary-foreground: 60 17% 98%;
+    --sidebar-accent: 40 24% 96%;
     --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 91%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-border: 37 26% 89%;
+    --sidebar-ring: 236 64% 57%;
 
     /* Status colors — from design system palette (primary, sage, destructive, accent-periwinkle, muted) */
     --status-pending: 239 84% 67%;
-    --status-approved: 98 15% 43%;
-    --status-rejected: 357 72% 46%;
+    --status-approved: 92 16% 35%;
+    --status-rejected: 0 41% 45%;
     --status-waitlist: 230 35% 65%;
     --status-cancelled: 0 0% 55%;
 
     /* Accent card backgrounds */
-    --accent-lavender: 250 60% 93%;
+    --accent-lavender: 239 100% 96%;
     --accent-sky: 215 70% 93%;
     --accent-periwinkle: 230 55% 92%;
 
     /* Brand supporting tones */
     --sage: 98 15% 43%;
-    --sage-dark: 100 18% 36%;
+    --sage-dark: 92 16% 35%;
     --lavender-brand: 225 28% 68%;
   }
 
@@ -111,14 +113,15 @@
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 217 33% 17%;
+    --card: 222 28% 16%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 217 33% 17%;
+    --popover: 222 28% 15%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 239 84% 72%;
-    --primary-foreground: 0 0% 100%;
+    --primary-strong: 239 74% 78%;
+    --primary-foreground: 60 17% 98%;
 
     --secondary: 217 33% 22%;
     --secondary-foreground: 210 40% 98%;
@@ -129,26 +132,26 @@
     --accent: 217 33% 22%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 357 72% 52%;
+    --destructive: 0 58% 64%;
     --destructive-foreground: 0 0% 100%;
-    --error-foreground: 357 80% 82%;
+    --error-foreground: 0 72% 86%;
 
     --border: 217 32% 22%;
     --input: 217 32% 22%;
-    --ring: 239 84% 72%;
+    --ring: 239 74% 78%;
 
     --sidebar-background: 222 47% 9%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 239 84% 72%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary-foreground: 60 17% 98%;
     --sidebar-accent: 217 33% 20%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 32% 20%;
-    --sidebar-ring: 239 84% 72%;
+    --sidebar-ring: 239 74% 78%;
 
     --status-pending: 239 84% 72%;
-    --status-approved: 98 20% 55%;
-    --status-rejected: 357 72% 62%;
+    --status-approved: 92 22% 62%;
+    --status-rejected: 0 58% 64%;
     --status-waitlist: 230 35% 70%;
     --status-cancelled: 0 0% 65%;
 
@@ -182,6 +185,8 @@
   html {
     scroll-behavior: smooth;
     color-scheme: light dark;
+    /* Fixed AppHeader (h-16) + notch / dynamic island — keeps in-page anchors from hiding under chrome */
+    scroll-padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px) + 0.75rem);
   }
 
   body {
@@ -570,6 +575,24 @@ select:focus-visible {
 
 .selection-animate {
   animation: selection-pop 0.2s ease-out;
+}
+
+@keyframes sparkle-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(6deg) scale(1.06);
+  }
+
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.animate-sparkle-rotate {
+  animation: sparkle-rotate 2.4s ease-in-out infinite;
 }
 
 /* Pill/Chip selection feedback */

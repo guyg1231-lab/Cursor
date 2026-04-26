@@ -14,6 +14,7 @@ interface PageShellProps {
   subtitle?: string;
   heroAlign?: 'start' | 'center';
   headerTransparent?: boolean;
+  headerSticky?: boolean;
   headerActions?: React.ReactNode;
 }
 
@@ -26,6 +27,7 @@ export function PageShell({
   subtitle,
   heroAlign = 'start',
   headerTransparent = false,
+  headerSticky = true,
   headerActions,
 }: PageShellProps) {
   const { isRTL, t } = useLanguage();
@@ -78,12 +80,25 @@ export function PageShell({
       )}
 
       <div className={tokens.participant.shell.chrome}>
-        <AppHeader variant={headerVariant} transparent={headerTransparent} actions={headerActions} />
-        <main id="main-content" className={cn(tokens.participant.shell.content, 'pb-28 md:pb-10')}>
+        <AppHeader
+          variant={headerVariant}
+          transparent={headerTransparent}
+          fixed
+          sticky={headerSticky}
+          actions={headerActions}
+        />
+        <main
+          id="main-content"
+          className={cn(
+            tokens.participant.shell.content,
+            'pt-[calc(var(--app-header-height)+env(safe-area-inset-top,0px)+0.75rem)] md:pt-[calc(var(--app-header-height)+1rem)] lg:pt-[calc(var(--app-header-height)+1.25rem)]',
+            'pb-28 md:pb-10',
+          )}
+        >
           {title || subtitle ? (
             <div
               data-testid="participant-page-hero"
-              className={cn('flex flex-col', tokens.participant.shell.hero, heroAlignClassName)}
+              className={cn('flex flex-col scroll-mt-24', tokens.participant.shell.hero, heroAlignClassName)}
             >
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
               {subtitle ? <p className="text-base md:text-lg leading-7 md:leading-8 text-foreground/78">{subtitle}</p> : null}

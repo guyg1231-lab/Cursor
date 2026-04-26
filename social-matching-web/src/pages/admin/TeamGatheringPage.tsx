@@ -111,11 +111,36 @@ export function TeamGatheringPage() {
   if (pageLoading) {
     return (
       <PageShell title="ניהול מפגש" subtitle="טוענים את נתוני המפגש...">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10">
-            <RouteLoadingState title="טוענים..." body="מושכים את תמונת ההרשמות של המפגש." />
-          </CardContent>
-        </Card>
+        <div data-testid="team-gathering-table-skeleton" className="space-y-4" aria-hidden="true">
+          <RouteLoadingState title="טוענים..." body="מושכים את תמונת ההרשמות של המפגש." />
+          <Card className={tokens.card.surface}>
+            <CardHeader>
+              <div className="h-6 w-44 rounded-full bg-muted skeleton-shimmer" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-3">
+                <div className="h-10 w-28 rounded-full bg-muted skeleton-shimmer" />
+                <div className="h-10 w-24 rounded-full bg-muted skeleton-shimmer" />
+              </div>
+              <div className="overflow-x-auto rounded-3xl border border-border/60">
+                <div className="min-w-[680px] p-4 space-y-2">
+                  <div className="grid grid-cols-5 gap-3">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <div key={`head-${index}`} className="h-3 rounded-full bg-muted/80 skeleton-shimmer" />
+                    ))}
+                  </div>
+                  {Array.from({ length: 4 }).map((_, rowIndex) => (
+                    <div key={`row-${rowIndex}`} className="grid grid-cols-5 gap-3">
+                      {Array.from({ length: 5 }).map((__, colIndex) => (
+                        <div key={`cell-${rowIndex}-${colIndex}`} className="h-8 rounded-xl bg-muted/70 skeleton-shimmer" />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </PageShell>
     );
   }

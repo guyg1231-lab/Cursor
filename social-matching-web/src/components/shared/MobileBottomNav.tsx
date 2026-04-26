@@ -12,10 +12,9 @@ type TabItem = {
 };
 
 function isParticipantMobileNavRoute(pathname: string) {
-  if (pathname === '/') return true;
-  if (pathname.startsWith('/events')) return true;
-  if (pathname.startsWith('/dashboard')) return true;
-  if (pathname.startsWith('/questionnaire')) return true;
+  const exactAllowedRoutes = new Set(['/', '/auth', '/terms', '/privacy', '/events', '/questionnaire', '/dashboard']);
+  if (exactAllowedRoutes.has(pathname)) return true;
+  if (pathname.startsWith('/events/')) return true;
   if (pathname.startsWith('/gathering/')) return true;
   return false;
 }

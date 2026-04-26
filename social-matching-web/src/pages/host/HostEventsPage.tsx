@@ -280,11 +280,41 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
       subtitle="פותחים טיוטת אירוע, שומרים, ושולחים לבדיקה כשמוכן."
     >
       {isLoading || isEligibilityLoading ? (
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10">
+        <div data-testid="host-events-loading-skeleton" className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:gap-6" aria-hidden="true">
+          <div className="space-y-5">
             <RouteLoadingState title="טוענים..." body="טוענים את אזור בקשות האירועים." />
-          </CardContent>
-        </Card>
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Card key={`host-list-skeleton-${index}`} className={tokens.card.surface}>
+                <CardHeader className="space-y-2">
+                  <div className="h-5 w-44 rounded-full bg-muted skeleton-shimmer" />
+                  <div className="h-3 w-32 rounded-full bg-muted/80 skeleton-shimmer" />
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="h-3 w-3/4 rounded-full bg-muted/80 skeleton-shimmer" />
+                  <div className="h-3 w-2/3 rounded-full bg-muted/80 skeleton-shimmer" />
+                  <div className="h-8 w-28 rounded-full bg-muted skeleton-shimmer" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card className={tokens.card.accent}>
+            <CardHeader className="pb-3">
+              <div className="h-7 w-56 rounded-full bg-muted skeleton-shimmer" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={`host-form-skeleton-${index}`} className="space-y-2">
+                  <div className="h-3 w-24 rounded-full bg-muted/80 skeleton-shimmer" />
+                  <div className="h-11 w-full rounded-3xl bg-muted skeleton-shimmer" />
+                </div>
+              ))}
+              <div className="flex gap-3 pt-1">
+                <div className="h-10 w-28 rounded-full bg-muted skeleton-shimmer" />
+                <div className="h-10 w-36 rounded-full bg-muted skeleton-shimmer" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       ) : loadError ? (
         <Card className={tokens.card.surface}>
           <CardContent className="py-10">
@@ -304,10 +334,10 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="space-y-4">
+        <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:gap-6">
+          <div className="space-y-5">
             <Card className={tokens.card.surface}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-xl font-semibold tracking-[-0.015em]">בקשות אירוע</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
@@ -363,7 +393,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
             )}
 
             <Card className={tokens.card.surface}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-xl font-semibold tracking-[-0.015em]">אירועים שאת/ה מארח/ת</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
@@ -459,7 +489,7 @@ function HostEventsPageContent({ defaultToNewDraft }: { defaultToNewDraft: boole
           </div>
 
           <Card className={tokens.card.accent}>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">
                 {activeEditorId === 'new' ? 'טיוטת אירוע חדשה' : selectedRequest?.title ?? 'בקשת אירוע'}
               </CardTitle>
