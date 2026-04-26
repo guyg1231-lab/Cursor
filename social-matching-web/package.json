@@ -20,6 +20,8 @@
     "ops:sync-vercel-vite-env": "node scripts/ops/sync-vercel-vite-supabase-env.mjs",
     "ops:patch-supabase-auth-email-templates": "node scripts/ops/patch-supabase-auth-email-templates.mjs",
     "ops:grant-admin-by-email": "node scripts/ops/grant-admin-by-email.mjs",
+    "ops:upsert-content-bundle": "node scripts/ops/upsert-content-bundle.mjs",
+    "ops:generate-tel-aviv-content-bundle": "node scripts/ops/generate-tel-aviv-content-bundle.mjs",
     "ops:verify-monorepo-vercel-root-config": "node scripts/ops/verify-monorepo-vercel-root-config.mjs",
     "ops:verify-deploy-supabase": "node scripts/ops/verify-deployed-supabase-project.mjs --url \"${VERIFY_DEPLOY_URL:-https://social-matching-web.vercel.app}\" --expect-ref \"${VERIFY_EXPECT_SUPABASE_REF:-nshgmuqlivuhlimwdwhe}\"",
     "ops:verify-staging-deploy-supabase": "node scripts/ops/verify-deployed-supabase-project.mjs --url \"https://social-matching-web-staging.vercel.app\" --expect-ref \"huzcvjyyyuudchnrosvx\"",
