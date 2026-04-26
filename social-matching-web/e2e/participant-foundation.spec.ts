@@ -308,6 +308,7 @@ test.describe('participant foundation', () => {
 
     await page.goto('/events');
 
+    await expect(page.getByTestId('route-loading-skeleton')).toBeVisible();
     await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
     await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
@@ -332,6 +333,22 @@ test.describe('participant foundation', () => {
         name: /להגשה למפגש|להגיש שוב|להגשה ולסטטוס|להרשמה וסטטוס|למקום הזמני ולתגובה|לצפייה בסטטוס (ההרשמה|ההגשה)|חזרה למפגשים/i,
       }).first(),
     ).toBeVisible();
+  });
+
+  test('navigating by link resets page to top on destination', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/events');
+
+    const discoveryGrid = page.getByTestId('events-discovery-grid');
+    await expect(discoveryGrid).toBeVisible();
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForFunction(() => window.scrollY > 300);
+
+    await discoveryGrid.getByRole('link', { name: 'לפרטים ולהרשמה' }).first().click();
+    await expect(page).toHaveURL(/\/events\/([0-9a-f-]+|initial-[a-z-]+|seed-[a-z-]+)$/i);
+
+    await page.waitForFunction(() => window.scrollY <= 5);
   });
 
   test('events page offers a non-admin CTA to propose something new', async ({ page }) => {
@@ -1722,37 +1739,81 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('landing hero CTA links point to events and how-it-works anchor', async ({ browser }) => {
+  test('landing hero removes events and how-it-works CTA links', async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     try {
       await page.goto('/');
-      const eventsLink = page.getByRole('link', { name: 'לצפייה במפגשים' });
-      const howItWorksLink = page.getByRole('link', { name: 'איך זה עובד?' });
-
-      await expect(eventsLink).toBeVisible();
-      await expect(eventsLink).toHaveAttribute('href', '/events');
-      await expect(howItWorksLink).toBeVisible();
-      await expect(howItWorksLink).toHaveAttribute('href', /#landing-how-it-works$/);
+      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'איך זה עובד?' })).toHaveCount(0);
     } finally {
       await ctx.close();
     }
   });
 
-  test('landing: narrow viewport keeps hero links visible (RTL mobile smoke)', async ({ browser }) => {
+  test('landing: narrow viewport also hides removed hero links (RTL mobile smoke)', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     try {
       await page.goto('/');
-      const eventsLink = page.getByRole('link', { name: 'לצפייה במפגשים' });
-      const howItWorksLink = page.getByRole('link', { name: 'איך זה עובד?' });
-
-      await expect(eventsLink).toBeVisible();
-      await expect(eventsLink).toHaveAttribute('href', '/events');
-      await expect(howItWorksLink).toBeVisible();
-      await expect(howItWorksLink).toHaveAttribute('href', /#landing-how-it-works$/);
+      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'איך זה עובד?' })).toHaveCount(0);
     } finally {
       await ctx.close();
+    }
+  });
+
+  test('mobile keeps participant bottom navigation visible across public participant routes', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    try {
+      const expectedBottomNavRoutes = ['/', '/terms', '/privacy', '/auth', '/events', '/questionnaire'];
+      for (const route of expectedBottomNavRoutes) {
+        await page.goto(route);
+        await expect(page.getByRole('link', { name: 'אירועים', exact: true })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'פרופיל', exact: true })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'דשבורד', exact: true })).toBeVisible();
+      }
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('mobile bottom navigation route matrix keeps admin-host-callback paths hidden', async ({ browser }) => {
+    const adminCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const hostCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const publicCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+
+    try {
+      await authenticateAs(adminCtx, ENV.EMAILS.ADMIN1);
+      const adminPage = await adminCtx.newPage();
+      const hiddenOnAdminRoutes = ['/admin', '/admin/events', `/team/gathering/${ENV.EVENT_ID}`];
+      for (const route of hiddenOnAdminRoutes) {
+        await adminPage.goto(route);
+        await expect(adminPage.getByRole('link', { name: 'אירועים', exact: true })).toHaveCount(0);
+        await expect(adminPage.getByRole('link', { name: 'פרופיל', exact: true })).toHaveCount(0);
+        await expect(adminPage.getByRole('link', { name: 'דשבורד', exact: true })).toHaveCount(0);
+      }
+
+      await authenticateAs(hostCtx, ENV.EMAILS.P1);
+      const hostPage = await hostCtx.newPage();
+      const hiddenOnHostRoutes = ['/host/events', `/host/events/${ENV.EVENT_ID}`];
+      for (const route of hiddenOnHostRoutes) {
+        await hostPage.goto(route);
+        await expect(hostPage.getByRole('link', { name: 'אירועים', exact: true })).toHaveCount(0);
+        await expect(hostPage.getByRole('link', { name: 'פרופיל', exact: true })).toHaveCount(0);
+        await expect(hostPage.getByRole('link', { name: 'דשבורד', exact: true })).toHaveCount(0);
+      }
+
+      const publicPage = await publicCtx.newPage();
+      await publicPage.goto('/auth/callback');
+      await expect(publicPage.getByRole('link', { name: 'אירועים', exact: true })).toHaveCount(0);
+      await expect(publicPage.getByRole('link', { name: 'פרופיל', exact: true })).toHaveCount(0);
+      await expect(publicPage.getByRole('link', { name: 'דשבורד', exact: true })).toHaveCount(0);
+    } finally {
+      await adminCtx.close();
+      await hostCtx.close();
+      await publicCtx.close();
     }
   });
 
@@ -1797,6 +1858,108 @@ test.describe('participant foundation', () => {
       await page.goto('/');
       const body = await page.locator('body').innerText();
       expect(body).toContain('מעגלים לחוויות משותפות.');
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing events shelf shows card skeleton while events are loading', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    try {
+      const page = await ctx.newPage();
+
+      let releaseEventsRequest: (() => void) | null = null;
+      const eventsRequestReleased = new Promise<void>((resolve) => {
+        releaseEventsRequest = resolve;
+      });
+
+      await page.route('**/rest/v1/events*', async (route) => {
+        await eventsRequestReleased;
+        await route.continue();
+      });
+
+      await page.goto('/');
+      await expect(page.getByTestId('landing-events-skeleton')).toBeVisible();
+
+      if (!releaseEventsRequest) {
+        throw new Error('Expected events request interception to be installed for landing.');
+      }
+      releaseEventsRequest();
+
+      await expect(page.getByTestId('event-summary-card').first()).toBeVisible();
+      await expect(page.getByTestId('landing-events-skeleton')).toHaveCount(0);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing scroll reveal progressively exposes lower sections on mobile', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 700 } });
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/');
+
+      const secondaryHero = page.getByTestId('landing-reveal-hero-secondary');
+      const infoCardsSection = page.getByTestId('landing-reveal-info-cards');
+      await expect(secondaryHero).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'hidden');
+
+      await secondaryHero.scrollIntoViewIfNeeded();
+      await expect(secondaryHero).toHaveAttribute('data-reveal-state', 'visible');
+
+      await infoCardsSection.scrollIntoViewIfNeeded();
+
+      await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'visible');
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing scroll reveal progressively exposes lower sections on tablet', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 768, height: 1024 } });
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/');
+
+      const secondaryHero = page.getByTestId('landing-reveal-hero-secondary');
+      const infoCardsSection = page.getByTestId('landing-reveal-info-cards');
+      await expect(secondaryHero).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'hidden');
+
+      await page.evaluate(() => window.scrollTo(0, 72));
+      await expect(secondaryHero).toHaveAttribute('data-reveal-state', 'visible');
+
+      await infoCardsSection.scrollIntoViewIfNeeded();
+      await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'visible');
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing reveal keeps first hero stable while deeper sections stay hidden at first paint', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 700 } });
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/');
+      await expect(page.getByTestId('landing-hero-primary')).toBeVisible();
+      await expect(page.getByTestId('landing-reveal-hero-secondary')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-events')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-how-it-works')).toHaveAttribute('data-reveal-state', 'hidden');
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing reveal respects reduced-motion preference and shows sections immediately', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 700 }, reducedMotion: 'reduce' });
+    try {
+      const page = await ctx.newPage();
+      await page.goto('/');
+      await expect(page.getByTestId('landing-reveal-hero-secondary')).toHaveAttribute('data-reveal-state', 'visible');
+      await expect(page.getByTestId('landing-reveal-events')).toHaveAttribute('data-reveal-state', 'visible');
+      await expect(page.getByTestId('landing-reveal-how-it-works')).toHaveAttribute('data-reveal-state', 'visible');
+      await expect(page.getByTestId('landing-reveal-divider')).toHaveAttribute('data-reveal-state', 'visible');
+      await expect(page.getByTestId('landing-reveal-info-cards')).toHaveAttribute('data-reveal-state', 'visible');
     } finally {
       await ctx.close();
     }

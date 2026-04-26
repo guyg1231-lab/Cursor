@@ -100,7 +100,23 @@ export function AdminEventRequestsPage() {
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           {loading ? (
-            <RouteLoadingState title="טוענים בקשות..." body="אוספים בקשות מארחים שממתינות לבדיקה." />
+            <div data-testid="admin-event-requests-skeleton" className="space-y-4" aria-hidden="true">
+              <div className="h-4 w-56 rounded-full bg-muted skeleton-shimmer" />
+              <div className="grid gap-4 md:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={`skeleton-${index}`} className={tokens.card.inner + ' space-y-3 p-4'}>
+                    <div className="h-4 w-2/3 rounded-full bg-muted skeleton-shimmer" />
+                    <div className="h-3 w-1/2 rounded-full bg-muted/80 skeleton-shimmer" />
+                    <div className="h-3 w-3/4 rounded-full bg-muted/80 skeleton-shimmer" />
+                    <div className="h-3 w-2/5 rounded-full bg-muted/80 skeleton-shimmer" />
+                    <div className="flex gap-2 pt-2">
+                      <div className="h-8 w-24 rounded-full bg-muted skeleton-shimmer" />
+                      <div className="h-8 w-20 rounded-full bg-muted skeleton-shimmer" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : submittedError ? (
             <RouteErrorState title="שגיאת טעינה" body={submittedError} />
           ) : submittedRequests.length === 0 ? (

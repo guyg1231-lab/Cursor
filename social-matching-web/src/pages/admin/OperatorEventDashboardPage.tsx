@@ -256,7 +256,7 @@ export function OperatorEventDashboardPage() {
       title={eventRow?.title ?? 'אירוע'}
       subtitle="דשבורד תפעולי לאירוע — פעולות מחזור חיים והרשמות."
     >
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div className="mb-5 flex flex-wrap gap-3">
         <Button asChild variant="outline" size="sm">
           <Link to="/admin/events">← כל האירועים</Link>
         </Button>
@@ -269,13 +269,29 @@ export function OperatorEventDashboardPage() {
       </div>
 
       {loading ? (
-        <RouteLoadingState title="טוענים נתוני אירוע..." body="מושכים אירוע, הרשמות וסטטוסים." />
+        <div data-testid="admin-event-dashboard-skeleton" className="space-y-4" aria-hidden="true">
+          <RouteLoadingState title="טוענים נתוני אירוע..." body="מושכים אירוע, הרשמות וסטטוסים." />
+          <div className="grid gap-4 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Card key={`admin-dashboard-skeleton-${index}`} className={tokens.card.surface}>
+                <CardHeader className="pb-3">
+                  <div className="h-5 w-40 rounded-full bg-muted skeleton-shimmer" />
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="h-3 w-5/6 rounded-full bg-muted/80 skeleton-shimmer" />
+                  <div className="h-3 w-3/4 rounded-full bg-muted/80 skeleton-shimmer" />
+                  <div className="h-3 w-2/3 rounded-full bg-muted/80 skeleton-shimmer" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       ) : loadError ? (
         <RouteErrorState title="שגיאת טעינה" body={loadError} />
       ) : eventRow ? (
         <>
           <Card className={tokens.card.surface}>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold tracking-[-0.015em]">אירוע</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
@@ -292,7 +308,7 @@ export function OperatorEventDashboardPage() {
           </Card>
 
           <Card className={tokens.card.surface}>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold tracking-[-0.015em]">ספירות חיות</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
@@ -301,7 +317,7 @@ export function OperatorEventDashboardPage() {
           </Card>
 
           <Card className={tokens.card.surface}>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold tracking-[-0.015em]">הקצאת קבוצה</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground leading-7">
@@ -357,7 +373,7 @@ export function OperatorEventDashboardPage() {
           <section
             data-testid="admin-event-lifecycle-actions"
             aria-labelledby="admin-event-lifecycle-actions-heading"
-            className="space-y-4"
+            className="space-y-5"
           >
             <div className="space-y-1">
               <h2 id="admin-event-lifecycle-actions-heading" className="text-lg font-semibold text-foreground">
@@ -369,7 +385,7 @@ export function OperatorEventDashboardPage() {
             </div>
 
             <Card className={tokens.card.surface}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold tracking-[-0.015em]">בחירת קבוצה מתוזמרת (RPC)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
@@ -417,7 +433,7 @@ export function OperatorEventDashboardPage() {
             </Card>
 
             <Card className={tokens.card.surface}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold tracking-[-0.015em]">תפוגה / מילוי מחדש</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">

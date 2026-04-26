@@ -28,7 +28,7 @@ export function AppHeader({
   sticky = true,
   variant = 'default',
   containerClass = 'container px-4',
-  navHeight = 'h-16',
+  navHeight = 'h-[var(--app-header-height)]',
   className,
 }: AppHeaderProps) {
   const { theme, toggleTheme } = useThemeMode();

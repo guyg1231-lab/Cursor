@@ -23,6 +23,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/dashboard');
 
+      await expect(page.getByTestId('route-loading-skeleton')).toBeVisible();
       await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
       await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 
@@ -55,6 +56,7 @@ test.describe('foundation routes', () => {
 
       await page.goto('/admin/events/future-event/diagnostics');
 
+      await expect(page.getByTestId('route-loading-skeleton')).toBeVisible();
       await expect(page.getByText('טוענים...', { exact: true })).toBeVisible();
       await expect(page.getByText('המערכת טוענת את הדף, רק רגע.', { exact: true })).toBeVisible();
 

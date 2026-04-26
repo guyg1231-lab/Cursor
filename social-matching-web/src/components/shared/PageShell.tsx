@@ -87,11 +87,18 @@ export function PageShell({
           sticky={headerSticky}
           actions={headerActions}
         />
-        <main id="main-content" className={cn(tokens.participant.shell.content, 'pt-16 pb-28 md:pb-10')}>
+        <main
+          id="main-content"
+          className={cn(
+            tokens.participant.shell.content,
+            tokens.participant.shell.belowFixedHeader,
+            'pb-28 md:pb-10',
+          )}
+        >
           {title || subtitle ? (
             <div
               data-testid="participant-page-hero"
-              className={cn('flex flex-col', tokens.participant.shell.hero, heroAlignClassName)}
+              className={cn('flex flex-col scroll-mt-24', tokens.participant.shell.hero, heroAlignClassName)}
             >
               {title ? <h1 className={tokens.typography.hero}>{title}</h1> : null}
               {subtitle ? <p className="text-base md:text-lg leading-7 md:leading-8 text-foreground/78">{subtitle}</p> : null}
