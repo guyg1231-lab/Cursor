@@ -87,6 +87,7 @@ export const en = {
   legalNavOnly: 'Legal documents',
   termsOfUse: 'Terms of use',
   privacyPolicy: 'Privacy policy',
+  communityGuidelines: 'Community guidelines',
   contactUs: 'Contact us',
   routeLoadingTitle: 'Loading...',
   routeLoadingBody: 'We are loading this page. Just a moment.',

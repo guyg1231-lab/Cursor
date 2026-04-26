@@ -17,6 +17,7 @@
     "e2e": "playwright test",
     "e2e:scroll-nav": "playwright test e2e/scroll-navigation-regression.spec.ts",
     "e2e:events-retry": "playwright test e2e/events-retry-regression.spec.ts",
+    "e2e:landing-regression": "playwright test e2e/landing-regression.spec.ts",
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
     "ops:sync-vercel-vite-env": "node scripts/ops/sync-vercel-vite-supabase-env.mjs",

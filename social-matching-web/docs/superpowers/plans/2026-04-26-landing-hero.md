@@ -1,5 +1,9 @@
 # Landing Hero (Reference-Light) Implementation Plan
 
+> **Status (2026-04-26): SUPERSEDED by product decision.**  
+> The repository `main` landing intentionally **does not** ship dual hero CTAs (`/events` + `#landing-how-it-works`) anymore, and Playwright asserts those hero links are absent.  
+> Treat the tasks below as **historical planning** unless product explicitly re-opens hero CTAs.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the landing page’s first “hero” experience with a reference-light RTL hero (badge, two-line headline with highlight, body, dual CTAs, soft blurred blobs) while keeping `AppHeader` unchanged and staying on design tokens.
