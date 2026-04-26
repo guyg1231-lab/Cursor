@@ -64,8 +64,8 @@ export function RouteUnavailableState({ title, body }: RouteStateProps) {
   return <RouteStateCard title={title} body={body} />;
 }
 
-export function RouteErrorState({ title, body }: RouteStateProps) {
-  return <RouteStateCard title={title} body={body} tone="danger" />;
+export function RouteErrorState({ title, body, action }: RouteStateCardProps) {
+  return <RouteStateCard title={title} body={body} tone="danger" action={action} />;
 }
 
 export function RouteNotFoundState({ title, body }: RouteStateProps) {

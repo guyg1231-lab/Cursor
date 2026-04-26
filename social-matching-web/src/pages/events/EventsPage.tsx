@@ -18,6 +18,7 @@ export function EventsPage() {
   const [events, setEvents] = useState<VisibleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
   const wideDesktopGridClassName =
     events.length >= 4 ? 'xl:grid-cols-4' : events.length === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2';
 
@@ -41,7 +42,7 @@ export function EventsPage() {
     return () => {
       stale = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   return (
     <PageShell
@@ -69,7 +70,15 @@ export function EventsPage() {
             {isLoading ? (
               <RouteLoadingState />
             ) : error ? (
-              <RouteErrorState title="שגיאת טעינה" body={error} />
+              <RouteErrorState
+                title="שגיאת טעינה"
+                body={error}
+                action={
+                  <Button variant="outline" size="sm" onClick={() => setReloadToken((value) => value + 1)}>
+                    לנסות שוב
+                  </Button>
+                }
+              />
             ) : events.length === 0 ? (
               <RouteEmptyState
                 title="אין כרגע מפגשים פתוחים"
