@@ -12,11 +12,32 @@ export function LandingPage() {
   const { t } = useLanguage();
 
   return (
-    <PageShell
-      title={t('landingTitle')}
-      subtitle={t('landingSubtitle')}
-      headerTransparent
-    >
+    <PageShell headerTransparent>
+      <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-background via-primary/5 to-background px-6 py-10 md:px-10 md:py-14">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-16 end-0 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute -bottom-16 -start-6 h-44 w-44 rounded-full bg-accent/35 blur-3xl" />
+        </div>
+        <div className="relative mx-auto flex max-w-3xl flex-col items-start gap-5">
+          <p className={tokens.typography.eyebrow}>{t('landingHeroBadge')}</p>
+          <h1 className="text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
+            <span className="block">{t('landingHeroHeadlineBefore')}</span>
+            <span className="block text-primary">{t('landingHeroHeadlineHighlight')}</span>
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-foreground/85 md:text-base">
+            {t('landingHeroBody')}
+          </p>
+          <div className="flex flex-wrap gap-3 pt-1">
+            <Button asChild variant="primary">
+              <Link to="/events">{t('landingHeroCtaPrimary')}</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="#landing-how-it-works">{t('landingHeroCtaSecondary')}</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] items-start">
         <Card className={tokens.card.accent}>
           <CardHeader className="space-y-3">
@@ -27,36 +48,33 @@ export function LandingPage() {
           </CardHeader>
           <CardContent className="space-y-5 text-sm md:text-base text-foreground/85 leading-relaxed">
             <p>{t('landingHeroBody')}</p>
-            <div className="flex flex-wrap gap-3 pt-1">
-              <Button asChild variant="primary">
-                <Link to="/events">{t('landingCtaEvents')}</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/questionnaire">{t('landingCtaProfile')}</Link>
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
-        <Card className={tokens.card.surface}>
-          <CardHeader>
-            <CardTitle className="text-xl">{t('landingHowItWorksTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-foreground/80">
-            <div className="space-y-1">
-              <p className="font-medium text-foreground">{t('landingStep1Title')}</p>
-              <p>{t('landingStep1Body')}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="font-medium text-foreground">{t('landingStep2Title')}</p>
-              <p>{t('landingStep2Body')}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="font-medium text-foreground">{t('landingStep3Title')}</p>
-              <p>{t('landingStep3Body')}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div id="landing-how-it-works" className="scroll-mt-24 space-y-3">
+          <Card className={tokens.card.surface}>
+            <CardHeader>
+              <CardTitle className="text-xl">{t('landingHowItWorksTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-foreground/80">
+              <div className="space-y-1">
+                <p className="font-medium text-foreground">{t('landingStep1Title')}</p>
+                <p>{t('landingStep1Body')}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium text-foreground">{t('landingStep2Title')}</p>
+                <p>{t('landingStep2Body')}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium text-foreground">{t('landingStep3Title')}</p>
+                <p>{t('landingStep3Body')}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Button asChild variant="outline">
+            <Link to="/questionnaire">{t('landingCtaProfile')}</Link>
+          </Button>
+        </div>
       </section>
 
       <SectionDivider />

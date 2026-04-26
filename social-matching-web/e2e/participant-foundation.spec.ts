@@ -1722,25 +1722,48 @@ test.describe('participant foundation', () => {
     }
   });
 
-  test('landing page primary CTAs link to events and questionnaire', async ({ browser }) => {
+  test('landing hero CTA links point to events and how-it-works anchor', async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     try {
       await page.goto('/');
-      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'להתחיל פרופיל' })).toBeVisible();
+      const eventsLink = page.getByRole('link', { name: 'לצפייה במפגשים' });
+      const howItWorksLink = page.getByRole('link', { name: 'איך זה עובד?' });
+
+      await expect(eventsLink).toBeVisible();
+      await expect(eventsLink).toHaveAttribute('href', '/events');
+      await expect(howItWorksLink).toBeVisible();
+      await expect(howItWorksLink).toHaveAttribute('href', /#landing-how-it-works$/);
     } finally {
       await ctx.close();
     }
   });
 
-  test('landing: narrow viewport keeps primary CTAs visible (RTL mobile smoke)', async ({ browser }) => {
+  test('landing: narrow viewport keeps hero links visible (RTL mobile smoke)', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     try {
       await page.goto('/');
-      await expect(page.getByRole('link', { name: 'לצפייה במפגשים' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'להתחיל פרופיל' })).toBeVisible();
+      const eventsLink = page.getByRole('link', { name: 'לצפייה במפגשים' });
+      const howItWorksLink = page.getByRole('link', { name: 'איך זה עובד?' });
+
+      await expect(eventsLink).toBeVisible();
+      await expect(eventsLink).toHaveAttribute('href', '/events');
+      await expect(howItWorksLink).toBeVisible();
+      await expect(howItWorksLink).toHaveAttribute('href', /#landing-how-it-works$/);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('landing still exposes profile entry from the page', async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/');
+      const profileEntryLink = page.getByRole('link', { name: 'להתחיל פרופיל' });
+      await expect(profileEntryLink).toBeVisible();
+      await expect(profileEntryLink).toHaveAttribute('href', '/questionnaire');
     } finally {
       await ctx.close();
     }

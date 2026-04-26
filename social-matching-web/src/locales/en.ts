@@ -46,9 +46,14 @@ export const en = {
   landingSubtitle:
     'Find new people for real gatherings and events, with connection that feels human, easy, and intentional.',
   landingEyebrow: 'Real connections',
+  landingHeroBadge: 'Time to reconnect',
+  landingHeroHeadlineBefore: 'Get back to',
+  landingHeroHeadlineHighlight: 'meeting in person',
   landingHeroTitle: 'Real people. Real gatherings. Shared experiences.',
   landingHeroBody:
-    'Circles helps you find the right circle for a shared experience, based on interests, group energy, and the atmosphere that feels natural to you.',
+    'Circles for shared experiences. Find the right circle for real gatherings—around interests, group energy, and an atmosphere that feels natural.',
+  landingHeroCtaPrimary: 'View gatherings',
+  landingHeroCtaSecondary: 'How does it work?',
   landingCtaEvents: 'View gatherings',
   landingCtaProfile: 'Start your profile',
   landingHowItWorksTitle: 'How it works',
