@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageActionBar } from '@/components/shared/PageActionBar';
 import { PageShell } from '@/components/shared/PageShell';
-import { RouteErrorState } from '@/components/shared/RouteState';
+import { RouteErrorState, RouteLoadingState } from '@/components/shared/RouteState';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { EventNotFound } from '@/components/participant/EventNotFound';
@@ -463,9 +463,7 @@ export function ApplyPage() {
   if (pageLoading) {
     return (
       <PageShell title="הגשה למפגש" subtitle="טוענים את הכוונה למפגש הזה...">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים...</CardContent>
-        </Card>
+        <RouteLoadingState title="טוענים..." body="אוספים כרגע את מצב ההגשה למפגש." />
       </PageShell>
     );
   }

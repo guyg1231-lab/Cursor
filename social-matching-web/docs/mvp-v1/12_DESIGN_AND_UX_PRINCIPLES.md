@@ -1,5 +1,7 @@
 # 12 — Design and UX Principles
 
+> Implementation note: [DESIGN.md](../../DESIGN.md) is the canonical design-system source for tokens, component rules, screen archetypes, and visual behavior. This document remains the high-level product-principles layer.
+
 ## 1. Product Feeling
 
 המוצר צריך להרגיש:

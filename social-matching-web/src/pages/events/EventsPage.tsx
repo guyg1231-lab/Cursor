@@ -49,7 +49,7 @@ export function EventsPage() {
       subtitle="אירועים ומפגשים לאנשים בגילאי 20-40 סביב חוויות משותפות וחיבורים אמיתיים."
       heroAlign="start"
     >
-      <div className="mx-auto -mt-4 w-full max-w-[1380px] space-y-5">
+      <div className="mx-auto w-full max-w-[1380px] space-y-6">
         <section className="rounded-[38px] border border-border/60 bg-[linear-gradient(180deg,hsl(var(--card)/0.96)_0%,hsl(var(--background)/0.94)_100%)] p-4 shadow-[0_30px_70px_-42px_hsl(var(--foreground)/0.22)] sm:p-5 xl:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -65,7 +65,7 @@ export function EventsPage() {
             </PageActionBar>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-5">
             {isLoading ? (
               <RouteLoadingState />
             ) : error ? (

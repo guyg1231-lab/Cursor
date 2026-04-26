@@ -1,12 +1,14 @@
 # Platform Design System Spec (Hebrew-first RTL)
 
 **Date:** 2026-04-21  
-**Status:** Canonical design-system and UX governance for implementation rollout  
+**Status:** Governance and rollout companion to the canonical root `DESIGN.md`  
 **Scope:** Participant, host, and admin surfaces in `social-matching-web`
 
 ---
 
 ## 1. Purpose
+
+**Canonical source of truth:** [DESIGN.md](../../../DESIGN.md)
 
 This spec defines the fixed design language that teams implement across all pages, with clear separation between:
 
@@ -14,8 +16,9 @@ This spec defines the fixed design language that teams implement across all page
 - **Host mode** (clear and semi-operational)
 - **Admin mode** (precise, dense, operational)
 
-This is the practical implementation layer beneath:
+This file is the practical governance and rollout layer beneath:
 
+- `DESIGN.md`
 - `docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md`
 - `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md`
 - `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md`
@@ -180,8 +183,8 @@ A UI PR is complete only if all apply:
 
 ## 9. Sources and references
 
+- `DESIGN.md`
 - [Circles live reference](https://circles-connect-human.vercel.app/)
 - `docs/mvp-v1/12_DESIGN_AND_UX_PRINCIPLES.md`
 - `docs/superpowers/specs/2026-04-21-circles-mvp-progress-and-audit-spec.md`
 - `docs/superpowers/specs/2026-04-21-design-vision-visual-companion.md`
-

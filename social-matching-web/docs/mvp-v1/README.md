@@ -29,6 +29,7 @@
 10. `10_EVENT_DISCOVERY_AND_DETAIL_SPEC.md`
 11. `11_TRUST_AND_VERIFICATION.md`
 12. `12_DESIGN_AND_UX_PRINCIPLES.md`
+13. `../../DESIGN.md` — canonical visual system, tokens, and component behavior
 
 ## עקרון מנחה
 
@@ -44,3 +45,6 @@
 
 מסמכי `docs/pivot-social-matching-mvp-2026-04-08/` נשארים כהיסטוריית תכנון והטמעה.
 המסמכים בתיקייה הזו הם סט האפיון הראשי הראשון של המערכת החדשה.
+
+`12_DESIGN_AND_UX_PRINCIPLES.md` מגדיר את שכבת העקרונות.  
+`../../DESIGN.md` הוא מסמך ה-design system הקנוני לעיצוב, tokens, קומפוננטים, ושפת מסכים.

@@ -17,10 +17,10 @@ export function QuestionnairePage() {
 
   return (
     <PageShell title={t('questionnaireTitle')} subtitle={t('questionnaireSubtitle')}>
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         {!user ? (
           <Card className={tokens.card.accent}>
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle>{t('questionnaireAnonymousBannerTitle')}</CardTitle>
               <CardDescription className="text-base text-foreground/90">
                 {t('questionnaireAnonymousBannerBody')}
@@ -35,7 +35,7 @@ export function QuestionnairePage() {
         ) : null}
 
         <Card className={tokens.card.surface}>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold tracking-[-0.015em]">{t('questionnaireTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -56,7 +56,7 @@ export function QuestionnairePage() {
 
         {justSaved ? (
           <Card className={tokens.card.accent}>
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle>{t('questionnaireSuccessTitle')}</CardTitle>
               <CardDescription className="text-base text-foreground/90">
                 {t('questionnaireSuccessBody')}

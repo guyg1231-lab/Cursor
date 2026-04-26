@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-[linear-gradient(180deg,hsl(var(--primary))_0%,hsl(var(--primary)/0.94)_100%)] text-primary-foreground shadow-[0_16px_28px_-18px_hsl(var(--primary)/0.78)] hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,hsl(var(--primary)/0.96)_0%,hsl(var(--primary)/0.9)_100%)] hover:shadow-[0_20px_30px_-16px_hsl(var(--primary)/0.72)]',
+          'bg-[linear-gradient(180deg,hsl(var(--primary-strong))_0%,hsl(var(--primary))_100%)] text-primary-foreground shadow-[0_16px_28px_-18px_hsl(var(--primary-strong)/0.5)] hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,hsl(var(--primary-strong)/0.96)_0%,hsl(var(--primary)/0.96)_100%)] hover:shadow-[0_20px_30px_-16px_hsl(var(--primary-strong)/0.42)]',
         default: 'bg-foreground text-background shadow-sm hover:bg-foreground/92 hover:shadow-md',
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/92 hover:shadow-md',
         outline:
-          'border-border/80 bg-card text-foreground shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.35)] hover:-translate-y-[1px] hover:bg-background hover:text-foreground hover:border-foreground/10',
+          'border-border/80 bg-card text-foreground shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.2)] hover:-translate-y-[1px] hover:bg-background hover:text-foreground hover:border-foreground/10',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.25)] hover:bg-secondary/88 hover:-translate-y-[1px]',
-        ghost: 'border-transparent bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-foreground',
+          'bg-secondary text-[hsl(var(--primary-strong))] shadow-[0_10px_22px_-18px_hsl(var(--foreground)/0.2)] hover:bg-secondary/92 hover:-translate-y-[1px]',
+        ghost: 'border-transparent bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-[hsl(var(--primary-strong))]',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

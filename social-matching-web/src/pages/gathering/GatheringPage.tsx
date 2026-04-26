@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageShell } from '@/components/shared/PageShell';
 import { PageActionBar } from '@/components/shared/PageActionBar';
+import { RouteLoadingState } from '@/components/shared/RouteState';
 import { EventNotFound } from '@/components/participant/EventNotFound';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { tokens } from '@/lib/design-tokens';
@@ -86,9 +87,7 @@ export function GatheringPage() {
   if (pageLoading) {
     return (
       <PageShell title="מפגש" subtitle="טוענים את פרטי המפגש...">
-        <Card className={tokens.card.surface}>
-          <CardContent className="py-10 text-sm text-muted-foreground">טוענים...</CardContent>
-        </Card>
+        <RouteLoadingState title="טוענים..." body="אוספים כרגע את תמונת המפגש." />
       </PageShell>
     );
   }
