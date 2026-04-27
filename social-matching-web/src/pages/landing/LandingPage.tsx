@@ -19,6 +19,8 @@ const revealMotionClassName =
   'transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:duration-700';
 const revealHiddenClassName = 'translate-y-3 opacity-0';
 const revealVisibleClassName = 'translate-y-0 opacity-100';
+const sectionShellClassName =
+  'rounded-3xl border border-border/60 bg-card/35 px-4 py-5 shadow-[0_1px_0_hsl(var(--border)/0.35)] sm:px-5 sm:py-6 md:px-6 md:py-7';
 
 export function LandingPage() {
   const { t } = useLanguage();
@@ -163,19 +165,17 @@ export function LandingPage() {
         data-reveal-index={0}
         data-reveal-state={getRevealState(0)}
         data-testid="landing-reveal-events"
-        className={getRevealClassName(0, 'space-y-5 sm:space-y-6 md:space-y-7')}
+        className={getRevealClassName(0, cn('space-y-5 sm:space-y-6 md:space-y-7', sectionShellClassName))}
         style={getRevealStyle(1)}
       >
         <div className="flex flex-col items-start gap-3 border-b border-border/70 pb-4 sm:pb-5 md:flex-row md:items-end md:justify-between md:gap-4">
-          <div>
+          <div className="space-y-1">
+            <p className={tokens.typography.eyebrow}>{t('landingEventsSubtitle')}</p>
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-[1.75rem] md:text-3xl">
               {t('landingEventsTitle')}
             </h2>
-            <p className="mt-1 max-w-[36rem] text-sm leading-6 text-muted-foreground md:text-[0.95rem]">
-              {t('landingEventsSubtitle')}
-            </p>
           </div>
-          <Button asChild variant="outline" size="sm" className="min-h-10 w-full px-4 sm:w-auto">
+          <Button asChild variant="outline" size="sm" className="min-h-10 w-full shrink-0 px-4 sm:w-auto">
             <Link to="/events/propose">{t('landingEventsProposeCta')}</Link>
           </Button>
         </div>
@@ -216,10 +216,13 @@ export function LandingPage() {
         data-reveal-index={1}
         data-reveal-state={getRevealState(1)}
         data-testid="landing-reveal-how-it-works"
-        className={getRevealClassName(1, 'grid items-start gap-4 sm:gap-5 md:grid-cols-[1.15fr_0.85fr] md:gap-6')}
+        className={getRevealClassName(
+          1,
+          'grid items-start gap-4 sm:gap-5 md:grid-cols-[1.05fr_0.95fr] md:gap-6 lg:gap-7',
+        )}
         style={getRevealStyle(2)}
       >
-        <Card className={tokens.card.accent}>
+        <Card className={cn(tokens.card.accent, 'rounded-3xl')}>
           <CardHeader className="space-y-3 pb-4 sm:pb-5">
             <p className={tokens.typography.eyebrow}>{t('landingEyebrow')}</p>
             <CardTitle className="text-2xl md:text-3xl leading-tight">
@@ -232,26 +235,26 @@ export function LandingPage() {
         </Card>
 
         <div id="landing-how-it-works" className="scroll-mt-24 space-y-3 sm:space-y-4">
-          <Card className={tokens.card.surface}>
+          <Card className={cn(tokens.card.surface, 'rounded-3xl')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-xl">{t('landingHowItWorksTitle')}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm text-foreground/80">
-              <div className="space-y-1">
-                <p className="font-medium text-foreground">{t('landingStep1Title')}</p>
+            <CardContent className="space-y-3 text-sm text-foreground/80">
+              <div className="rounded-2xl border border-border/60 bg-background/55 p-3 space-y-1.5">
+                <p className="font-semibold text-foreground">{t('landingStep1Title')}</p>
                 <p>{t('landingStep1Body')}</p>
               </div>
-              <div className="space-y-1">
-                <p className="font-medium text-foreground">{t('landingStep2Title')}</p>
+              <div className="rounded-2xl border border-border/60 bg-background/55 p-3 space-y-1.5">
+                <p className="font-semibold text-foreground">{t('landingStep2Title')}</p>
                 <p>{t('landingStep2Body')}</p>
               </div>
-              <div className="space-y-1">
-                <p className="font-medium text-foreground">{t('landingStep3Title')}</p>
+              <div className="rounded-2xl border border-border/60 bg-background/55 p-3 space-y-1.5">
+                <p className="font-semibold text-foreground">{t('landingStep3Title')}</p>
                 <p>{t('landingStep3Body')}</p>
               </div>
             </CardContent>
           </Card>
-          <Button asChild variant="outline" className="min-h-10 px-4">
+          <Button asChild variant="outline" className="min-h-10 w-full px-4 sm:w-auto">
             <Link to="/questionnaire">{t('landingCtaProfile')}</Link>
           </Button>
         </div>
@@ -276,37 +279,37 @@ export function LandingPage() {
         className={getRevealClassName(3, 'grid gap-4 sm:gap-5 md:grid-cols-3 md:gap-6')}
         style={getRevealStyle(4)}
       >
-        <Card className={tokens.card.surface}>
+        <Card className={cn(tokens.card.surface, 'rounded-3xl border-border/70')}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">{t('landingCard1Title')}</CardTitle>
+            <CardTitle className="text-lg leading-snug">{t('landingCard1Title')}</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed">
+          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed min-h-[8.5rem]">
             {t('landingCard1Body')}
           </CardContent>
         </Card>
 
-        <Card className={tokens.card.surface}>
+        <Card className={cn(tokens.card.surface, 'rounded-3xl border-border/70')}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">{t('landingCard2Title')}</CardTitle>
+            <CardTitle className="text-lg leading-snug">{t('landingCard2Title')}</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed">
+          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed min-h-[8.5rem]">
             {t('landingCard2Body')}
           </CardContent>
         </Card>
 
-        <Card className={tokens.card.surface}>
+        <Card className={cn(tokens.card.surface, 'rounded-3xl border-border/70')}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">{t('landingCard3Title')}</CardTitle>
+            <CardTitle className="text-lg leading-snug">{t('landingCard3Title')}</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed">
+          <CardContent className="text-sm leading-7 text-muted-foreground md:leading-relaxed min-h-[8.5rem]">
             {t('landingCard3Body')}
           </CardContent>
         </Card>
       </section>
 
-      <footer className="border-t border-border/60 pt-7 sm:pt-8">
+      <footer className="rounded-2xl border border-border/60 bg-card/30 px-4 py-4 sm:px-5 sm:py-5">
         <nav
-          className="mx-auto flex max-w-2xl flex-wrap justify-center gap-x-4 gap-y-1.5 text-center text-xs text-muted-foreground"
+          className="mx-auto flex max-w-2xl flex-wrap justify-center gap-x-4 gap-y-1.5 text-center text-xs text-muted-foreground sm:text-[0.8rem]"
           aria-label={supportEmail ? t('legalNavWithSupport') : t('legalNavOnly')}
         >
           <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
