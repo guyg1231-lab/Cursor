@@ -15,6 +15,10 @@ import { tokens } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 
 const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL?.trim();
+const revealMotionClassName =
+  'transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:duration-700';
+const revealHiddenClassName = 'translate-y-3 opacity-0';
+const revealVisibleClassName = 'translate-y-0 opacity-100';
 
 export function LandingPage() {
   const { t } = useLanguage();
@@ -31,13 +35,13 @@ export function LandingPage() {
   function getRevealClassName(index: number, baseClassName: string) {
     return cn(
       baseClassName,
-      'transition-all duration-700 ease-out motion-reduce:transition-none',
-      getRevealState(index) === 'visible' ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
+      revealMotionClassName,
+      getRevealState(index) === 'visible' ? revealVisibleClassName : revealHiddenClassName,
     );
   }
 
   function getRevealStyle(index: number) {
-    return { transitionDelay: `${index * 70}ms` };
+    return { transitionDelay: `${index * 80}ms` };
   }
 
   useEffect(() => {
@@ -48,8 +52,8 @@ export function LandingPage() {
       return;
     }
 
-    const showAfterY = 56;
-    const hideBelowY = 24;
+    const showAfterY = 64;
+    const hideBelowY = 20;
 
     const onScroll = () => {
       const y = window.scrollY;
@@ -63,6 +67,7 @@ export function LandingPage() {
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -125,8 +130,8 @@ export function LandingPage() {
         data-testid="landing-reveal-hero-secondary"
         className={cn(
           'relative -mx-4 mt-8 overflow-hidden px-4 pb-12 pt-6 sm:mt-10 sm:pb-14 sm:pt-7 md:-mx-8 md:mt-12 md:px-5 md:pb-16 md:pt-8 lg:mt-14 lg:pb-20 lg:pt-10',
-          'transition-all duration-700 ease-out motion-reduce:transition-none',
-          isSecondaryHeroVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
+          revealMotionClassName,
+          isSecondaryHeroVisible ? revealVisibleClassName : revealHiddenClassName,
         )}
         style={getRevealStyle(0)}
       >
