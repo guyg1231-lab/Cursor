@@ -82,6 +82,7 @@ export const he = {
   legalNavOnly: 'מסמכים משפטיים',
   termsOfUse: 'תנאי שימוש',
   privacyPolicy: 'מדיניות פרטיות',
+  communityGuidelines: 'כללי קהילה',
   contactUs: 'צור קשר',
   routeLoadingTitle: 'טוענים...',
   routeLoadingBody: 'המערכת טוענת את הדף, רק רגע.',

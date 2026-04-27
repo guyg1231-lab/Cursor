@@ -21,6 +21,7 @@ export function LandingPage() {
   const { setRevealRef, getRevealState } = useScrollReveal(4, 0, {
     threshold: 0.22,
     rootMargin: '0px 0px -14% 0px',
+    bidirectional: true,
   });
   const [events, setEvents] = useState<VisibleEvent[]>([]);
   const [isEventsLoading, setIsEventsLoading] = useState(true);
@@ -47,10 +48,17 @@ export function LandingPage() {
       return;
     }
 
+    const showAfterY = 56;
+    const hideBelowY = 24;
+
     const onScroll = () => {
-      if (window.scrollY > 56) {
+      const y = window.scrollY;
+      if (y > showAfterY) {
         setIsSecondaryHeroVisible(true);
-        window.removeEventListener('scroll', onScroll);
+        return;
+      }
+      if (y <= hideBelowY) {
+        setIsSecondaryHeroVisible(false);
       }
     };
 
@@ -305,7 +313,7 @@ export function LandingPage() {
           </Link>
           <span aria-hidden>·</span>
           <Link to="/guidelines" className="underline underline-offset-2 hover:text-foreground">
-            כללי קהילה
+            {t('communityGuidelines')}
           </Link>
           {supportEmail ? (
             <>

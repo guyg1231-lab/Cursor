@@ -4,6 +4,10 @@ Date: 2026-04-26
 Scope: `LandingPage` hero section only  
 Out of scope: `Navbar` / `AppHeader` changes
 
+> **Status (2026-04-26): PARTIALLY SUPERSEDED.**  
+> The “dual hero CTAs” portion of this spec is **not** the current shipped product direction on `main` (hero CTAs were removed; tests enforce absence).  
+> The visual language pieces (badge/headline/body, token-native blobs, single `h1` in the primary hero) remain useful as design guidance, but CTA semantics must be reconciled with product before implementation.
+
 ## 1. Goal
 
 Create a new landing hero that is clearly inspired by the provided reference while remaining native to the existing Circles design system.  

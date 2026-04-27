@@ -1910,6 +1910,12 @@ test.describe('participant foundation', () => {
       await infoCardsSection.scrollIntoViewIfNeeded();
 
       await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'visible');
+
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+      await expect(page.getByTestId('landing-reveal-events')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-how-it-works')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-divider')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-info-cards')).toHaveAttribute('data-reveal-state', 'hidden');
     } finally {
       await ctx.close();
     }
@@ -1931,6 +1937,12 @@ test.describe('participant foundation', () => {
 
       await infoCardsSection.scrollIntoViewIfNeeded();
       await expect(infoCardsSection).toHaveAttribute('data-reveal-state', 'visible');
+
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+      await expect(page.getByTestId('landing-reveal-events')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-how-it-works')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-divider')).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(page.getByTestId('landing-reveal-info-cards')).toHaveAttribute('data-reveal-state', 'hidden');
     } finally {
       await ctx.close();
     }
